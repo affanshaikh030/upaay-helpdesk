@@ -1,6 +1,9 @@
 {
   "name": "ticketing-tool",
   "private": true,
+  "scripts": {
+    "dev": "bun run --parallel --filter '*' dev"
+  },
   "workspaces": [
     "client",
     "server"

@@ -12,12 +12,15 @@ if (!email || !password) {
 
 const ctx = await auth.$context;
 
-if (await ctx.internalAdapter.findUserByEmail(email)) {
-  console.log(`User ${email} already exists, skipping`);
+const existing = await ctx.internalAdapter.findUserByEmail(email);
+
+if (existing) {
+  await prisma.user.update({ where: { email }, data: { role: "ADMIN" } });
+  console.log(`User ${email} already exists, ensured role ADMIN`);
 } else {
   // Sign-up is disabled, so create the user and credential account directly
   const user = await ctx.internalAdapter.createUser(
-    { email, name, emailVerified: true },
+    { email, name, emailVerified: true, role: "ADMIN" },
     { method: "email-password" },
   );
   await ctx.internalAdapter.linkAccount({
