@@ -1,5 +1,5 @@
-import { auth } from "./auth";
-import { prisma } from "./db";
+import { auth } from "../src/auth";
+import { prisma } from "../src/db";
 
 const email = process.env.SEED_ADMIN_EMAIL?.toLowerCase();
 const password = process.env.SEED_ADMIN_PASSWORD;
