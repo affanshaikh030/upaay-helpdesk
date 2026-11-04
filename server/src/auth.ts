@@ -16,6 +16,25 @@ export const auth = betterAuth({
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean),
+  // Explicit so limiting doesn't depend on NODE_ENV; database storage survives
+  // restarts and is shared across instances
+  rateLimit: {
+    enabled: true,
+    storage: "database",
+    window: 60,
+    max: 100,
+    customRules: {
+      "/sign-in/email": { window: 60, max: 5 },
+    },
+  },
+  advanced: {
+    // Behind a reverse proxy (e.g. Railway) set TRUST_PROXY_HEADERS=true so the
+    // limiter sees real client IPs; leave unset locally so the header can't be spoofed
+    ipAddress: {
+      ipAddressHeaders:
+        process.env.TRUST_PROXY_HEADERS === "true" ? ["x-forwarded-for"] : undefined,
+    },
+  },
   emailAndPassword: {
     enabled: true,
     disableSignUp: true,
