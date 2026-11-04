@@ -18,6 +18,14 @@ Source-of-truth docs (read these first):
 - Client: `cd client && bun run dev` (Vite, default port 5173, falls back if taken); `bun run build`; `bun run lint`
 - The Vite dev server proxies `/api` to `http://localhost:3000`. Call the API with relative paths (`/api/...`), not absolute URLs.
 
+## Authentication
+- **Library:** Better Auth (`better-auth`) with the Prisma adapter and database sessions (cookies). Server config: `server/src/auth.ts`, mounted at `/api/auth/*` in `server/src/index.ts` (before `express.json()`). Client: `authClient` in `client/src/lib/auth-client.ts` (`useSession`, `signIn.email`, `signOut`).
+- **Email and password only; sign-up is disabled** (`disableSignUp: true`, and `/api/auth/sign-up/*` returns 404). Users are created by the seed script or an admin, never self-service.
+- **Roles:** `user.role` is a server-owned additional field (`input: false`, default `AGENT`); the seeded admin gets `ADMIN`. Never accept `role` from client input.
+- **First admin:** `cd server && bun run seed` reads `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`, `SEED_ADMIN_NAME` (optional). It is idempotent: if the user exists it just ensures role `ADMIN`.
+- **Env vars** (see `.env.example`): `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (server origin), `TRUSTED_ORIGINS` (comma-separated browser origins, default `http://localhost:5173`; add the deployed client origin).
+- **Protecting routes:** server: `auth.api.getSession({ headers: fromNodeHeaders(req.headers) })` and return 401 when null (see `GET /api/me`). Client: `Layout` redirects to `/login` without a session; `LoginPage` redirects to `/` with one.
+
 ## Documentation lookup (Context7)
 Always use the Context7 MCP server to fetch current documentation before writing or changing code that uses a library, framework, SDK, or CLI tool (React, Vite, Express, Prisma, Tailwind, React Router, Zod, Bun, Anthropic SDK, etc.). Do this even for well-known libraries, since training data may be out of date.
 1. `resolve-library-id` to find the library.

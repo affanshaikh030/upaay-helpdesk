@@ -1,14 +1,14 @@
 import { useState, type FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router'
 import { authClient } from '../lib/auth-client'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 type Field = 'email' | 'password'
 type FieldErrors = Partial<Record<Field, string>>
-
-const inputBase =
-  'mt-1 block w-full rounded-md border px-3 py-2 text-gray-900 focus:outline-none focus:ring-1'
-const inputValid = 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
-const inputInvalid = 'border-red-500 focus:border-red-500 focus:ring-red-500'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -52,60 +52,56 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <form
-        onSubmit={handleSubmit}
-        noValidate
-        className="w-full max-w-sm space-y-4 rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
-      >
-        <h1 className="text-xl font-semibold text-gray-900">Sign in to Helpdesk</h1>
+    <main className="flex min-h-screen items-center justify-center bg-muted/40 px-4">
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle className="text-xl">Sign in to Helpdesk</CardTitle>
+          <CardDescription>Enter your email and password to continue.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} noValidate className="space-y-4">
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-        {error && (
-          <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
-            {error}
-          </p>
-        )}
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                aria-invalid={!!fieldErrors.email}
+                onChange={() => clearFieldError('email')}
+              />
+              {fieldErrors.email?.trim() && (
+                <p className="text-xs text-destructive">{fieldErrors.email}</p>
+              )}
+            </div>
 
-        <label className="block text-sm font-medium text-gray-700">
-          Email
-          <input
-            name="email"
-            type="email"
-            autoComplete="email"
-            aria-invalid={!!fieldErrors.email}
-            onChange={() => clearFieldError('email')}
-            className={`${inputBase} ${fieldErrors.email ? inputInvalid : inputValid}`}
-          />
-          {fieldErrors.email?.trim() && (
-            <span className="mt-1 block text-xs font-normal text-red-600">{fieldErrors.email}</span>
-          )}
-        </label>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                aria-invalid={!!fieldErrors.password}
+                onChange={() => clearFieldError('password')}
+              />
+              {fieldErrors.password?.trim() && (
+                <p className="text-xs text-destructive">{fieldErrors.password}</p>
+              )}
+            </div>
 
-        <label className="block text-sm font-medium text-gray-700">
-          Password
-          <input
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            aria-invalid={!!fieldErrors.password}
-            onChange={() => clearFieldError('password')}
-            className={`${inputBase} ${fieldErrors.password ? inputInvalid : inputValid}`}
-          />
-          {fieldErrors.password?.trim() && (
-            <span className="mt-1 block text-xs font-normal text-red-600">
-              {fieldErrors.password}
-            </span>
-          )}
-        </label>
-
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
-        >
-          {submitting ? 'Signing in…' : 'Sign in'}
-        </button>
-      </form>
+            <Button type="submit" disabled={submitting} className="w-full">
+              {submitting ? 'Signing in…' : 'Sign in'}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </main>
   )
 }

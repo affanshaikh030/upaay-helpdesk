@@ -9,7 +9,7 @@ export default function Layout() {
   if (!session) return <Navigate to="/login" replace />
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <NavBar name={session.user.name} />
       <Outlet />
     </div>
