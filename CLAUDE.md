@@ -33,6 +33,8 @@ Source-of-truth docs (read these first):
 - Before the API starts, `server/prisma/e2e-setup.ts` (`cd server && bun run test:db`) runs `prisma migrate deploy`, truncates all tables and creates the test admin and agent from `E2E_*` env vars (credentials in `e2e/env.ts` as `testUsers`). It refuses any database not named `*_test` on localhost.
 - Auth rate limiting is off outside production, so tests can log in repeatedly.
 - Don't use `prisma migrate reset` for the test DB: Prisma blocks it when run by an AI agent without user consent.
+- **Writing tests:** use the `e2e-test-writer` subagent (`.claude/agents/e2e-test-writer.md`) for all new or extended E2E tests, instead of writing specs inline. Give it the page, flow or feature and the roles to cover (admin, agent). It writes specs in `e2e/tests/`, runs `bun run test:e2e` and reports results. It does not change app code, `playwright.config.ts`, the DB setup script or `.env` files: if a test needs such a change (for example a `data-testid`), it reports back and the main session makes the change, then re-invokes it.
+- Run the relevant E2E tests after changing UI or auth behavior, and add or update specs with the subagent when a feature is added.
 
 ## Documentation lookup (Context7)
 Always use the Context7 MCP server to fetch current documentation before writing or changing code that uses a library, framework, SDK, or CLI tool (React, Vite, Express, Prisma, Tailwind, React Router, Zod, Bun, Anthropic SDK, etc.). Do this even for well-known libraries, since training data may be out of date.
