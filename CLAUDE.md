@@ -25,7 +25,14 @@ Source-of-truth docs (read these first):
 - **First admin:** `cd server && bun run seed` reads `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` (min 12 characters, no placeholders), `SEED_ADMIN_NAME` (optional). Idempotent: an existing ADMIN is a no-op; an existing non-admin with that email is only promoted if `SEED_PROMOTE_EXISTING=true`, otherwise the script exits with an error.
 - **Env vars** (see `.env.example`): `DATABASE_URL`, `BETTER_AUTH_SECRET` (required, 32+ characters, not the `.env.example` placeholder; `auth.ts` throws at startup otherwise), `BETTER_AUTH_URL` (server origin), `TRUSTED_ORIGINS` (comma-separated browser origins, default `http://localhost:5173`; add the deployed client origin).
 - **Protecting routes:** server: everything under `/api` after `/api/health` goes through `requireAuth` (`server/src/middleware/auth.ts`, 401 without a session, sets `res.locals.user`/`session`); add `requireRole("ADMIN")` per route for admin-only endpoints (403 otherwise). Never rely on client-side guards (`AdminRoute`) for authorization. Client: `Layout` redirects to `/login` without a session; `LoginPage` redirects to `/` with one.
-- **Rate limiting:** explicitly enabled in `auth.ts` with database storage (`rateLimit` table); `/sign-in/email` is limited to 5 per 60s per IP, others 100 per 60s. Behind a reverse proxy set `TRUST_PROXY_HEADERS=true` so real client IPs are used, and set `NODE_ENV=production`.
+- **Rate limiting:** enabled only when `NODE_ENV=production` (off in dev and tests) in `auth.ts`, with database storage (`rateLimit` table); `/sign-in/email` is limited to 5 per 60s per IP, others 100 per 60s. Behind a reverse proxy set `TRUST_PROXY_HEADERS=true` so real client IPs are used. `NODE_ENV=production` must be set in the deployment or there is no limiting at all.
+
+## E2E testing (Playwright)
+- Config: `playwright.config.ts` (root); tests go in `e2e/tests/`. Run `bun run test:e2e` (or `test:e2e:ui`) from the repo root. Chromium only; install with `bunx playwright install chromium`.
+- **Separate database:** `e2e/.env.test` (gitignored; copy from `e2e/.env.test.example`) points `DATABASE_URL` at `helpdesk_test`. Playwright starts its own API (port 3100) and client (port 5183) with that env, so it never touches the dev database and can run next to the dev servers.
+- Before the API starts, `server/prisma/e2e-setup.ts` (`cd server && bun run test:db`) runs `prisma migrate deploy`, truncates all tables and creates the test admin and agent from `E2E_*` env vars (credentials in `e2e/env.ts` as `testUsers`). It refuses any database not named `*_test` on localhost.
+- Auth rate limiting is off outside production, so tests can log in repeatedly.
+- Don't use `prisma migrate reset` for the test DB: Prisma blocks it when run by an AI agent without user consent.
 
 ## Documentation lookup (Context7)
 Always use the Context7 MCP server to fetch current documentation before writing or changing code that uses a library, framework, SDK, or CLI tool (React, Vite, Express, Prisma, Tailwind, React Router, Zod, Bun, Anthropic SDK, etc.). Do this even for well-known libraries, since training data may be out of date.

@@ -4,3 +4,6 @@ dist/
 *.log
 
 src/generated/
+.env.test
+test-results/
+playwright-report/

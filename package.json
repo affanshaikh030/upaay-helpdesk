@@ -2,10 +2,15 @@
   "name": "ticketing-tool",
   "private": true,
   "scripts": {
-    "dev": "bun run --parallel --filter '*' dev"
+    "dev": "bun run --parallel --filter '*' dev",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "workspaces": [
     "client",
     "server"
-  ]
+  ],
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
+  }
 }

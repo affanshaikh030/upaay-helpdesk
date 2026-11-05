@@ -31,10 +31,10 @@ export const auth = betterAuth({
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean),
-  // Explicit so limiting doesn't depend on NODE_ENV; database storage survives
-  // restarts and is shared across instances
+  // Production only, so local dev and Playwright runs aren't throttled. Database
+  // storage survives restarts and is shared across instances
   rateLimit: {
-    enabled: true,
+    enabled: process.env.NODE_ENV === "production",
     storage: "database",
     window: 60,
     max: 100,
