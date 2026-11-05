@@ -2,7 +2,22 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./db";
 
+const SECRET_PLACEHOLDER = "generate-with-openssl-rand-base64-32";
+
+// Fail fast: a missing or guessable secret would let anyone forge session cookies
+function requireSecret() {
+  const secret = process.env.BETTER_AUTH_SECRET;
+  if (!secret || secret === SECRET_PLACEHOLDER || secret.length < 32) {
+    throw new Error(
+      "BETTER_AUTH_SECRET must be set to a random value of at least 32 characters (openssl rand -base64 32)",
+    );
+  }
+  return secret;
+}
+
 export const auth = betterAuth({
+  secret: requireSecret(),
+  baseURL: process.env.BETTER_AUTH_URL,
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   user: {
     additionalFields: {
