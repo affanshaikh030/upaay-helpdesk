@@ -43,6 +43,9 @@ export const auth = betterAuth({
     },
   },
   advanced: {
+    // Explicit so Origin/CSRF validation stays on in every environment; Better Auth
+    // otherwise turns it off when NODE_ENV=test
+    disableOriginCheck: false,
     // Behind a reverse proxy (e.g. Railway) set TRUST_PROXY_HEADERS=true so the
     // limiter sees real client IPs; leave unset locally so the header can't be spoofed
     ipAddress: {
