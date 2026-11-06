@@ -84,11 +84,11 @@ test.describe('users page states', () => {
     })
 
     await page.goto('/users')
-    await expect(page.getByText('Loading users…')).toBeVisible()
+    await expect(page.getByRole('status', { name: 'Loading users' })).toBeVisible()
     await expect(page.getByRole('table')).toHaveCount(0)
 
     release()
-    await expect(page.getByText('Loading users…')).toBeHidden()
+    await expect(page.getByRole('status', { name: 'Loading users' })).toBeHidden()
     await expect(page.getByRole('table')).toBeVisible()
   })
 
