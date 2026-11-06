@@ -1,36 +1,14 @@
-import { useEffect, useState } from 'react'
+import axios from 'axios'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-
-type User = {
-  id: string
-  name: string
-  email: string
-  role: 'ADMIN' | 'AGENT'
-  createdAt: string
-}
+import { useUsers } from '@/hooks/use-users'
 
 const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' })
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<User[] | null>(null)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    const controller = new AbortController()
-    fetch('/api/users', { signal: controller.signal })
-      .then(async (res) => {
-        if (!res.ok) throw new Error(res.status === 403 ? 'You do not have access to this page' : 'Failed to load users')
-        setUsers(await res.json())
-      })
-      .catch((err: unknown) => {
-        if (err instanceof DOMException && err.name === 'AbortError') return
-        setError(err instanceof Error ? err.message : 'Failed to load users')
-      })
-    return () => controller.abort()
-  }, [])
+  const { data: users, error } = useUsers()
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-8">
@@ -46,7 +24,11 @@ export default function UsersPage() {
         <CardContent>
           {error ? (
             <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>
+                {axios.isAxiosError(error) && error.response?.status === 403
+                  ? 'You do not have access to this page'
+                  : 'Failed to load users'}
+              </AlertDescription>
             </Alert>
           ) : !users ? (
             <p className="text-sm text-muted-foreground">Loading users…</p>

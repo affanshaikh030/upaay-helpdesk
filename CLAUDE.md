@@ -17,6 +17,7 @@ Source-of-truth docs (read these first):
 - Server: `cd server && bun run dev` (http://localhost:3000, health check at `/api/health`); `bun run typecheck`
 - Client: `cd client && bun run dev` (Vite, default port 5173, falls back if taken); `bun run build`; `bun run lint`
 - The Vite dev server proxies `/api` to `http://localhost:3000`. Call the API with relative paths (`/api/...`), not absolute URLs.
+- **Client data fetching:** use `axios` for HTTP requests (never `fetch`) and TanStack Query (`@tanstack/react-query`) for server state. Wrap each query in a hook under `client/src/hooks/` (see `use-users.ts`: `useQuery` with an exported query key, passing the `signal` from `queryFn` to axios) and use `useMutation` for writes, invalidating the related query key on success. Don't fetch in `useEffect` or keep server data in `useState`. The `QueryClient` is set up in `client/src/main.tsx` with retries off. Better Auth's `authClient` keeps making its own auth requests.
 
 ## Authentication
 - **Library:** Better Auth (`better-auth`) with the Prisma adapter and database sessions (cookies). Server config: `server/src/auth.ts`, mounted at `/api/auth/*` in `server/src/index.ts` (before `express.json()`). Client: `authClient` in `client/src/lib/auth-client.ts` (`useSession`, `signIn.email`, `signOut`).
