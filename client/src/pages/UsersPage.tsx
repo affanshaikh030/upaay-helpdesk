@@ -2,6 +2,7 @@ import axios from 'axios'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useUsers } from '@/hooks/use-users'
 
@@ -31,7 +32,16 @@ export default function UsersPage() {
               </AlertDescription>
             </Alert>
           ) : !users ? (
-            <p className="text-sm text-muted-foreground">Loading users…</p>
+            <div role="status" aria-label="Loading users" className="space-y-3">
+              {Array.from({ length: 5 }, (_, i) => (
+                <div key={i} className="flex items-center gap-4">
+                  <Skeleton className="h-5 w-1/5" />
+                  <Skeleton className="h-5 w-2/5" />
+                  <Skeleton className="h-5 w-16" />
+                  <Skeleton className="h-5 w-1/6" />
+                </div>
+              ))}
+            </div>
           ) : users.length === 0 ? (
             <p className="text-sm text-muted-foreground">No users found.</p>
           ) : (
