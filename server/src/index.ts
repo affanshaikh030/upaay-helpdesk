@@ -2,6 +2,7 @@ import express from "express";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./auth";
 import { requireAuth } from "./middleware/auth";
+import { usersRouter } from "./routes/users";
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
@@ -22,6 +23,8 @@ app.get("/api/health", (_req, res) => {
 
 // Everything below this point requires a session; add requireRole("ADMIN") per route as needed
 app.use("/api", requireAuth);
+
+app.use("/api/users", usersRouter);
 
 app.get("/api/me", (_req, res) => {
   res.json(res.locals.user);

@@ -10,7 +10,7 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-background">
-      <NavBar name={session.user.name} />
+      <NavBar name={session.user.name} isAdmin={session.user.role === 'ADMIN'} />
       <Outlet />
     </div>
   )
