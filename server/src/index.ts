@@ -2,7 +2,7 @@ import express from "express";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./auth";
 import { requireAuth } from "./middleware/auth";
-import { usersRouter } from "./routes/users";
+import { meRouter, usersRouter } from "./routes/users";
 
 const app = express();
 const port = Number(process.env.PORT) || 3000;
@@ -26,9 +26,7 @@ app.use("/api", requireAuth);
 
 app.use("/api/users", usersRouter);
 
-app.get("/api/me", (_req, res) => {
-  res.json(res.locals.user);
-});
+app.use("/api/me", meRouter);
 
 app.listen(port, () => {
   console.log(`Server listening on http://localhost:${port}`);

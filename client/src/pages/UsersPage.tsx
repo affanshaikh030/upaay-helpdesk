@@ -1,6 +1,9 @@
+import { useState } from 'react'
 import axios from 'axios'
+import { CreateUserDialog } from '@/components/CreateUserDialog'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -10,6 +13,7 @@ const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' })
 
 export default function UsersPage() {
   const { data: users, error } = useUsers()
+  const [createOpen, setCreateOpen] = useState(false)
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-8">
@@ -23,6 +27,9 @@ export default function UsersPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-4 flex justify-end">
+            <Button onClick={() => setCreateOpen(true)}>New user</Button>
+          </div>
           {error ? (
             <Alert variant="destructive">
               <AlertDescription>
@@ -72,6 +79,7 @@ export default function UsersPage() {
           )}
         </CardContent>
       </Card>
+      <CreateUserDialog open={createOpen} onOpenChange={setCreateOpen} />
     </main>
   )
 }

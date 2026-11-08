@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 export type User = {
   id: string
@@ -15,5 +15,19 @@ export function useUsers() {
   return useQuery({
     queryKey: usersQueryKey,
     queryFn: async ({ signal }) => (await axios.get<User[]>('/api/users', { signal })).data,
+  })
+}
+
+export type CreateUserInput = {
+  name: string
+  email: string
+  password: string
+}
+
+export function useCreateUser() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: CreateUserInput) => (await axios.post<User>('/api/users', input)).data,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: usersQueryKey }),
   })
 }

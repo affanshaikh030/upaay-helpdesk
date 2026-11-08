@@ -23,6 +23,7 @@ Source-of-truth docs (read these first):
 - **Library:** Better Auth (`better-auth`) with the Prisma adapter and database sessions (cookies). Server config: `server/src/auth.ts`, mounted at `/api/auth/*` in `server/src/index.ts` (before `express.json()`). Client: `authClient` in `client/src/lib/auth-client.ts` (`useSession`, `signIn.email`, `signOut`).
 - **Email and password only; sign-up is disabled** (`disableSignUp: true`, and `/api/auth/sign-up/*` returns 404). Users are created by the seed script or an admin, never self-service.
 - **Roles:** `user.role` is a server-owned additional field (`input: false`, default `AGENT`); the seeded admin gets `ADMIN`. Never accept `role` from client input.
+- **Use the `Role` enum, never role string literals:** in server code import `Role` from `server/src/generated/prisma/enums` (`Role.ADMIN`, `Role.AGENT`), e.g. `requireRole(Role.ADMIN)` and `role: Role.AGENT`. The enum is the single source of truth (`prisma/schema.prisma`); don't write `"ADMIN"`/`"AGENT"` as plain strings.
 - **First admin:** `cd server && bun run seed` reads `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` (min 12 characters, no placeholders), `SEED_ADMIN_NAME` (optional). Idempotent: an existing ADMIN is a no-op; an existing non-admin with that email is only promoted if `SEED_PROMOTE_EXISTING=true`, otherwise the script exits with an error.
 - **Env vars** (see `.env.example`): `DATABASE_URL`, `BETTER_AUTH_SECRET` (required, 32+ characters, not the `.env.example` placeholder; `auth.ts` throws at startup otherwise), `BETTER_AUTH_URL` (server origin), `TRUSTED_ORIGINS` (comma-separated browser origins, default `http://localhost:5173`; add the deployed client origin).
 - **Protecting routes:** server: everything under `/api` after `/api/health` goes through `requireAuth` (`server/src/middleware/auth.ts`, 401 without a session, sets `res.locals.user`/`session`); add `requireRole("ADMIN")` per route for admin-only endpoints (403 otherwise). Never rely on client-side guards (`AdminRoute`) for authorization. Client: `Layout` redirects to `/login` without a session; `LoginPage` redirects to `/` with one.
@@ -53,6 +54,7 @@ Skip it for general programming concepts or code that doesn't depend on a librar
 
 ## Conventions
 - The server uses TypeScript strict mode.
+- **Express 5 async handlers:** don't wrap async route handlers or middleware in `try/catch` just to call `next(error)`. Express 5 forwards rejected promises to the error handler automatically. Only use `try/catch` when you need to do something on failure (e.g. clean up, as in the create-user handler).
 - Follow `implementation-plan.md` phase by phase. Finish a phase, then stop for the user's approval before starting the next.
 - Keep `tech-stack.md` and `project-scope.md` in sync if a technology or scope decision changes.
 - Don't leave dev servers running in the background unless asked.
