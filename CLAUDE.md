@@ -9,7 +9,7 @@ Source-of-truth docs (read these first):
 
 ## Stack
 - **Runtime & package manager:** Bun. Use `bun install`, `bun add`, `bun run`. Do not use npm, yarn or pnpm.
-- **Monorepo:** Bun workspaces: `client/` (React + Vite + TypeScript), `server/` (Express + TypeScript)
+- **Monorepo:** Bun workspaces: `client/` (React + Vite + TypeScript), `server/` (Express + TypeScript), `core/` (`@helpdesk/core`: Zod schemas and types shared by both, shipped as TypeScript source with no build step)
 - **Auth:** database sessions (email and password), with a seed script that creates the first admin from environment variables
 - **Planned:** Tailwind CSS, React Router, PostgreSQL + Prisma, Zod, Claude API (Anthropic SDK), SendGrid/Mailgun, Docker, Railway
 
@@ -54,6 +54,7 @@ Skip it for general programming concepts or code that doesn't depend on a librar
 
 ## Conventions
 - The server uses TypeScript strict mode.
+- **Shared validation:** schemas used by both client and server (e.g. `createUserSchema`) live in `core/src/` and are imported from `@helpdesk/core`; don't redefine them on either side. Add `"@helpdesk/core": "workspace:*"` to a workspace that needs it. Typecheck with `cd core && bun run typecheck`.
 - **Express 5 async handlers:** don't wrap async route handlers or middleware in `try/catch` just to call `next(error)`. Express 5 forwards rejected promises to the error handler automatically. Only use `try/catch` when you need to do something on failure (e.g. clean up, as in the create-user handler).
 - Follow `implementation-plan.md` phase by phase. Finish a phase, then stop for the user's approval before starting the next.
 - Keep `tech-stack.md` and `project-scope.md` in sync if a technology or scope decision changes.

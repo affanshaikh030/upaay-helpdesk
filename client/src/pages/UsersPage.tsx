@@ -1,15 +1,12 @@
 import { useState } from 'react'
 import axios from 'axios'
 import { CreateUserDialog } from '@/components/CreateUserDialog'
+import { UsersTable } from '@/components/UsersTable'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useUsers } from '@/hooks/use-users'
-
-const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' })
 
 export default function UsersPage() {
   const { data: users, error } = useUsers()
@@ -52,30 +49,7 @@ export default function UsersPage() {
           ) : users.length === 0 ? (
             <p className="text-sm text-muted-foreground">No users found.</p>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Created</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <Badge variant={user.role === 'ADMIN' ? 'default' : 'secondary'}>
-                        {user.role === 'ADMIN' ? 'Admin' : 'Agent'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{dateFormat.format(new Date(user.createdAt))}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <UsersTable users={users} />
           )}
         </CardContent>
       </Card>

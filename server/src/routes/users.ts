@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { createUserSchema } from "@helpdesk/core";
 import { z } from "zod";
 import { auth } from "../auth";
 import { Role } from "../generated/prisma/enums";
@@ -20,15 +21,6 @@ usersRouter.get("/", requireRole(Role.ADMIN), async (_req, res) => {
     orderBy: { createdAt: "asc" },
   });
   res.json(users);
-});
-
-const createUserSchema = z.object({
-  name: z.string().trim().min(3, "Name must be at least 3 characters"),
-  email: z.email("Enter a valid email address").toLowerCase(),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .max(128, "Password must be at most 128 characters"),
 });
 
 // Admin only. Role is never read from the body: new users are always AGENT

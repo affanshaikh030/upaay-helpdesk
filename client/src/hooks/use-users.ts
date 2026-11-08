@@ -1,4 +1,5 @@
 import axios from 'axios'
+import type { CreateUserInput } from '@helpdesk/core'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 export type User = {
@@ -16,12 +17,6 @@ export function useUsers() {
     queryKey: usersQueryKey,
     queryFn: async ({ signal }) => (await axios.get<User[]>('/api/users', { signal })).data,
   })
-}
-
-export type CreateUserInput = {
-  name: string
-  email: string
-  password: string
 }
 
 export function useCreateUser() {
