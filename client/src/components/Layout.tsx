@@ -1,3 +1,4 @@
+import { Role } from '@helpdesk/core'
 import { Navigate, Outlet } from 'react-router'
 import { authClient } from '../lib/auth-client'
 import NavBar from './NavBar'
@@ -10,7 +11,7 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-background">
-      <NavBar name={session.user.name} isAdmin={session.user.role === 'ADMIN'} />
+      <NavBar name={session.user.name} isAdmin={session.user.role === Role.ADMIN} />
       <Outlet />
     </div>
   )

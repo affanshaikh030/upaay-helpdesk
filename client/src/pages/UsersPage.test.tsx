@@ -1,6 +1,7 @@
 import axios, { AxiosError, type AxiosResponse } from 'axios'
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { Role } from '@helpdesk/core'
 import { renderWithQuery } from '@/test/render'
 import type { User } from '@/hooks/use-users'
 import UsersPage from './UsersPage'
@@ -9,14 +10,14 @@ const admin: User = {
   id: '1',
   name: 'Test Admin',
   email: 'admin@test.local',
-  role: 'ADMIN',
+  role: Role.ADMIN,
   createdAt: '2026-01-15T10:00:00.000Z',
 }
 const agent: User = {
   id: '2',
   name: 'Test Agent',
   email: 'agent@test.local',
-  role: 'AGENT',
+  role: Role.AGENT,
   createdAt: '2026-03-20T10:00:00.000Z',
 }
 
@@ -82,7 +83,7 @@ describe('UsersPage', () => {
       await screen.findByRole('table')
 
       const headers = screen.getAllByRole('columnheader').map((h) => h.textContent)
-      expect(headers).toEqual(['Name', 'Email', 'Role', 'Created'])
+      expect(headers).toEqual(['Name', 'Email', 'Role', 'Created', 'Actions'])
     })
 
     it('renders one row per user, in the order returned, with name, email, role and date', async () => {
@@ -110,8 +111,8 @@ describe('UsersPage', () => {
       renderWithQuery(<UsersPage />)
       await screen.findByRole('table')
 
-      expect(screen.queryByText('ADMIN')).not.toBeInTheDocument()
-      expect(screen.queryByText('AGENT')).not.toBeInTheDocument()
+      expect(screen.queryByText(Role.ADMIN)).not.toBeInTheDocument()
+      expect(screen.queryByText(Role.AGENT)).not.toBeInTheDocument()
     })
 
     it('shows a plural count for several users', async () => {

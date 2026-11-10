@@ -1,16 +1,32 @@
 import { useState } from 'react'
 import axios from 'axios'
-import { CreateUserDialog } from '@/components/CreateUserDialog'
+import { DeleteUserDialog } from '@/components/DeleteUserDialog'
+import { UserDialog } from '@/components/UserDialog'
 import { UsersTable } from '@/components/UsersTable'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useUsers } from '@/hooks/use-users'
+import { useUsers, type User } from '@/hooks/use-users'
 
 export default function UsersPage() {
   const { data: users, error } = useUsers()
-  const [createOpen, setCreateOpen] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  // Kept after the dialog closes so its title doesn't flip during the exit animation
+  const [editingUser, setEditingUser] = useState<User>()
+
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [deletingUser, setDeletingUser] = useState<User>()
+
+  function confirmDelete(user: User) {
+    setDeletingUser(user)
+    setDeleteOpen(true)
+  }
+
+  function openDialog(user?: User) {
+    setEditingUser(user)
+    setDialogOpen(true)
+  }
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-8">
@@ -25,7 +41,7 @@ export default function UsersPage() {
         </CardHeader>
         <CardContent>
           <div className="mb-4 flex justify-end">
-            <Button onClick={() => setCreateOpen(true)}>New user</Button>
+            <Button onClick={() => openDialog()}>New user</Button>
           </div>
           {error ? (
             <Alert variant="destructive">
@@ -49,11 +65,12 @@ export default function UsersPage() {
           ) : users.length === 0 ? (
             <p className="text-sm text-muted-foreground">No users found.</p>
           ) : (
-            <UsersTable users={users} />
+            <UsersTable users={users} onEdit={openDialog} onDelete={confirmDelete} />
           )}
         </CardContent>
       </Card>
-      <CreateUserDialog open={createOpen} onOpenChange={setCreateOpen} />
+      <DeleteUserDialog open={deleteOpen} onOpenChange={setDeleteOpen} user={deletingUser} />
+      <UserDialog open={dialogOpen} onOpenChange={setDialogOpen} user={editingUser} />
     </main>
   )
 }

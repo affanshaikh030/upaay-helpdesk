@@ -1,13 +1,13 @@
 import { useState, type FormEvent } from 'react'
 import axios from 'axios'
-import { createUserSchema } from '@helpdesk/core'
+import { createUserSchema, updateUserSchema, type CreateUserInput } from '@helpdesk/core'
 import { z } from 'zod'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { DialogClose, DialogFooter } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useCreateUser } from '@/hooks/use-users'
+import { useCreateUser, useUpdateUser, type User } from '@/hooks/use-users'
 
 type FieldName = 'name' | 'email' | 'password'
 type FieldErrors = Partial<Record<FieldName, string>>
@@ -20,51 +20,71 @@ function firstErrors(fieldErrors: Partial<Record<string, string[]>>): FieldError
   }
 }
 
+// Creates a user, or edits `user` when given (blank password = keep the current one).
 // Must render inside a Dialog: the Cancel button is a DialogClose
-export function CreateUserForm({ onDone }: { onDone: () => void }) {
-  const [values, setValues] = useState({ name: '', email: '', password: '' })
+export function UserForm({ user, onDone }: { user?: User; onDone: () => void }) {
+  const isEdit = user !== undefined
+  const [values, setValues] = useState({
+    name: user?.name ?? '',
+    email: user?.email ?? '',
+    password: '',
+  })
   const [errors, setErrors] = useState<FieldErrors>({})
   const [formError, setFormError] = useState<string>()
   const createUser = useCreateUser()
+  const updateUser = useUpdateUser(user?.id ?? '')
+  const isPending = isEdit ? updateUser.isPending : createUser.isPending
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setFormError(undefined)
-    const parsed = createUserSchema.safeParse(values)
+    const parsed = (isEdit ? updateUserSchema : createUserSchema).safeParse(values)
     if (!parsed.success) {
       setErrors(firstErrors(z.flattenError(parsed.error).fieldErrors))
       return
     }
     setErrors({})
-    createUser.mutate(parsed.data, {
+    const options = {
       onSuccess: onDone,
-      onError: (error) => {
+      onError: (error: Error) => {
         const serverErrors = axios.isAxiosError(error) ? error.response?.data?.fieldErrors : undefined
         if (serverErrors) {
           setErrors(firstErrors(serverErrors))
         } else {
-          setFormError('Failed to create user')
+          setFormError(isEdit ? 'Failed to save user' : 'Failed to create user')
         }
       },
-    })
+    }
+    if (isEdit) {
+      updateUser.mutate(parsed.data, options)
+    } else {
+      createUser.mutate(parsed.data as CreateUserInput, options)
+    }
   }
 
-  function field(name: FieldName, label: string, type = 'text', autoComplete = 'off') {
+  function field(name: FieldName, label: string, type = 'text', autoComplete = 'off', hint?: string) {
     const error = errors[name]
+    const hintId = `user-form-${name}-hint`
+    const errorId = `user-form-${name}-error`
     return (
       <div className="space-y-1.5">
-        <Label htmlFor={`new-user-${name}`}>{label}</Label>
+        <Label htmlFor={`user-form-${name}`}>{label}</Label>
         <Input
-          id={`new-user-${name}`}
+          id={`user-form-${name}`}
           type={type}
           autoComplete={autoComplete}
           value={values[name]}
           onChange={(e) => setValues((v) => ({ ...v, [name]: e.target.value }))}
           aria-invalid={error ? true : undefined}
-          aria-describedby={error ? `new-user-${name}-error` : undefined}
+          aria-describedby={[error && errorId, hint && hintId].filter(Boolean).join(' ') || undefined}
         />
+        {hint && (
+          <p id={hintId} className="text-sm text-muted-foreground">
+            {hint}
+          </p>
+        )}
         {error && (
-          <p id={`new-user-${name}-error`} className="text-sm text-destructive">
+          <p id={errorId} className="text-sm text-destructive">
             {error}
           </p>
         )}
@@ -81,11 +101,11 @@ export function CreateUserForm({ onDone }: { onDone: () => void }) {
       )}
       {field('name', 'Name')}
       {field('email', 'Email', 'email')}
-      {field('password', 'Password', 'password', 'new-password')}
+      {field('password', 'Password', 'password', 'new-password', isEdit ? 'Leave blank to keep the current password' : undefined)}
       <DialogFooter>
         <DialogClose render={<Button type="button" variant="outline" />}>Cancel</DialogClose>
-        <Button type="submit" disabled={createUser.isPending}>
-          {createUser.isPending ? 'Creating...' : 'Create user'}
+        <Button type="submit" disabled={isPending}>
+          {isPending ? (isEdit ? 'Saving...' : 'Creating...') : isEdit ? 'Save changes' : 'Create user'}
         </Button>
       </DialogFooter>
     </form>

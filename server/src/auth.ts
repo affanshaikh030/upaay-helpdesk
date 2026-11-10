@@ -25,6 +25,20 @@ export const auth = betterAuth({
       role: { type: "string", required: false, defaultValue: "AGENT", input: false },
     },
   },
+  databaseHooks: {
+    session: {
+      create: {
+        // Soft-deleted users must not be able to sign in (returning false aborts the session)
+        before: async (session) => {
+          const user = await prisma.user.findUnique({
+            where: { id: session.userId },
+            select: { deletedAt: true },
+          });
+          if (user?.deletedAt) return false;
+        },
+      },
+    },
+  },
   // The browser talks to the Vite dev server (different origin than BETTER_AUTH_URL).
   // Comma-separated list, e.g. "http://localhost:5173,https://helpdesk.example.com"
   trustedOrigins: (process.env.TRUSTED_ORIGINS ?? "http://localhost:5173")

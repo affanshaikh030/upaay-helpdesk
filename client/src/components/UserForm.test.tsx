@@ -1,15 +1,16 @@
 import axios, { AxiosError, type AxiosResponse } from 'axios'
 import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { Role } from '@helpdesk/core'
 import { Dialog } from '@/components/ui/dialog'
 import { renderWithQuery } from '@/test/render'
-import { CreateUserForm } from './CreateUserForm'
+import { UserForm } from './UserForm'
 
 const createdUser = {
   id: '3',
   name: 'New Agent',
   email: 'new@test.local',
-  role: 'AGENT',
+  role: Role.AGENT,
   createdAt: '2026-04-01T10:00:00.000Z',
 }
 
@@ -17,7 +18,7 @@ function renderForm(onDone = vi.fn()) {
   // The Cancel button is a DialogClose, so the form needs a Dialog around it
   renderWithQuery(
     <Dialog open>
-      <CreateUserForm onDone={onDone} />
+      <UserForm onDone={onDone} />
     </Dialog>,
   )
   return { onDone }
@@ -42,7 +43,7 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('CreateUserForm', () => {
+describe('UserForm', () => {
   it('renders empty name, email and password fields with submit and cancel buttons', () => {
     renderForm()
 
