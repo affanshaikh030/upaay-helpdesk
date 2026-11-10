@@ -1,5 +1,5 @@
 import axios, { AxiosError, type AxiosResponse } from 'axios'
-import { screen, within } from '@testing-library/react'
+import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderWithQuery } from '@/test/render'
 import type { User } from '@/hooks/use-users'
@@ -194,6 +194,65 @@ describe('UsersPage', () => {
       await screen.findByRole('alert')
 
       expect(get).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('new user dialog', () => {
+    async function renderLoaded() {
+      mockGet().mockResolvedValue({ data: [admin] })
+      renderWithQuery(<UsersPage />)
+      await screen.findByRole('table')
+    }
+
+    it('is hidden until the New user button is clicked', async () => {
+      await renderLoaded()
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+
+      fireEvent.click(screen.getByRole('button', { name: 'New user' }))
+
+      const dialog = await screen.findByRole('dialog', { name: 'New user' })
+      expect(within(dialog).getByLabelText('Name')).toBeInTheDocument()
+      expect(within(dialog).getByLabelText('Email')).toBeInTheDocument()
+      expect(within(dialog).getByLabelText('Password')).toBeInTheDocument()
+    })
+
+    it('closes when Escape is pressed', async () => {
+      await renderLoaded()
+      fireEvent.click(screen.getByRole('button', { name: 'New user' }))
+      const dialog = await screen.findByRole('dialog')
+
+      fireEvent.keyDown(dialog, { key: 'Escape' })
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    })
+
+    it('closes when clicking outside the dialog', async () => {
+      await renderLoaded()
+      fireEvent.click(screen.getByRole('button', { name: 'New user' }))
+      await screen.findByRole('dialog')
+
+      // The backdrop is the area outside the dialog popup
+      const backdrop = document.querySelector('[data-slot="dialog-overlay"]')!
+      fireEvent.pointerDown(backdrop)
+      fireEvent.mouseDown(backdrop)
+      fireEvent.pointerUp(backdrop)
+      fireEvent.mouseUp(backdrop)
+      fireEvent.click(backdrop)
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    })
+
+    it('stays open when clicking inside the dialog', async () => {
+      await renderLoaded()
+      fireEvent.click(screen.getByRole('button', { name: 'New user' }))
+      const dialog = await screen.findByRole('dialog')
+
+      fireEvent.pointerDown(dialog)
+      fireEvent.mouseDown(dialog)
+      fireEvent.click(dialog)
+
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
     })
   })
 })
