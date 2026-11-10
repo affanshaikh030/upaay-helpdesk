@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { APIError } from "better-auth/api";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./db";
 
@@ -28,13 +29,19 @@ export const auth = betterAuth({
   databaseHooks: {
     session: {
       create: {
-        // Soft-deleted users must not be able to sign in (returning false aborts the session)
+        // Soft-deleted users must not be able to sign in. Same error as a wrong password so the
+        // response doesn't reveal that the account exists
         before: async (session) => {
           const user = await prisma.user.findUnique({
             where: { id: session.userId },
             select: { deletedAt: true },
           });
-          if (user?.deletedAt) return false;
+          if (user?.deletedAt) {
+            throw APIError.from("UNAUTHORIZED", {
+              code: "INVALID_EMAIL_OR_PASSWORD",
+              message: "Invalid email or password",
+            });
+          }
         },
       },
     },

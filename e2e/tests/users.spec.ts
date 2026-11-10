@@ -154,7 +154,8 @@ test.describe('GET /api/users', () => {
     expect(res.status()).toBe(401)
   })
 
-  for (const method of ['post', 'put', 'patch', 'delete'] as const) {
+  // These methods have no route on the collection URL (PATCH and DELETE need an id)
+  for (const method of ['put', 'patch', 'delete'] as const) {
     test(`${method.toUpperCase()} /api/users is not available to an admin`, async ({ request }) => {
       await loginViaApi(request, testUsers.admin)
       const res = await request[method]('/api/users', {
@@ -166,4 +167,38 @@ test.describe('GET /api/users', () => {
       expect(list).toHaveLength(2)
     })
   }
+
+  test('POST /api/users with an invalid body returns 400 and creates nothing', async ({ request }) => {
+    await loginViaApi(request, testUsers.admin)
+    const res = await request.post('/api/users', {
+      data: { name: 'Eve', email: 'eve@example.com', role: 'ADMIN' }, // no password
+    })
+    expect(res.status()).toBe(400)
+    expect(Object.keys((await res.json()).fieldErrors)).toEqual(['password'])
+
+    const list = await (await request.get('/api/users')).json()
+    expect(list).toHaveLength(2)
+  })
+
+  test('POST /api/users ignores a role in the body and creates an agent', async ({ request }) => {
+    await loginViaApi(request, testUsers.admin)
+    const email = `role-check-${Date.now()}@example.com`
+    const res = await request.post('/api/users', {
+      data: { name: 'Role Check', email, password: 'password12345', role: 'ADMIN' },
+    })
+    expect(res.status()).toBe(201)
+    const created = await res.json()
+    expect(created.role).toBe('AGENT')
+
+    // Soft-delete it again so other tests still see exactly the seeded users
+    expect((await request.delete(`/api/users/${created.id}`)).status()).toBe(204)
+  })
+
+  test('POST, PATCH and DELETE /api/users are forbidden for an agent', async ({ request }) => {
+    await loginViaApi(request, testUsers.agent)
+    const body = { name: 'Eve', email: 'eve@example.com', password: 'password12345' }
+    expect((await request.post('/api/users', { data: body })).status()).toBe(403)
+    expect((await request.patch('/api/users/some-id', { data: body })).status()).toBe(403)
+    expect((await request.delete('/api/users/some-id')).status()).toBe(403)
+  })
 })
