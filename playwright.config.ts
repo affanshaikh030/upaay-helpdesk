@@ -31,6 +31,7 @@ export default defineConfig({
         DATABASE_URL: env.databaseUrl,
         BETTER_AUTH_SECRET: env.authSecret,
         BETTER_AUTH_URL: serverUrl,
+        INBOUND_EMAIL_SECRET: env.inboundEmailSecret,
         TRUSTED_ORIGINS: clientUrl,
         E2E_ADMIN_EMAIL: process.env.E2E_ADMIN_EMAIL!,
         E2E_ADMIN_PASSWORD: process.env.E2E_ADMIN_PASSWORD!,

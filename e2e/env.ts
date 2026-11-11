@@ -14,6 +14,7 @@ function required(name: string): string {
 export const env = {
   databaseUrl: required('DATABASE_URL'),
   authSecret: required('BETTER_AUTH_SECRET'),
+  inboundEmailSecret: required('INBOUND_EMAIL_SECRET'),
   serverPort: process.env.E2E_SERVER_PORT ?? '3100',
   clientPort: process.env.E2E_CLIENT_PORT ?? '5183',
 }

@@ -7,9 +7,20 @@ import { prisma } from "../src/db";
 const url = new URL(process.env.DATABASE_URL ?? "");
 const dbName = url.pathname.slice(1);
 
+// Connection-string parameters that can redirect the connection to another server, bypassing the
+// host check below (e.g. ?host=...). Harmless ones such as ?schema=public are allowed
+const REDIRECTING_PARAMS = ["host", "hostaddr", "port", "service", "options"];
+const redirecting = [...url.searchParams.keys()].filter((key) => REDIRECTING_PARAMS.includes(key.toLowerCase()));
+
 // Guard: this script empties the database, so only ever run it against a *_test one
 if (!dbName.endsWith("_test") || !["localhost", "127.0.0.1"].includes(url.hostname)) {
   console.error(`Refusing to reset "${dbName}" on ${url.hostname}: must be a local database named *_test`);
+  process.exit(1);
+}
+if (redirecting.length > 0) {
+  console.error(
+    `Refusing to reset "${dbName}": DATABASE_URL must not set ${redirecting.join(", ")} (they can override the host checked above)`,
+  );
   process.exit(1);
 }
 
