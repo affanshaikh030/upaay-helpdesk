@@ -26,7 +26,7 @@ Source-of-truth docs (read these first):
 - **Use the `Role` enum, never role string literals** (`"ADMIN"`, `'AGENT'`, `'ADMIN' | 'AGENT'`), including in tests:
   - **Client:** `import { Role } from '@helpdesk/core'` and use `Role.ADMIN` / `Role.AGENT` in comparisons (`session.user.role === Role.ADMIN`) and test fixtures. Type a role as `Role` (e.g. `role: Role` in the `User` type), not a hand-written union.
   - **Server:** `import { Role } from './generated/prisma/enums'` (relative path to `server/src/generated/prisma/enums`), e.g. `requireRole(Role.ADMIN)` and `role: Role.AGENT`.
-  - `prisma/schema.prisma` is the source of truth; `core/src/roles.ts` mirrors it for the client, and `server/src/role-sync.ts` fails typecheck if the two differ. When adding a role, update the Prisma enum and `core/src/roles.ts` together.
+  - `prisma/schema.prisma` is the source of truth; `core/src/roles.ts` mirrors it for the client, and `server/src/enum-sync.ts` fails typecheck if the two differ (it also covers `TicketStatus` and `TicketCategory`, mirrored in `core/src/tickets.ts`). When adding a value to any of these enums, update the Prisma enum and the `core/` mirror together. In the client use `TicketStatus.OPEN`, `TicketCategory.REFUND_REQUEST` etc. from `@helpdesk/core`, not string literals.
 - **First admin:** `cd server && bun run seed` reads `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` (min 12 characters, no placeholders), `SEED_ADMIN_NAME` (optional). Idempotent: an existing ADMIN is a no-op; an existing non-admin with that email is only promoted if `SEED_PROMOTE_EXISTING=true`, otherwise the script exits with an error.
 - **Env vars** (see `.env.example`): `DATABASE_URL`, `BETTER_AUTH_SECRET` (required, 32+ characters, not the `.env.example` placeholder; `auth.ts` throws at startup otherwise), `BETTER_AUTH_URL` (server origin), `INBOUND_EMAIL_SECRET` (optional; enables the inbound email webhook, see below), `TRUSTED_ORIGINS` (comma-separated browser origins, default `http://localhost:5173`; add the deployed client origin).
 - **Protecting routes:** server: everything under `/api` after `/api/health` goes through `requireAuth` (`server/src/middleware/auth.ts`, 401 without a session, sets `res.locals.user`/`session`); add `requireRole("ADMIN")` per route for admin-only endpoints (403 otherwise). Never rely on client-side guards (`AdminRoute`) for authorization. Client: `Layout` redirects to `/login` without a session; `LoginPage` redirects to `/` with one.
@@ -37,12 +37,20 @@ Source-of-truth docs (read these first):
 - **No session; guarded by `INBOUND_EMAIL_SECRET`** sent as the `x-inbound-secret` header (constant-time compare, 401 otherwise). Unset disables the endpoint (404); a placeholder or value under 32 characters makes the server fail at startup. It is mounted in `server/src/index.ts` before `express.json()` and `requireAuth` and parses its own body (1mb limit).
 - **Idempotent on `messageId`:** a repeat of a stored Message-ID returns `200` with the existing ticket id instead of creating a duplicate. Without a `messageId` every call creates a ticket. There is no threading yet: every email is a new ticket.
 
+## Tickets
+- `GET /api/tickets` (`server/src/routes/tickets.ts`): any signed-in user, newest first (`createdAt` desc, then `id` desc), without the body. Client: `/tickets` page (`TicketsPage`, `TicketsTable`, `useTickets`), linked from the navbar for everyone. No filtering or pagination yet.
+
+## Testing strategy
+- **Default to component tests; E2E only when necessary.** Cover UI behaviour (rendering, loading/empty/error states, forms and validation, dialogs, role-dependent UI, labels) with component tests: they are fast and need no server or database. Don't duplicate in E2E what a component test already covers, and when a feature could be tested either way, write the component test.
+- **E2E is for what component tests can't prove**, because it needs the real client, server and database together: session and cookie auth, authorization enforced by the server, database effects (soft delete, uniqueness, idempotency), server-only endpoints such as the inbound email webhook, and flows that span pages. Keep E2E suites small and focused on these happy paths and critical checks.
+- The rules below on when to write or run tests still apply: write or run either kind only when I explicitly ask. This section only decides which kind to reach for.
+
 ## Component tests (Vitest + React Testing Library)
 - **Run:** `cd client && bun run test` (single run, all tests) or `bun run test:watch` (re-runs on save while writing). One file: `cd client && bunx vitest run src/pages/UsersPage.test.tsx`. These are fast and need no server or database; they are separate from the Playwright E2E tests.
 - **Where:** `<Component>.test.tsx` next to the component. Shared helpers are in `client/src/test/`: `setup.ts` (jest-dom matchers, cleanup, loaded by `vite.config.ts`) and `render.tsx` (`renderWithQuery`, wraps the component in a fresh `QueryClientProvider` with retries off). Add new shared helpers there; wrap routing in `MemoryRouter` inside the test when a component needs it.
 - **Writing:** import `describe`, `it`, `expect`, `vi` from `vitest` (globals are off). Query like a user: `getByRole`, `getByLabelText`, `getByText`; use `findBy*` for async results and `queryBy*` to assert absence. Avoid `data-testid`, snapshots and testing implementation details. Mock the network with `vi.spyOn(axios, 'get')` (or `post`, etc.) and build errors with a real `AxiosError`; don't mock React Query itself. Restore mocks in `afterEach(() => vi.restoreAllMocks())`. Cover loading, success, empty and error states, plus role-dependent UI.
 - **Executing:** run the relevant test file after writing or changing it and fix failures before reporting; show the results. Don't weaken a test to make it pass: report a real app bug instead.
-- Same rule as E2E: write or run component tests only when I explicitly ask.
+- Same rule as E2E: write or run component tests only when I explicitly ask (see Testing strategy above for which kind to use).
 
 ## E2E testing (Playwright)
 - Config: `playwright.config.ts` (root); tests go in `e2e/tests/`. Run `bun run test:e2e` (or `test:e2e:ui`) from the repo root. Chromium only; install with `bunx playwright install chromium`.
@@ -51,7 +59,7 @@ Source-of-truth docs (read these first):
 - Auth rate limiting is off outside production, so tests can log in repeatedly.
 - Don't use `prisma migrate reset` for the test DB: Prisma blocks it when run by an AI agent without user consent.
 - **Writing tests:** use the `e2e-test-writer` subagent (`.claude/agents/e2e-test-writer.md`) for all new or extended E2E tests, instead of writing specs inline. Give it the page, flow or feature and the roles to cover (admin, agent). It writes specs in `e2e/tests/`, runs `bun run test:e2e` and reports results. It does not change app code, `playwright.config.ts`, the DB setup script or `.env` files: if a test needs such a change (for example a `data-testid`), it reports back and the main session makes the change, then re-invokes it.
-- - Do NOT run E2E tests or add or update specs automatically. After code changes, run only typecheck and lint. Run E2E tests or use the e2e-test-writer subagent only when I explicitly ask.
+- Do NOT run E2E tests or add or update specs automatically. After code changes, run only typecheck and lint. Run E2E tests or use the e2e-test-writer subagent only when I explicitly ask.
 
 ## Documentation lookup (Context7)
 Always use the Context7 MCP server to fetch current documentation before writing or changing code that uses a library, framework, SDK, or CLI tool (React, Vite, Express, Prisma, Tailwind, React Router, Zod, Bun, Anthropic SDK, etc.). Do this even for well-known libraries, since training data may be out of date.

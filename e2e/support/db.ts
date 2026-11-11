@@ -1,3 +1,4 @@
+import type { TicketCategory, TicketStatus } from '@helpdesk/core'
 import { Client } from 'pg'
 import { env } from '../env'
 
@@ -8,8 +9,8 @@ export interface TicketRow {
   fromEmail: string
   fromName: string
   messageId: string | null
-  status: string
-  category: string | null
+  status: TicketStatus
+  category: TicketCategory | null
 }
 
 // Connection-string parameters that can redirect the connection to another server, bypassing the

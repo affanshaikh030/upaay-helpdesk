@@ -3,6 +3,7 @@ import { toNodeHandler } from "better-auth/node";
 import { auth } from "./auth";
 import { inboundEmailRouter } from "./routes/inbound-email";
 import { requireAuth } from "./middleware/auth";
+import { ticketsRouter } from "./routes/tickets";
 import { meRouter, usersRouter } from "./routes/users";
 
 const app = express();
@@ -30,6 +31,7 @@ app.get("/api/health", (_req, res) => {
 app.use("/api", requireAuth);
 
 app.use("/api/users", usersRouter);
+app.use("/api/tickets", ticketsRouter);
 
 app.use("/api/me", meRouter);
 

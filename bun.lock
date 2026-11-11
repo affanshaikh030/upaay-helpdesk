@@ -5,6 +5,7 @@
     "": {
       "name": "ticketing-tool",
       "devDependencies": {
+        "@helpdesk/core": "workspace:*",
         "@playwright/test": "^1.64.1",
         "@types/pg": "^8.23.1",
         "pg": "^8.23.1",

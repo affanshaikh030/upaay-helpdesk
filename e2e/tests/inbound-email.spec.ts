@@ -1,3 +1,4 @@
+import { TicketStatus } from '@helpdesk/core'
 import { expect, test } from '@playwright/test'
 import { env } from '../env'
 import { countTicketsByMessageId, deleteTickets, getTicket } from '../support/db'
@@ -46,7 +47,7 @@ test('a valid email creates an open, uncategorised ticket', async ({ request }) 
     fromEmail: data.from.toLowerCase(),
     fromName: data.fromName,
     messageId: data.messageId,
-    status: 'OPEN',
+    status: TicketStatus.OPEN,
     category: null,
   })
 })
