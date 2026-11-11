@@ -1,6 +1,7 @@
 import express from "express";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./auth";
+import { inboundEmailRouter } from "./routes/inbound-email";
 import { requireAuth } from "./middleware/auth";
 import { meRouter, usersRouter } from "./routes/users";
 
@@ -14,6 +15,10 @@ app.all("/api/auth/sign-up/*splat", (_req, res) => {
 
 // Must be mounted before express.json()
 app.all("/api/auth/*splat", toNodeHandler(auth));
+
+// Provider webhook: no session, guarded by INBOUND_EMAIL_SECRET and parses its own (larger) body.
+// Mounted before the global express.json() so that limit doesn't apply
+app.use("/api/inbound/email", inboundEmailRouter);
 
 app.use(express.json());
 
