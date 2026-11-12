@@ -29,7 +29,9 @@ export const TicketCategory = {
 
 export type TicketCategory = (typeof TicketCategory)[keyof typeof TicketCategory];
 
-// Query params for GET /api/tickets. Defaults to newest first
+// Query params for GET /api/tickets. Defaults to newest first, unfiltered. `category` also accepts
+// "UNCATEGORIZED" for tickets the AI hasn't classified yet; `search` matches subject, name and email
+export const UNCATEGORIZED = "UNCATEGORIZED";
 export const ticketSortColumns = ["subject", "fromName", "status", "category", "createdAt"] as const;
 
 export type TicketSortColumn = (typeof ticketSortColumns)[number];
@@ -37,6 +39,9 @@ export type TicketSortColumn = (typeof ticketSortColumns)[number];
 export const ticketListQuerySchema = z.object({
   sortBy: z.enum(ticketSortColumns).default("createdAt"),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
+  status: z.enum(TicketStatus).optional(),
+  category: z.enum({ ...TicketCategory, UNCATEGORIZED }).optional(),
+  search: z.string().trim().max(200).optional(),
 });
 
 export type TicketListQuery = z.infer<typeof ticketListQuerySchema>;

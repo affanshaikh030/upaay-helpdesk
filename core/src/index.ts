@@ -3,6 +3,7 @@ export {
   inboundEmailSchema,
   ticketListQuerySchema,
   ticketSortColumns,
+  UNCATEGORIZED,
   TicketCategory,
   TicketStatus,
   type InboundEmail,

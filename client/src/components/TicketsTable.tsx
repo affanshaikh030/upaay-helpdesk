@@ -1,4 +1,4 @@
-import { TicketCategory, TicketStatus } from '@helpdesk/core'
+import { TicketStatus } from '@helpdesk/core'
 import {
   type ColumnDef,
   type OnChangeFn,
@@ -11,25 +11,14 @@ import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { Ticket } from '@/hooks/use-tickets'
+import { categoryLabels, statusLabels } from '@/lib/ticket-labels'
 
 const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' })
-
-const statusLabels: Record<TicketStatus, string> = {
-  [TicketStatus.OPEN]: 'Open',
-  [TicketStatus.RESOLVED]: 'Resolved',
-  [TicketStatus.CLOSED]: 'Closed',
-}
 
 const statusVariants: Record<TicketStatus, 'default' | 'secondary' | 'outline'> = {
   [TicketStatus.OPEN]: 'default',
   [TicketStatus.RESOLVED]: 'secondary',
   [TicketStatus.CLOSED]: 'outline',
-}
-
-const categoryLabels: Record<TicketCategory, string> = {
-  [TicketCategory.GENERAL_QUESTION]: 'General question',
-  [TicketCategory.TECHNICAL_QUESTION]: 'Technical question',
-  [TicketCategory.REFUND_REQUEST]: 'Refund request',
 }
 
 const columns: ColumnDef<Ticket>[] = [

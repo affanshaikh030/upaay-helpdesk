@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { SortingState } from '@tanstack/react-table'
 import type { TicketSortColumn } from '@helpdesk/core'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { TicketsFilters, emptyFilters, type TicketFilters } from '@/components/TicketsFilters'
 import { TicketsTable } from '@/components/TicketsTable'
 import { defaultTicketSort, useTickets } from '@/hooks/use-tickets'
 
@@ -11,7 +12,19 @@ export default function TicketsPage() {
   const [sorting, setSorting] = useState<SortingState>([
     { id: defaultTicketSort.sortBy, desc: defaultTicketSort.sortOrder === 'desc' },
   ])
+  const [filters, setFilters] = useState<TicketFilters>(emptyFilters)
+  // Wait for a pause in typing before asking the server to search
+  const [search, setSearch] = useState('')
+  useEffect(() => {
+    const timer = setTimeout(() => setSearch(filters.search.trim()), 300)
+    return () => clearTimeout(timer)
+  }, [filters.search])
+  const isFiltered = search !== '' || filters.status !== '' || filters.category !== ''
+
   const { data: tickets, error } = useTickets({
+    status: filters.status || undefined,
+    category: filters.category || undefined,
+    search: search || undefined,
     sortBy: sorting[0].id as TicketSortColumn,
     sortOrder: sorting[0].desc ? 'desc' : 'asc',
   })
@@ -30,6 +43,7 @@ export default function TicketsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <TicketsFilters filters={filters} onChange={setFilters} />
           {error ? (
             <Alert variant="destructive">
               <AlertDescription>Failed to load tickets</AlertDescription>
@@ -46,7 +60,9 @@ export default function TicketsPage() {
               ))}
             </div>
           ) : tickets.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No tickets yet.</p>
+            <p className="text-sm text-muted-foreground">
+              {isFiltered ? 'No tickets match your filters.' : 'No tickets yet.'}
+            </p>
           ) : (
             <TicketsTable tickets={tickets} sorting={sorting} onSortingChange={setSorting} />
           )}
