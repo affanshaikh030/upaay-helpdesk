@@ -29,6 +29,13 @@ export const TicketCategory = {
 
 export type TicketCategory = (typeof TicketCategory)[keyof typeof TicketCategory];
 
+export const SenderType = {
+  AGENT: "AGENT",
+  CUSTOMER: "CUSTOMER",
+} as const;
+
+export type SenderType = (typeof SenderType)[keyof typeof SenderType];
+
 // Query params for GET /api/tickets. Defaults to newest first, unfiltered, 10 per page. `category` also accepts
 // "UNCATEGORIZED" for tickets the AI hasn't classified yet; `search` matches subject, name and email
 export const DEFAULT_PAGE_SIZE = 10;
@@ -61,3 +68,10 @@ export const updateTicketSchema = z
   .refine((v) => Object.values(v).some((x) => x !== undefined), "Nothing to update");
 
 export type UpdateTicketInput = z.infer<typeof updateTicketSchema>;
+
+// Body for POST /api/tickets/:id/replies
+export const createReplySchema = z.object({
+  body: z.string().trim().min(1, "Reply is required").max(10_000, "Reply must be at most 10,000 characters"),
+});
+
+export type CreateReplyInput = z.infer<typeof createReplySchema>;

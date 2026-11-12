@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react'
 import { Link, useParams } from 'react-router'
 import { TicketStatus, type TicketCategory } from '@helpdesk/core'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { ReplyThread } from '@/components/ReplyThread'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -53,6 +54,7 @@ export default function TicketDetailPage() {
         </div>
       ) : (
         <div className="grid items-start gap-6 md:grid-cols-[1fr_8rem]">
+          <div className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-2xl">
@@ -72,6 +74,8 @@ export default function TicketDetailPage() {
               <p className="whitespace-pre-wrap text-sm">{ticket.body}</p>
             </CardContent>
           </Card>
+          <ReplyThread ticketId={ticket.id} />
+          </div>
           <Card className="self-start">
             <CardContent className="space-y-4">
               <div className="space-y-1.5">

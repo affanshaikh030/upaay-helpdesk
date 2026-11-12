@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { UNCATEGORIZED, ticketListQuerySchema, updateTicketSchema } from "@helpdesk/core";
+import { UNCATEGORIZED, createReplySchema, ticketListQuerySchema, updateTicketSchema } from "@helpdesk/core";
 import { prisma } from "../db";
-import { Role, type TicketCategory } from "../generated/prisma/enums";
+import { Role, SenderType, type TicketCategory } from "../generated/prisma/enums";
 import { Prisma } from "../generated/prisma/client";
 
 export const ticketsRouter = Router();
@@ -101,6 +101,45 @@ ticketsRouter.patch("/:id", async (req, res) => {
         res.status(400).json({ error: "Assignee must be an active agent" });
         return;
       }
+    }
+    throw err;
+  }
+});
+
+const replySelect = { id: true, body: true, senderType: true, createdAt: true, author: assigneeSelect };
+
+// Any signed-in user. The reply thread, oldest first
+ticketsRouter.get("/:id/replies", async (req, res) => {
+  const ticketId = parseId(req.params.id);
+  if (!(await prisma.ticket.findUnique({ where: { id: ticketId }, select: { id: true } }))) {
+    res.status(404).json({ error: "Ticket not found" });
+    return;
+  }
+  const replies = await prisma.reply.findMany({
+    where: { ticketId },
+    select: replySelect,
+    orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+  });
+  res.json(replies);
+});
+
+// Any signed-in user. The reply is attributed to the session user, never to anything in the request
+ticketsRouter.post("/:id/replies", async (req, res) => {
+  const parsed = createReplySchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0].message });
+    return;
+  }
+  try {
+    const reply = await prisma.reply.create({
+      data: { ticketId: parseId(req.params.id), body: parsed.data.body, senderType: SenderType.AGENT, authorId: res.locals.user.id },
+      select: replySelect,
+    });
+    res.status(201).json(reply);
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2003") {
+      res.status(404).json({ error: "Ticket not found" });
+      return;
     }
     throw err;
   }

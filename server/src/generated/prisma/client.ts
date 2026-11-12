@@ -71,3 +71,8 @@ export type rateLimit = Prisma.rateLimitModel
  * 
  */
 export type Ticket = Prisma.TicketModel
+/**
+ * Model Reply
+ * 
+ */
+export type Reply = Prisma.ReplyModel

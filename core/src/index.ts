@@ -1,5 +1,6 @@
 export { Role } from "./roles";
 export {
+  createReplySchema,
   inboundEmailSchema,
   ticketListQuerySchema,
   ticketSortColumns,
@@ -7,8 +8,10 @@ export {
   DEFAULT_PAGE_SIZE,
   MAX_PAGE_SIZE,
   UNCATEGORIZED,
+  SenderType,
   TicketCategory,
   TicketStatus,
+  type CreateReplyInput,
   type InboundEmail,
   type TicketListQuery,
   type TicketSortColumn,

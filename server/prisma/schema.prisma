@@ -24,6 +24,11 @@ enum TicketCategory {
   REFUND_REQUEST
 }
 
+enum SenderType {
+  AGENT
+  CUSTOMER
+}
+
 model User {
   id            String    @id
   name          String
@@ -38,6 +43,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
   tickets       Ticket[]
+  replies       Reply[]
 
   @@map("user")
 }
@@ -115,8 +121,26 @@ model Ticket {
   assignedTo   User?           @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
+  replies      Reply[]
 
   @@index([createdAt])
   @@index([assignedToId])
   @@map("ticket")
+}
+
+// An agent's reply on a ticket, shown as a thread under the original message
+model Reply {
+  id         Int        @id @default(autoincrement())
+  ticketId   Int
+  ticket     Ticket     @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  body       String
+  // Who wrote it. Replies from the web app are AGENT; CUSTOMER is for the customer's own emails
+  senderType SenderType @default(AGENT)
+  // Agent who wrote it (always null for CUSTOMER replies)
+  authorId   String?
+  author     User?      @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  createdAt  DateTime   @default(now())
+
+  @@index([ticketId, createdAt])
+  @@map("reply")
 }
