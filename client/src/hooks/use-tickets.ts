@@ -15,15 +15,17 @@ export type Ticket = {
 export const ticketsQueryKey = ['tickets'] as const
 
 export type TicketSort = Pick<TicketListQuery, 'sortBy' | 'sortOrder'>
-export type TicketListParams = TicketSort & Pick<TicketListQuery, 'status' | 'category' | 'search'>
+export type TicketListParams = TicketSort & Partial<Pick<TicketListQuery, 'status' | 'category' | 'search' | 'page' | 'pageSize'>>
+
+export type TicketPage = { tickets: Ticket[]; total: number }
 
 export const defaultTicketSort: TicketSort = { sortBy: 'createdAt', sortOrder: 'desc' }
 
-// Sorting and filtering happen on the server; the previous result stays on screen while a new sort loads
+// Sorting, filtering and paging happen on the server; the previous result stays on screen while a new sort loads
 export function useTickets(params: TicketListParams = defaultTicketSort) {
   return useQuery({
     queryKey: [...ticketsQueryKey, params],
-    queryFn: async ({ signal }) => (await axios.get<Ticket[]>('/api/tickets', { params, signal })).data,
+    queryFn: async ({ signal }) => (await axios.get<TicketPage>('/api/tickets', { params, signal })).data,
     placeholderData: keepPreviousData,
   })
 }

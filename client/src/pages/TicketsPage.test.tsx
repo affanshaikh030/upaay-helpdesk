@@ -37,6 +37,9 @@ const uncategorized: Ticket = {
 const formatDate = (iso: string) =>
   new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso))
 
+// What GET /api/tickets returns: one page of tickets plus the total number of matches
+const ticketPage = (tickets: Ticket[]) => ({ data: { tickets, total: tickets.length } })
+
 const mockGet = () => vi.spyOn(axios, 'get')
 
 function httpError(status: number) {
@@ -71,7 +74,7 @@ describe('TicketsPage', () => {
     })
 
     it('replaces the skeletons with the table once loaded', async () => {
-      mockGet().mockResolvedValue({ data: [refund] })
+      mockGet().mockResolvedValue(ticketPage([refund]))
       renderWithQuery(<TicketsPage />)
 
       expect(await screen.findByRole('table')).toBeInTheDocument()
@@ -81,18 +84,21 @@ describe('TicketsPage', () => {
 
   describe('request', () => {
     it('requests /api/tickets once, with an abort signal', async () => {
-      const get = mockGet().mockResolvedValue({ data: [refund] })
+      const get = mockGet().mockResolvedValue(ticketPage([refund]))
       renderWithQuery(<TicketsPage />)
       await screen.findByRole('table')
 
       expect(get).toHaveBeenCalledTimes(1)
-      expect(get).toHaveBeenCalledWith('/api/tickets', { signal: expect.any(AbortSignal) })
+      expect(get).toHaveBeenCalledWith('/api/tickets', {
+        params: expect.objectContaining({ sortBy: 'createdAt', sortOrder: 'desc', page: 1 }),
+        signal: expect.any(AbortSignal),
+      })
     })
   })
 
   describe('with tickets', () => {
     it('renders the column headers', async () => {
-      mockGet().mockResolvedValue({ data: [refund] })
+      mockGet().mockResolvedValue(ticketPage([refund]))
       renderWithQuery(<TicketsPage />)
       await screen.findByRole('table')
 
@@ -101,7 +107,7 @@ describe('TicketsPage', () => {
     })
 
     it('renders one row per ticket with subject, sender, status, category and date', async () => {
-      mockGet().mockResolvedValue({ data: [refund, technical] })
+      mockGet().mockResolvedValue(ticketPage([refund, technical]))
       renderWithQuery(<TicketsPage />)
       await screen.findByRole('table')
 
@@ -125,7 +131,7 @@ describe('TicketsPage', () => {
     })
 
     it('shows tickets in the order the API returns them (newest first) without re-sorting', async () => {
-      mockGet().mockResolvedValue({ data: [refund, technical, uncategorized] })
+      mockGet().mockResolvedValue(ticketPage([refund, technical, uncategorized]))
       renderWithQuery(<TicketsPage />)
       await screen.findByRole('table')
 
@@ -135,7 +141,7 @@ describe('TicketsPage', () => {
 
     it('does not re-order what the API returns', async () => {
       // An older ticket first: the page must show the response order, not sort on its own
-      mockGet().mockResolvedValue({ data: [uncategorized, refund] })
+      mockGet().mockResolvedValue(ticketPage([uncategorized, refund]))
       renderWithQuery(<TicketsPage />)
       await screen.findByRole('table')
 
@@ -144,7 +150,7 @@ describe('TicketsPage', () => {
     })
 
     it('labels each status with a readable name, not the raw enum value', async () => {
-      mockGet().mockResolvedValue({ data: [refund, technical, uncategorized] })
+      mockGet().mockResolvedValue(ticketPage([refund, technical, uncategorized]))
       renderWithQuery(<TicketsPage />)
       await screen.findByRole('table')
 
@@ -159,7 +165,7 @@ describe('TicketsPage', () => {
 
     it('labels each category with a readable name, not the raw enum value', async () => {
       const general: Ticket = { ...refund, id: 4, category: TicketCategory.GENERAL_QUESTION }
-      mockGet().mockResolvedValue({ data: [general, technical, refund] })
+      mockGet().mockResolvedValue(ticketPage([general, technical, refund]))
       renderWithQuery(<TicketsPage />)
       await screen.findByRole('table')
 
@@ -173,7 +179,7 @@ describe('TicketsPage', () => {
     })
 
     it('shows "Uncategorized" when a ticket has no category', async () => {
-      mockGet().mockResolvedValue({ data: [uncategorized] })
+      mockGet().mockResolvedValue(ticketPage([uncategorized]))
       renderWithQuery(<TicketsPage />)
       await screen.findByRole('table')
 
@@ -181,14 +187,14 @@ describe('TicketsPage', () => {
     })
 
     it('shows a plural count with the sort order for several tickets', async () => {
-      mockGet().mockResolvedValue({ data: [refund, technical] })
+      mockGet().mockResolvedValue(ticketPage([refund, technical]))
       renderWithQuery(<TicketsPage />)
 
       expect(await screen.findByText('2 tickets, newest first')).toBeInTheDocument()
     })
 
     it('shows a singular count for one ticket', async () => {
-      mockGet().mockResolvedValue({ data: [refund] })
+      mockGet().mockResolvedValue(ticketPage([refund]))
       renderWithQuery(<TicketsPage />)
 
       expect(await screen.findByText('1 ticket, newest first')).toBeInTheDocument()
@@ -198,7 +204,7 @@ describe('TicketsPage', () => {
 
   describe('empty list', () => {
     it('shows an empty state instead of a table', async () => {
-      mockGet().mockResolvedValue({ data: [] })
+      mockGet().mockResolvedValue(ticketPage([]))
       renderWithQuery(<TicketsPage />)
 
       expect(await screen.findByText('No tickets yet.')).toBeInTheDocument()
