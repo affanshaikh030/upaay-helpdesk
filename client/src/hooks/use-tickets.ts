@@ -1,6 +1,8 @@
 import axios from 'axios'
-import type { TicketCategory, TicketListQuery, TicketStatus } from '@helpdesk/core'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import type { TicketCategory, TicketListQuery, TicketStatus, UpdateTicketInput } from '@helpdesk/core'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+
+export type Assignee = { id: string; name: string }
 
 export type Ticket = {
   id: number
@@ -10,6 +12,7 @@ export type Ticket = {
   status: TicketStatus
   category: TicketCategory | null
   createdAt: string
+  assignedTo: Assignee | null
 }
 
 export type TicketDetail = Ticket & {
@@ -41,5 +44,24 @@ export function useTickets(params: TicketListParams = defaultTicketSort) {
     queryKey: [...ticketsQueryKey, params],
     queryFn: async ({ signal }) => (await axios.get<TicketPage>('/api/tickets', { params, signal })).data,
     placeholderData: keepPreviousData,
+  })
+}
+
+export const assigneesQueryKey = [...ticketsQueryKey, 'assignees'] as const
+
+export function useAssignees() {
+  return useQuery({
+    queryKey: assigneesQueryKey,
+    queryFn: async ({ signal }) => (await axios.get<Assignee[]>('/api/tickets/assignees', { signal })).data,
+  })
+}
+
+export function useUpdateTicket(id: number) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: UpdateTicketInput) =>
+      (await axios.patch<TicketDetail>(`/api/tickets/${id}`, input)).data,
+    // Refetches the list and this ticket's detail (both live under the tickets key)
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ticketsQueryKey }),
   })
 }

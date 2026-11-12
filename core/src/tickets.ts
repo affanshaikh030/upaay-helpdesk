@@ -49,3 +49,10 @@ export const ticketListQuerySchema = z.object({
 });
 
 export type TicketListQuery = z.infer<typeof ticketListQuerySchema>;
+
+// Body for PATCH /api/tickets/:id. null unassigns
+export const updateTicketSchema = z.object({
+  assignedToId: z.string().min(1).nullable(),
+});
+
+export type UpdateTicketInput = z.infer<typeof updateTicketSchema>;

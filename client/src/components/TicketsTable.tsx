@@ -60,6 +60,17 @@ const columns: ColumnDef<Ticket>[] = [
       ),
   },
   {
+    id: 'assignedTo',
+    header: 'Assigned to',
+    enableSorting: false,
+    cell: ({ row }) =>
+      row.original.assignedTo ? (
+        row.original.assignedTo.name
+      ) : (
+        <span className="text-muted-foreground">Unassigned</span>
+      ),
+  },
+  {
     accessorKey: 'createdAt',
     header: 'Created',
     cell: ({ row }) => <span className="whitespace-nowrap">{dateFormat.format(new Date(row.original.createdAt))}</span>,
@@ -99,14 +110,18 @@ export function TicketsTable({ tickets, sorting, onSortingChange }: TicketsTable
                   key={header.id}
                   aria-sort={sorted === 'asc' ? 'ascending' : sorted === 'desc' ? 'descending' : 'none'}
                 >
-                  <button
-                    type="button"
-                    className="-ml-2 inline-flex cursor-pointer items-center gap-1 rounded px-2 py-1 hover:bg-muted"
-                    onClick={header.column.getToggleSortingHandler()}
-                  >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                    <Icon className={sorted ? 'size-4' : 'size-4 text-muted-foreground'} aria-hidden />
-                  </button>
+                  {header.column.getCanSort() ? (
+                    <button
+                      type="button"
+                      className="-ml-2 inline-flex cursor-pointer items-center gap-1 rounded px-2 py-1 hover:bg-muted"
+                      onClick={header.column.getToggleSortingHandler()}
+                    >
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      <Icon className={sorted ? 'size-4' : 'size-4 text-muted-foreground'} aria-hidden />
+                    </button>
+                  ) : (
+                    flexRender(header.column.columnDef.header, header.getContext())
+                  )}
                 </TableHead>
               )
             })}

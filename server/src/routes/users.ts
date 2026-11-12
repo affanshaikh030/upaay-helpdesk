@@ -115,6 +115,8 @@ usersRouter.delete("/:id", requireRole(Role.ADMIN), async (req, res) => {
   await prisma.$transaction([
     prisma.user.update({ where: { id }, data: { deletedAt: new Date() } }),
     prisma.session.deleteMany({ where: { userId: id } }),
+    // Soft delete doesn't trigger the FK's SET NULL, so release their tickets here
+    prisma.ticket.updateMany({ where: { assignedToId: id }, data: { assignedToId: null } }),
   ]);
   res.status(204).end();
 });

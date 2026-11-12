@@ -3,6 +3,7 @@ export {
   inboundEmailSchema,
   ticketListQuerySchema,
   ticketSortColumns,
+  updateTicketSchema,
   DEFAULT_PAGE_SIZE,
   MAX_PAGE_SIZE,
   UNCATEGORIZED,
@@ -11,6 +12,7 @@ export {
   type InboundEmail,
   type TicketListQuery,
   type TicketSortColumn,
+  type UpdateTicketInput,
 } from "./tickets";
 export {
   createUserSchema,

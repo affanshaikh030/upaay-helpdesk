@@ -14,6 +14,7 @@ const refund: Ticket = {
   status: TicketStatus.OPEN,
   category: TicketCategory.REFUND_REQUEST,
   createdAt: '2026-11-11T10:30:00.000Z',
+  assignedTo: null,
 }
 const technical: Ticket = {
   id: 2,
@@ -23,6 +24,7 @@ const technical: Ticket = {
   status: TicketStatus.RESOLVED,
   category: TicketCategory.TECHNICAL_QUESTION,
   createdAt: '2026-11-10T09:00:00.000Z',
+  assignedTo: null,
 }
 const uncategorized: Ticket = {
   id: 1,
@@ -32,6 +34,7 @@ const uncategorized: Ticket = {
   status: TicketStatus.CLOSED,
   category: null,
   createdAt: '2026-11-09T08:15:00.000Z',
+  assignedTo: null,
 }
 
 const formatDate = (iso: string) =>
@@ -103,7 +106,7 @@ describe('TicketsPage', () => {
       await screen.findByRole('table')
 
       const headers = screen.getAllByRole('columnheader').map((h) => h.textContent)
-      expect(headers).toEqual(['Subject', 'From', 'Status', 'Category', 'Created'])
+      expect(headers).toEqual(['Subject', 'From', 'Status', 'Category', 'Assigned to', 'Created'])
     })
 
     it('renders one row per ticket with subject, sender, status, category and date', async () => {

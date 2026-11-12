@@ -37,6 +37,7 @@ model User {
   deletedAt     DateTime?
   sessions      Session[]
   accounts      Account[]
+  tickets       Ticket[]
 
   @@map("user")
 }
@@ -99,19 +100,23 @@ model rateLimit {
 
 // Created from inbound support emails
 model Ticket {
-  id        Int            @id @default(autoincrement())
-  subject   String
-  body      String
-  fromEmail String
-  fromName  String
+  id           Int             @id @default(autoincrement())
+  subject      String
+  body         String
+  fromEmail    String
+  fromName     String
   // Email Message-ID: makes webhook retries idempotent (and lets threading be added later)
-  messageId String?        @unique
-  status    TicketStatus   @default(OPEN)
+  messageId    String?         @unique
+  status       TicketStatus    @default(OPEN)
   // Unset until AI classification assigns one (no default)
-  category  TicketCategory?
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  category     TicketCategory?
+  // Agent handling the ticket; cleared when that user is deleted
+  assignedToId String?
+  assignedTo   User?           @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
 
   @@index([createdAt])
+  @@index([assignedToId])
   @@map("ticket")
 }
