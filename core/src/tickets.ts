@@ -50,9 +50,14 @@ export const ticketListQuerySchema = z.object({
 
 export type TicketListQuery = z.infer<typeof ticketListQuerySchema>;
 
-// Body for PATCH /api/tickets/:id. null unassigns
-export const updateTicketSchema = z.object({
-  assignedToId: z.string().min(1).nullable(),
-});
+// Body for PATCH /api/tickets/:id: any of these, at least one. assignedToId null unassigns; category null clears it
+export const updateTicketSchema = z
+  .object({
+    assignedToId: z.string().min(1).nullable(),
+    status: z.enum(TicketStatus),
+    category: z.enum(TicketCategory).nullable(),
+  })
+  .partial()
+  .refine((v) => Object.values(v).some((x) => x !== undefined), "Nothing to update");
 
 export type UpdateTicketInput = z.infer<typeof updateTicketSchema>;

@@ -53,7 +53,7 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('TicketDetailPage assignment', () => {
+describe('TicketDetailPage', () => {
   it('lists unassigned and every agent in the dropdown', async () => {
     mockGets()
     renderPage()
@@ -123,7 +123,7 @@ describe('TicketDetailPage assignment', () => {
     await screen.findByRole('option', { name: 'Alice Agent' })
     fireEvent.change(select, { target: { value: 'agent-1' } })
 
-    expect(await screen.findByText('Failed to update assignee')).toBeInTheDocument()
+    expect(await screen.findByText('Failed to update ticket')).toBeInTheDocument()
   })
 
   it('shows not found for a missing ticket', async () => {
@@ -132,5 +132,56 @@ describe('TicketDetailPage assignment', () => {
 
     expect(await screen.findByText('Ticket not found')).toBeInTheDocument()
     expect(screen.queryByRole('combobox', { name: 'Assigned to' })).not.toBeInTheDocument()
+  })
+
+  it('shows the current status and category', async () => {
+    mockGets()
+    renderPage()
+
+    expect(await screen.findByRole('combobox', { name: 'Status' })).toHaveValue(TicketStatus.OPEN)
+    expect(screen.getByRole('combobox', { name: 'Category' })).toHaveValue(TicketCategory.REFUND_REQUEST)
+  })
+
+  it('shows an empty category as Uncategorized', async () => {
+    mockGets({ ...ticket, category: null })
+    renderPage()
+
+    expect(await screen.findByRole('combobox', { name: 'Category' })).toHaveValue('')
+  })
+
+  it('sends only the status when it changes', async () => {
+    mockGets()
+    const patch = vi.spyOn(axios, 'patch').mockResolvedValue({ data: { ...ticket, status: TicketStatus.RESOLVED } })
+    renderPage()
+
+    fireEvent.change(await screen.findByRole('combobox', { name: 'Status' }), {
+      target: { value: TicketStatus.RESOLVED },
+    })
+
+    await waitFor(() => expect(patch).toHaveBeenCalledWith('/api/tickets/7', { status: TicketStatus.RESOLVED }))
+  })
+
+  it('sends only the category when it changes', async () => {
+    mockGets()
+    const patch = vi.spyOn(axios, 'patch').mockResolvedValue({ data: ticket })
+    renderPage()
+
+    fireEvent.change(await screen.findByRole('combobox', { name: 'Category' }), {
+      target: { value: TicketCategory.GENERAL_QUESTION },
+    })
+
+    await waitFor(() =>
+      expect(patch).toHaveBeenCalledWith('/api/tickets/7', { category: TicketCategory.GENERAL_QUESTION }),
+    )
+  })
+
+  it('sends null when the category is cleared', async () => {
+    mockGets()
+    const patch = vi.spyOn(axios, 'patch').mockResolvedValue({ data: { ...ticket, category: null } })
+    renderPage()
+
+    fireEvent.change(await screen.findByRole('combobox', { name: 'Category' }), { target: { value: '' } })
+
+    await waitFor(() => expect(patch).toHaveBeenCalledWith('/api/tickets/7', { category: null }))
   })
 })

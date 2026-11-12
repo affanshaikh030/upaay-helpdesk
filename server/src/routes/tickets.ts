@@ -68,15 +68,15 @@ ticketsRouter.get("/:id", async (req, res) => {
   res.json(ticket);
 });
 
-// Any signed-in user. Assigns the ticket to an active agent, or unassigns it with null
+// Any signed-in user. Updates the assignee (an active agent, or null to unassign), status and/or category (null clears it)
 ticketsRouter.patch("/:id", async (req, res) => {
   const parsed = updateTicketSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Invalid input" });
     return;
   }
-  const { assignedToId } = parsed.data;
-  if (assignedToId !== null) {
+  const { assignedToId, status, category } = parsed.data;
+  if (assignedToId) {
     const agent = await prisma.user.findFirst({ where: { id: assignedToId, role: Role.AGENT, deletedAt: null } });
     if (!agent) {
       res.status(400).json({ error: "Assignee must be an active agent" });
@@ -86,7 +86,7 @@ ticketsRouter.patch("/:id", async (req, res) => {
   try {
     const ticket = await prisma.ticket.update({
       where: { id: parseId(req.params.id) },
-      data: { assignedToId },
+      data: { assignedToId, status, category },
       include: { assignedTo: assigneeSelect },
     });
     res.json(ticket);
