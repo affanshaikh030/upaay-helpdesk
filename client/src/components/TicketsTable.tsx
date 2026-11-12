@@ -8,6 +8,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
+import { Link } from 'react-router'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { Ticket } from '@/hooks/use-tickets'
@@ -25,7 +26,11 @@ const columns: ColumnDef<Ticket>[] = [
   {
     accessorKey: 'subject',
     header: 'Subject',
-    cell: ({ row }) => <span className="block max-w-xs truncate font-medium">{row.original.subject}</span>,
+    cell: ({ row }) => (
+      <Link to={`/tickets/${row.original.id}`} className="block max-w-xs truncate font-medium hover:underline">
+        {row.original.subject}
+      </Link>
+    ),
   },
   {
     accessorKey: 'fromName',

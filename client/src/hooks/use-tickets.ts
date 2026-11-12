@@ -12,7 +12,21 @@ export type Ticket = {
   createdAt: string
 }
 
+export type TicketDetail = Ticket & {
+  body: string
+  messageId: string | null
+  updatedAt: string
+}
+
 export const ticketsQueryKey = ['tickets'] as const
+
+export function useTicket(id: string | undefined) {
+  return useQuery({
+    queryKey: [...ticketsQueryKey, 'detail', id],
+    queryFn: async ({ signal }) => (await axios.get<TicketDetail>(`/api/tickets/${id}`, { signal })).data,
+    enabled: id !== undefined,
+  })
+}
 
 export type TicketSort = Pick<TicketListQuery, 'sortBy' | 'sortOrder'>
 export type TicketListParams = TicketSort & Partial<Pick<TicketListQuery, 'status' | 'category' | 'search' | 'page' | 'pageSize'>>

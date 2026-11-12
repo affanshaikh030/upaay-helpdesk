@@ -42,3 +42,18 @@ ticketsRouter.get("/", async (req, res) => {
   ]);
   res.json({ tickets, total });
 });
+
+// Any signed-in user. Unlike the list, includes the body
+ticketsRouter.get("/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isSafeInteger(id) || id < 1 || id > 2_147_483_647) {
+    res.status(404).json({ error: "Ticket not found" });
+    return;
+  }
+  const ticket = await prisma.ticket.findUnique({ where: { id } });
+  if (!ticket) {
+    res.status(404).json({ error: "Ticket not found" });
+    return;
+  }
+  res.json(ticket);
+});
