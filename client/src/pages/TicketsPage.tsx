@@ -1,11 +1,20 @@
+import { useState } from 'react'
+import type { SortingState } from '@tanstack/react-table'
+import type { TicketSortColumn } from '@helpdesk/core'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { TicketsTable } from '@/components/TicketsTable'
-import { useTickets } from '@/hooks/use-tickets'
+import { defaultTicketSort, useTickets } from '@/hooks/use-tickets'
 
 export default function TicketsPage() {
-  const { data: tickets, error } = useTickets()
+  const [sorting, setSorting] = useState<SortingState>([
+    { id: defaultTicketSort.sortBy, desc: defaultTicketSort.sortOrder === 'desc' },
+  ])
+  const { data: tickets, error } = useTickets({
+    sortBy: sorting[0].id as TicketSortColumn,
+    sortOrder: sorting[0].desc ? 'desc' : 'asc',
+  })
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-8">
@@ -16,7 +25,7 @@ export default function TicketsPage() {
           </CardTitle>
           <CardDescription>
             {tickets
-              ? `${tickets.length} ${tickets.length === 1 ? 'ticket' : 'tickets'}, newest first`
+              ? `${tickets.length} ${tickets.length === 1 ? 'ticket' : 'tickets'}`
               : 'Support requests received by email'}
           </CardDescription>
         </CardHeader>
@@ -39,7 +48,7 @@ export default function TicketsPage() {
           ) : tickets.length === 0 ? (
             <p className="text-sm text-muted-foreground">No tickets yet.</p>
           ) : (
-            <TicketsTable tickets={tickets} />
+            <TicketsTable tickets={tickets} sorting={sorting} onSortingChange={setSorting} />
           )}
         </CardContent>
       </Card>

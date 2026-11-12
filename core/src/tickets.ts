@@ -28,3 +28,15 @@ export const TicketCategory = {
 } as const;
 
 export type TicketCategory = (typeof TicketCategory)[keyof typeof TicketCategory];
+
+// Query params for GET /api/tickets. Defaults to newest first
+export const ticketSortColumns = ["subject", "fromName", "status", "category", "createdAt"] as const;
+
+export type TicketSortColumn = (typeof ticketSortColumns)[number];
+
+export const ticketListQuerySchema = z.object({
+  sortBy: z.enum(ticketSortColumns).default("createdAt"),
+  sortOrder: z.enum(["asc", "desc"]).default("desc"),
+});
+
+export type TicketListQuery = z.infer<typeof ticketListQuerySchema>;

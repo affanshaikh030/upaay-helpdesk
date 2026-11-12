@@ -1,6 +1,6 @@
 import axios from 'axios'
-import type { TicketCategory, TicketStatus } from '@helpdesk/core'
-import { useQuery } from '@tanstack/react-query'
+import type { TicketCategory, TicketListQuery, TicketStatus } from '@helpdesk/core'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 export type Ticket = {
   id: number
@@ -14,10 +14,15 @@ export type Ticket = {
 
 export const ticketsQueryKey = ['tickets'] as const
 
-// The API returns tickets newest first
-export function useTickets() {
+export type TicketSort = Pick<TicketListQuery, 'sortBy' | 'sortOrder'>
+
+export const defaultTicketSort: TicketSort = { sortBy: 'createdAt', sortOrder: 'desc' }
+
+// Sorting happens on the server; the previous result stays on screen while a new sort loads
+export function useTickets(sort: TicketSort = defaultTicketSort) {
   return useQuery({
-    queryKey: ticketsQueryKey,
-    queryFn: async ({ signal }) => (await axios.get<Ticket[]>('/api/tickets', { signal })).data,
+    queryKey: [...ticketsQueryKey, sort],
+    queryFn: async ({ signal }) => (await axios.get<Ticket[]>('/api/tickets', { params: sort, signal })).data,
+    placeholderData: keepPreviousData,
   })
 }

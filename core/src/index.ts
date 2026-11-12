@@ -1,5 +1,14 @@
 export { Role } from "./roles";
-export { inboundEmailSchema, TicketCategory, TicketStatus, type InboundEmail } from "./tickets";
+export {
+  inboundEmailSchema,
+  ticketListQuerySchema,
+  ticketSortColumns,
+  TicketCategory,
+  TicketStatus,
+  type InboundEmail,
+  type TicketListQuery,
+  type TicketSortColumn,
+} from "./tickets";
 export {
   createUserSchema,
   updateUserSchema,
