@@ -1,35 +1,16 @@
 import { isAxiosError } from 'axios'
 import { ArrowLeft } from 'lucide-react'
 import { Link, useParams } from 'react-router'
-import { TicketStatus, type TicketCategory } from '@helpdesk/core'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { ReplyThread } from '@/components/ReplyThread'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { TicketDetail } from '@/components/TicketDetail'
+import { UpdateTicket } from '@/components/UpdateTicket'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Label } from '@/components/ui/label'
-import { useAssignees, useTicket, useUpdateTicket } from '@/hooks/use-tickets'
-import { categoryLabels, statusLabels } from '@/lib/ticket-labels'
-
-const selectClass =
-  'block h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50 dark:bg-input/30'
-
-const dateFormat = new Intl.DateTimeFormat(undefined, {
-  dateStyle: 'medium',
-  timeStyle: 'short',
-})
-
-const statusVariants: Record<TicketStatus, 'default' | 'secondary' | 'outline'> = {
-  [TicketStatus.OPEN]: 'default',
-  [TicketStatus.RESOLVED]: 'secondary',
-  [TicketStatus.CLOSED]: 'outline',
-}
+import { useTicket } from '@/hooks/use-tickets'
 
 export default function TicketDetailPage() {
   const { id } = useParams()
   const { data: ticket, error } = useTicket(id)
-  const { data: assignees } = useAssignees()
-  const update = useUpdateTicket(Number(id))
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-8">
@@ -55,86 +36,10 @@ export default function TicketDetailPage() {
       ) : (
         <div className="grid items-start gap-6 md:grid-cols-[1fr_8rem]">
           <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">
-                <h1>{ticket.subject || '(no subject)'}</h1>
-              </CardTitle>
-              <CardDescription>
-                From {ticket.fromName} &lt;{ticket.fromEmail}&gt; · {dateFormat.format(new Date(ticket.createdAt))}
-              </CardDescription>
-              <div className="flex items-center gap-2 pt-2">
-                <Badge variant={statusVariants[ticket.status]}>{statusLabels[ticket.status]}</Badge>
-                <span className="text-sm text-muted-foreground">
-                  {ticket.category ? categoryLabels[ticket.category] : 'Uncategorized'}
-                </span>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="whitespace-pre-wrap text-sm">{ticket.body}</p>
-            </CardContent>
-          </Card>
+          <TicketDetail ticket={ticket} />
           <ReplyThread ticketId={ticket.id} />
           </div>
-          <Card className="self-start">
-            <CardContent className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="ticket-status">Status</Label>
-                <select
-                  id="ticket-status"
-                  className={selectClass}
-                  value={ticket.status}
-                  disabled={update.isPending}
-                  onChange={(e) => update.mutate({ status: e.target.value as TicketStatus })}
-                >
-                  {Object.entries(statusLabels).map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="ticket-category">Category</Label>
-                <select
-                  id="ticket-category"
-                  className={selectClass}
-                  value={ticket.category ?? ''}
-                  disabled={update.isPending}
-                  onChange={(e) =>
-                    update.mutate({
-                      category: (e.target.value || null) as TicketCategory | null,
-                    })
-                  }
-                >
-                  <option value="">Uncategorized</option>
-                  {Object.entries(categoryLabels).map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="ticket-assignee">Assigned to</Label>
-                <select
-                  id="ticket-assignee"
-                  className={selectClass}
-                  value={ticket.assignedTo?.id ?? ''}
-                  disabled={update.isPending}
-                  onChange={(e) => update.mutate({ assignedToId: e.target.value || null })}
-                >
-                  <option value="">Unassigned</option>
-                  {assignees?.map((agent) => (
-                    <option key={agent.id} value={agent.id}>
-                      {agent.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {update.isError && <p className="text-sm text-destructive">Failed to update ticket</p>}
-            </CardContent>
-          </Card>
+          <UpdateTicket ticket={ticket} />
         </div>
       )}
     </main>

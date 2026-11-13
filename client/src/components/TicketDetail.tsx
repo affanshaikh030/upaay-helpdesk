@@ -1,0 +1,41 @@
+import { TicketStatus } from '@helpdesk/core'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import type { TicketDetail as TicketDetailData } from '@/hooks/use-tickets'
+import { categoryLabels, statusLabels } from '@/lib/ticket-labels'
+
+const dateFormat = new Intl.DateTimeFormat(undefined, {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+})
+
+const statusVariants: Record<TicketStatus, 'default' | 'secondary' | 'outline'> = {
+  [TicketStatus.OPEN]: 'default',
+  [TicketStatus.RESOLVED]: 'secondary',
+  [TicketStatus.CLOSED]: 'outline',
+}
+
+// The ticket's original message: subject, sender, date, status, category and body (no replies)
+export function TicketDetail({ ticket }: { ticket: TicketDetailData }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-2xl">
+          <h1>{ticket.subject || '(no subject)'}</h1>
+        </CardTitle>
+        <CardDescription>
+          From {ticket.fromName} &lt;{ticket.fromEmail}&gt; · {dateFormat.format(new Date(ticket.createdAt))}
+        </CardDescription>
+        <div className="flex items-center gap-2 pt-2">
+          <Badge variant={statusVariants[ticket.status]}>{statusLabels[ticket.status]}</Badge>
+          <span className="text-sm text-muted-foreground">
+            {ticket.category ? categoryLabels[ticket.category] : 'Uncategorized'}
+          </span>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <p className="whitespace-pre-wrap text-sm">{ticket.body}</p>
+      </CardContent>
+    </Card>
+  )
+}
