@@ -43,6 +43,7 @@ Source-of-truth docs (read these first):
 ## Testing strategy
 - **Default to component tests; E2E only when necessary.** Cover UI behaviour (rendering, loading/empty/error states, forms and validation, dialogs, role-dependent UI, labels) with component tests: they are fast and need no server or database. Don't duplicate in E2E what a component test already covers, and when a feature could be tested either way, write the component test.
 - **E2E is for what component tests can't prove**, because it needs the real client, server and database together: session and cookie auth, authorization enforced by the server, database effects (soft delete, uniqueness, idempotency), server-only endpoints such as the inbound email webhook, and flows that span pages. Keep E2E suites small and focused on these happy paths and critical checks.
+- **Don't keep an E2E test that a component test already covers.** Keep E2E only for what needs the real client, server and database, and always keep the server-side security tests (login/session, `/api/users` authorization, origin check, inbound-email webhook secret).
 - The rules below on when to write or run tests still apply: write or run either kind only when I explicitly ask. This section only decides which kind to reach for.
 
 ## Component tests (Vitest + React Testing Library)

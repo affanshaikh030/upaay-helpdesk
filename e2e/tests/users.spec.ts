@@ -15,37 +15,6 @@ test.describe('users page as admin', () => {
     await expect(page).toHaveURL('/users')
     await expect(page.getByRole('heading', { name: 'Users' })).toBeVisible()
   })
-
-  test('shows the table with both seeded users, admin first', async ({ page }) => {
-    await page.goto('/users')
-    await expect(page.getByText('2 users')).toBeVisible()
-
-    for (const header of ['Name', 'Email', 'Role', 'Created']) {
-      await expect(page.getByRole('columnheader', { name: header })).toBeVisible()
-    }
-
-    const rows = page.getByRole('row')
-    await expect(rows).toHaveCount(3) // header + 2 users
-    for (const [index, user] of [admin, agent].entries()) {
-      const row = rows.nth(index + 1)
-      const cells = row.getByRole('cell')
-      await expect(cells.nth(0)).toHaveText(user.name)
-      await expect(cells.nth(1)).toHaveText(user.email)
-      await expect(cells.nth(2)).toHaveText(user.role)
-      await expect(cells.nth(3)).toHaveText(/\d{4}/) // formatted date with a year
-      await expect(cells.nth(3)).toHaveText(/[A-Za-z]{3,}\.? \d{1,2}, \d{4}/)
-    }
-  })
-
-  test('never shows password or hash text', async ({ page }) => {
-    await page.goto('/users')
-    await expect(page.getByText('2 users')).toBeVisible()
-    const text = (await page.locator('main').innerText()).toLowerCase()
-    expect(text).not.toContain(testUsers.admin.password.toLowerCase())
-    expect(text).not.toContain(testUsers.agent.password.toLowerCase())
-    expect(text).not.toContain('password')
-    expect(text).not.toContain('hash')
-  })
 })
 
 test.describe('users page as agent', () => {
@@ -66,55 +35,6 @@ test.describe('users page logged out', () => {
   test('/users redirects to /login', async ({ page }) => {
     await page.goto('/users')
     await expect(page).toHaveURL('/login')
-    await expect(page.getByRole('table')).toHaveCount(0)
-  })
-})
-
-test.describe('users page states', () => {
-  test.beforeEach(async ({ page }) => {
-    await loginViaUi(page, testUsers.admin)
-  })
-
-  test('shows a loading state while the request is pending', async ({ page }) => {
-    let release!: () => void
-    const gate = new Promise<void>((resolve) => (release = resolve))
-    await page.route('**/api/users', async (route) => {
-      await gate
-      await route.continue()
-    })
-
-    await page.goto('/users')
-    await expect(page.getByRole('status', { name: 'Loading users' })).toBeVisible()
-    await expect(page.getByRole('table')).toHaveCount(0)
-
-    release()
-    await expect(page.getByRole('status', { name: 'Loading users' })).toBeHidden()
-    await expect(page.getByRole('table')).toBeVisible()
-  })
-
-  test('shows an error alert when the request fails with 500', async ({ page }) => {
-    await page.route('**/api/users', (route) =>
-      route.fulfill({ status: 500, json: { error: 'boom' } }),
-    )
-    await page.goto('/users')
-    await expect(page.getByRole('alert')).toHaveText('Failed to load users')
-    await expect(page.getByRole('table')).toHaveCount(0)
-  })
-
-  test('shows an access message when the API returns 403', async ({ page }) => {
-    await page.route('**/api/users', (route) =>
-      route.fulfill({ status: 403, json: { error: 'Forbidden' } }),
-    )
-    await page.goto('/users')
-    await expect(page.getByRole('alert')).toHaveText('You do not have access to this page')
-    await expect(page.getByRole('table')).toHaveCount(0)
-  })
-
-  test('shows an empty state for an empty list', async ({ page }) => {
-    await page.route('**/api/users', (route) => route.fulfill({ status: 200, json: [] }))
-    await page.goto('/users')
-    await expect(page.getByText('No users found.')).toBeVisible()
-    await expect(page.getByText('0 users')).toBeVisible()
     await expect(page.getByRole('table')).toHaveCount(0)
   })
 })

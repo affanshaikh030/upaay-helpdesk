@@ -73,12 +73,6 @@ test.describe('user management as admin', () => {
     await cleanup(request, created)
   })
 
-  test('read: lists users in a table with an Agent badge and a user count', async ({ page }) => {
-    await expect(page.getByRole('row', { name: /Test Admin/ }).getByRole('cell').nth(2)).toHaveText('Admin')
-    await expect(page.getByRole('row', { name: /Test Agent/ }).getByRole('cell').nth(2)).toHaveText('Agent')
-    await expect(page.getByText(/^\d+ users?$/)).toBeVisible()
-  })
-
   test('create: a new user appears in the table as an Agent and can sign in', async ({ page, browser, baseURL }) => {
     const user = uniqueUser('create')
     created.push(user.email)
