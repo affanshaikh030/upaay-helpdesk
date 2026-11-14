@@ -31,10 +31,11 @@ function httpError(status: number) {
   return new AxiosError(`Request failed with status code ${status}`, 'ERR_BAD_RESPONSE', undefined, undefined, response)
 }
 
-// Routes GET requests by URL: the ticket, the assignable agents
+// Routes GET requests by URL: the ticket, the assignable agents, the (empty) reply thread
 function mockGets(detail: TicketDetail | AxiosError = ticket) {
   return vi.spyOn(axios, 'get').mockImplementation(async (url: string) => {
     if (url === '/api/tickets/assignees') return { data: agents }
+    if (url === '/api/tickets/7/replies') return { data: [] }
     if (detail instanceof AxiosError) throw detail
     return { data: detail }
   })

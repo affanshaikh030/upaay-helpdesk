@@ -189,18 +189,18 @@ describe('TicketsPage', () => {
       expect(within(dataRows()[0]).getByText('Uncategorized')).toBeInTheDocument()
     })
 
-    it('shows a plural count with the sort order for several tickets', async () => {
+    it('shows a plural count for several tickets', async () => {
       mockGet().mockResolvedValue(ticketPage([refund, technical]))
       renderWithQuery(<TicketsPage />)
 
-      expect(await screen.findByText('2 tickets, newest first')).toBeInTheDocument()
+      expect(await screen.findByText('2 tickets')).toBeInTheDocument()
     })
 
     it('shows a singular count for one ticket', async () => {
       mockGet().mockResolvedValue(ticketPage([refund]))
       renderWithQuery(<TicketsPage />)
 
-      expect(await screen.findByText('1 ticket, newest first')).toBeInTheDocument()
+      expect(await screen.findByText('1 ticket')).toBeInTheDocument()
       expect(screen.queryByText(/1 tickets/)).not.toBeInTheDocument()
     })
   })
@@ -211,7 +211,7 @@ describe('TicketsPage', () => {
       renderWithQuery(<TicketsPage />)
 
       expect(await screen.findByText('No tickets yet.')).toBeInTheDocument()
-      expect(screen.getByText('0 tickets, newest first')).toBeInTheDocument()
+      expect(screen.getByText('0 tickets')).toBeInTheDocument()
       expect(screen.queryByRole('table')).not.toBeInTheDocument()
     })
   })
