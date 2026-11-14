@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+import DOMPurify from 'dompurify'
 import { TicketStatus } from '@helpdesk/core'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,6 +19,8 @@ const statusVariants: Record<TicketStatus, 'default' | 'secondary' | 'outline'> 
 
 // The ticket's original message: subject, sender, date, status, category and body (no replies)
 export function TicketDetail({ ticket }: { ticket: TicketDetailData }) {
+  const sanitizedHtml = useMemo(() => (ticket.bodyHtml ? DOMPurify.sanitize(ticket.bodyHtml) : null), [ticket.bodyHtml])
+
   return (
     <Card>
       <CardHeader>
@@ -34,7 +38,11 @@ export function TicketDetail({ ticket }: { ticket: TicketDetailData }) {
         </div>
       </CardHeader>
       <CardContent>
-        <p className="whitespace-pre-wrap text-sm">{ticket.body}</p>
+        {sanitizedHtml ? (
+          <div className="text-sm break-words" dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />
+        ) : (
+          <p className="whitespace-pre-wrap text-sm">{ticket.body}</p>
+        )}
       </CardContent>
     </Card>
   )

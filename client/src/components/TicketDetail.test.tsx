@@ -11,6 +11,7 @@ const ticket: TicketDetailData = {
   body: 'Please refund me.\nI bought it twice.',
   fromName: 'Jane Student',
   fromEmail: 'jane@example.com',
+  bodyHtml: null,
   messageId: null,
   status: TicketStatus.OPEN,
   category: TicketCategory.REFUND_REQUEST,

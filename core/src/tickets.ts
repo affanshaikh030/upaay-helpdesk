@@ -7,6 +7,7 @@ export const inboundEmailSchema = z.object({
   fromName: z.string("Sender name is required").trim().min(1, "Sender name is required").max(200),
   subject: z.string().trim().max(998).default(""),
   text: z.string().max(50_000, "Body must be at most 50,000 characters").refine((v) => v.trim() !== "", "Body is required"),
+  bodyHtml: z.string().max(100_000, "HTML body must be at most 100,000 characters").optional(),
   messageId: z.string().trim().min(1).max(998).optional(),
 });
 

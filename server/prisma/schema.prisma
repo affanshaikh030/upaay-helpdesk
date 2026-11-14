@@ -109,6 +109,8 @@ model Ticket {
   id           Int             @id @default(autoincrement())
   subject      String
   body         String
+  // Optional HTML version of the email; sanitized on the client before display
+  bodyHtml     String?
   fromEmail    String
   fromName     String
   // Email Message-ID: makes webhook retries idempotent (and lets threading be added later)

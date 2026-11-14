@@ -55,7 +55,7 @@ ticketsRouter.get("/assignees", async (_req, res) => {
   res.json(agents);
 });
 
-// Any signed-in user. Unlike the list, includes the body
+// Any signed-in user. Unlike the list, includes the body and the HTML body (bodyHtml)
 ticketsRouter.get("/:id", async (req, res) => {
   const ticket = await prisma.ticket.findUnique({
     where: { id: parseId(req.params.id) },

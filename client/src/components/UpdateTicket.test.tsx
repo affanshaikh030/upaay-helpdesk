@@ -12,6 +12,7 @@ const ticket: TicketDetail = {
   body: 'Please refund me.',
   fromName: 'Jane Student',
   fromEmail: 'jane@example.com',
+  bodyHtml: null,
   messageId: null,
   status: TicketStatus.OPEN,
   category: TicketCategory.REFUND_REQUEST,

@@ -35,6 +35,7 @@ Source-of-truth docs (read these first):
 ## Inbound email (tickets)
 - `POST /api/inbound/email` (`server/src/routes/inbound-email.ts`) turns a support email into a `Ticket` (status `OPEN`; category stays empty until AI assigns one). Ticket ids are auto-incrementing integers and `category` is nullable with no default. It is **provider-neutral**: it takes JSON validated by `inboundEmailSchema` in `core/src/tickets.ts` (`from`, `fromName` (required), `subject?`, `text`, `messageId?`). SendGrid/Mailgun adapters will translate their payloads into it; no provider is set up yet.
 - **No session; guarded by `INBOUND_EMAIL_SECRET`** sent as the `x-inbound-secret` header (constant-time compare, 401 otherwise). Unset disables the endpoint (404); a placeholder or value under 32 characters makes the server fail at startup. It is mounted in `server/src/index.ts` before `express.json()` and `requireAuth` and parses its own body (1mb limit).
+- **Optional `bodyHtml`** (max 100,000 characters) is stored on the ticket as given. It is returned only by `GET /api/tickets/:id`, never by the list, and the client sanitizes it with DOMPurify before rendering; without it the plain text `body` is shown.
 - **Idempotent on `messageId`:** a repeat of a stored Message-ID returns `200` with the existing ticket id instead of creating a duplicate. Without a `messageId` every call creates a ticket. There is no threading yet: every email is a new ticket.
 
 ## Tickets

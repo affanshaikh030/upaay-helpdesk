@@ -44,13 +44,14 @@ inboundEmailRouter.post("/", requireInboundSecret, express.json({ limit: "1mb" }
     res.status(400).json({ error: "Invalid input", fieldErrors: z.flattenError(parsed.error).fieldErrors });
     return;
   }
-  const { from, fromName, subject, text, messageId } = parsed.data;
+  const { from, fromName, subject, text, bodyHtml, messageId } = parsed.data;
 
   try {
     const ticket = await prisma.ticket.create({
       data: {
         subject: subject || "(no subject)",
         body: text,
+        bodyHtml,
         fromEmail: from,
         fromName,
         messageId,
