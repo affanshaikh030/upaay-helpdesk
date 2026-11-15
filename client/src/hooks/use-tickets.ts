@@ -91,6 +91,13 @@ export function usePolishReply(ticketId: number) {
   })
 }
 
+// Asks the server's AI to summarise the ticket and its replies; each call regenerates it and nothing is saved
+export function useSummarizeTicket(ticketId: number) {
+  return useMutation({
+    mutationFn: async () => (await axios.post<{ summary: string }>(`/api/tickets/${ticketId}/summary`)).data,
+  })
+}
+
 export function useCreateReply(ticketId: number) {
   const queryClient = useQueryClient()
   return useMutation({

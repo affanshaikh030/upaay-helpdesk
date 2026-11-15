@@ -2,7 +2,8 @@ import { useMemo } from 'react'
 import DOMPurify from 'dompurify'
 import { TicketStatus } from '@helpdesk/core'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { TicketSummary } from '@/components/TicketSummary'
+import { Card,CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import type { TicketDetail as TicketDetailData } from '@/hooks/use-tickets'
 import { categoryLabels, statusLabels } from '@/lib/ticket-labels'
 
@@ -43,6 +44,7 @@ export function TicketDetail({ ticket }: { ticket: TicketDetailData }) {
         ) : (
           <p className="whitespace-pre-wrap text-sm">{ticket.body}</p>
         )}
+        <TicketSummary ticketId={ticket.id} />
       </CardContent>
     </Card>
   )
