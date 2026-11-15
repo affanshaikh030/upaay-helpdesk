@@ -8,6 +8,7 @@
     "start": "bun src/index.ts",
     "seed": "bun prisma/seed.ts",
     "seed:tickets": "bun prisma/seed-tickets.ts",
+    "seed:replies": "bun prisma/seed-replies.ts",
     "test:db": "bun prisma/e2e-setup.ts",
     "typecheck": "tsc --noEmit"
   },
