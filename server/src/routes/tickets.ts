@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { google } from "@ai-sdk/google";
-import { APICallError, generateText } from "ai";
+import { generateText } from "ai";
+import { aiModel, describeAiError, isAiConfigured } from "../ai";
 import { UNCATEGORIZED, createReplySchema, polishReplySchema, ticketListQuerySchema, updateTicketSchema } from "@helpdesk/core";
 import { prisma } from "../db";
 import { Role, SenderType, type TicketCategory } from "../generated/prisma/enums";
@@ -162,7 +162,7 @@ ticketsRouter.post("/:id/replies/polish", async (req, res) => {
     res.status(400).json({ error: parsed.error.issues[0].message });
     return;
   }
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!isAiConfigured()) {
     res.status(503).json({ error: "AI polish is not configured" });
     return;
   }
@@ -170,15 +170,14 @@ ticketsRouter.post("/:id/replies/polish", async (req, res) => {
 
   try {
     const { text } = await generateText({
-      model: google("gemini-3.5-flash-lite"),
+      model: aiModel,
       instructions: polishInstructions,
       prompt: `Customer name: ${customerName}\nTicket subject: ${subject}\nCustomer's original message:\n${customerMessage.slice(0, 5_000)}\n\nAgent's draft reply:\n${draft}`,
       abortSignal: AbortSignal.timeout(20_000),
     });
     res.json({ body: text.trim().slice(0, 10_000) });
   } catch (err) {
-    // Message and status only: the full error object can carry request details
-    console.error("Polish failed:", APICallError.isInstance(err) ? `${err.statusCode} ${err.message}` : err instanceof Error ? err.message : err);
+    console.error("Polish failed:", describeAiError(err));
     res.status(502).json({ error: "Failed to polish the reply" });
   }
 });
@@ -193,7 +192,7 @@ const summaryInstructions =
 
 // Any signed-in user. Summarises the ticket and its replies with AI, regenerated on every call; nothing is saved. The API key stays on the server
 ticketsRouter.post("/:id/summary", async (req, res) => {
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!isAiConfigured()) {
     res.status(503).json({ error: "AI summary is not configured" });
     return;
   }
@@ -218,14 +217,14 @@ ticketsRouter.post("/:id/summary", async (req, res) => {
 
   try {
     const { text } = await generateText({
-      model: google("gemini-3.5-flash-lite"),
+      model: aiModel,
       instructions: summaryInstructions,
       prompt: `Ticket subject: ${ticket.subject}\n\nConversation, oldest first:\n${conversation.slice(0, 30_000)}`,
       abortSignal: AbortSignal.timeout(20_000),
     });
     res.json({ summary: text.trim().slice(0, 5_000) });
   } catch (err) {
-    console.error("Summary failed:", APICallError.isInstance(err) ? `${err.statusCode} ${err.message}` : err instanceof Error ? err.message : err);
+    console.error("Summary failed:", describeAiError(err));
     res.status(502).json({ error: "Failed to summarise the ticket" });
   }
 });
