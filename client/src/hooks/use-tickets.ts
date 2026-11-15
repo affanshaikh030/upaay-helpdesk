@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { CreateReplyInput, SenderType, TicketCategory, TicketListQuery, TicketStatus, UpdateTicketInput } from '@helpdesk/core'
+import type { CreateReplyInput, PolishReplyInput, SenderType, TicketCategory, TicketListQuery, TicketStatus, UpdateTicketInput } from '@helpdesk/core'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 export type Assignee = { id: string; name: string }
@@ -80,6 +80,14 @@ export function useReplies(ticketId: string | undefined) {
     queryKey: [...ticketsQueryKey, 'detail', ticketId, 'replies'],
     queryFn: async ({ signal }) => (await axios.get<Reply[]>(`/api/tickets/${ticketId}/replies`, { signal })).data,
     enabled: ticketId !== undefined,
+  })
+}
+
+// Asks the server's AI to improve a draft reply; returns the polished text and saves nothing
+export function usePolishReply(ticketId: number) {
+  return useMutation({
+    mutationFn: async (input: PolishReplyInput) =>
+      (await axios.post<{ body: string }>(`/api/tickets/${ticketId}/replies/polish`, input)).data,
   })
 }
 

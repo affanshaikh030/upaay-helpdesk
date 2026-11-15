@@ -2,6 +2,7 @@ export { Role } from "./roles";
 export {
   createReplySchema,
   inboundEmailSchema,
+  polishReplySchema,
   ticketListQuerySchema,
   ticketSortColumns,
   updateTicketSchema,
@@ -13,6 +14,7 @@ export {
   TicketStatus,
   type CreateReplyInput,
   type InboundEmail,
+  type PolishReplyInput,
   type TicketListQuery,
   type TicketSortColumn,
   type UpdateTicketInput,

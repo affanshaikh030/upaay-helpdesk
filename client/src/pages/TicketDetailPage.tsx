@@ -37,7 +37,7 @@ export default function TicketDetailPage() {
         <div className="grid items-start gap-6 md:grid-cols-[1fr_8rem]">
           <div className="space-y-6">
           <TicketDetail ticket={ticket} />
-          <ReplyThread ticketId={ticket.id} />
+          <ReplyThread ticket={ticket} />
           </div>
           <UpdateTicket ticket={ticket} />
         </div>

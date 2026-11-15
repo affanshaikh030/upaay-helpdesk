@@ -41,6 +41,8 @@ Source-of-truth docs (read these first):
 ## Tickets
 - `GET /api/tickets` (`server/src/routes/tickets.ts`): any signed-in user, newest first (`createdAt` desc, then `id` desc), without the body. Client: `/tickets` page (`TicketsPage`, `TicketsTable`, `useTickets`), linked from the navbar for everyone. No filtering or pagination yet.
 
+- **Polish reply:** `POST /api/tickets/:id/replies/polish` (body `polishReplySchema` in `core`: `subject`, `customerName`, `customerMessage`, `draft`) returns `{ body }` improved by `gemini-3.5-flash-lite` (`gemini-2.5-flash-lite` now returns 404 for new users) via the Vercel AI SDK (`ai`, `@ai-sdk/google`) and saves nothing. The key is `GOOGLE_GENERATIVE_AI_API_KEY` in `server/.env` only (never the client); unset gives 503. The "Polish" button in `ReplyThread` replaces the textarea with the result.
+
 ## Testing strategy
 - **Default to component tests; E2E only when necessary.** Cover UI behaviour (rendering, loading/empty/error states, forms and validation, dialogs, role-dependent UI, labels) with component tests: they are fast and need no server or database. Don't duplicate in E2E what a component test already covers, and when a feature could be tested either way, write the component test.
 - **E2E is for what component tests can't prove**, because it needs the real client, server and database together: session and cookie auth, authorization enforced by the server, database effects (soft delete, uniqueness, idempotency), server-only endpoints such as the inbound email webhook, and flows that span pages. Keep E2E suites small and focused on these happy paths and critical checks.

@@ -76,3 +76,13 @@ export const createReplySchema = z.object({
 });
 
 export type CreateReplyInput = z.infer<typeof createReplySchema>;
+
+// Body for POST /api/tickets/:id/replies/polish: the ticket context plus the agent's draft to rewrite
+export const polishReplySchema = z.object({
+  subject: z.string().trim().max(998),
+  customerName: z.string().trim().max(200),
+  customerMessage: z.string().max(50_000),
+  draft: createReplySchema.shape.body,
+});
+
+export type PolishReplyInput = z.infer<typeof polishReplySchema>;

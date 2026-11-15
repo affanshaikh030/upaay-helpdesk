@@ -1,11 +1,15 @@
 import { useState, type FormEvent } from 'react'
 import { isAxiosError } from 'axios'
-import { SenderType, createReplySchema } from '@helpdesk/core'
+import { SenderType, createReplySchema, polishReplySchema } from '@helpdesk/core'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useCreateReply, useReplies } from '@/hooks/use-tickets'
+import { useCreateReply, usePolishReply, useReplies, type TicketDetail } from '@/hooks/use-tickets'
+
+function errorMessage(error: unknown, fallback: string) {
+  return isAxiosError(error) && typeof error.response?.data?.error === 'string' ? error.response.data.error : fallback
+}
 
 const dateFormat = new Intl.DateTimeFormat(undefined, {
   dateStyle: 'medium',
@@ -16,9 +20,11 @@ const textareaClass =
   'block min-h-24 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50 aria-invalid:border-destructive dark:bg-input/30'
 
 // Replies on a ticket, oldest first, with a form to add one
-export function ReplyThread({ ticketId }: { ticketId: number }) {
+export function ReplyThread({ ticket }: { ticket: Pick<TicketDetail, 'id' | 'subject' | 'fromName' | 'body'> }) {
+  const ticketId = ticket.id
   const { data: replies, error } = useReplies(String(ticketId))
   const createReply = useCreateReply(ticketId)
+  const polishReply = usePolishReply(ticketId)
   const [body, setBody] = useState('')
   const [validationError, setValidationError] = useState<string>()
 
@@ -33,10 +39,24 @@ export function ReplyThread({ ticketId }: { ticketId: number }) {
     createReply.mutate(parsed.data, { onSuccess: () => setBody('') })
   }
 
-  const serverError =
-    createReply.error && isAxiosError(createReply.error) && typeof createReply.error.response?.data?.error === 'string'
-      ? createReply.error.response.data.error
-      : 'Failed to send reply'
+  function handlePolish() {
+    const parsed = polishReplySchema.safeParse({
+      subject: ticket.subject,
+      customerName: ticket.fromName,
+      customerMessage: ticket.body,
+      draft: body,
+    })
+    if (!parsed.success) {
+      setValidationError(parsed.error.issues.find((i) => i.path[0] === 'draft')?.message ?? 'Failed to polish reply')
+      return
+    }
+    setValidationError(undefined)
+    polishReply.mutate(parsed.data, { onSuccess: (data) => setBody(data.body) })
+  }
+
+  const busy = createReply.isPending || polishReply.isPending
+  const serverError = errorMessage(createReply.error, 'Failed to send reply')
+  const polishError = errorMessage(polishReply.error, 'Failed to polish reply')
 
   return (
     <section aria-labelledby="replies-heading" className="space-y-4">
@@ -76,7 +96,7 @@ export function ReplyThread({ ticketId }: { ticketId: number }) {
           className={textareaClass}
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          disabled={createReply.isPending}
+          disabled={busy}
           aria-invalid={validationError !== undefined}
           aria-describedby={validationError ? 'reply-error' : undefined}
         />
@@ -86,9 +106,15 @@ export function ReplyThread({ ticketId }: { ticketId: number }) {
           </p>
         )}
         {createReply.isError && <p className="text-sm text-destructive">{serverError}</p>}
-        <Button type="submit" disabled={createReply.isPending}>
-          {createReply.isPending ? 'Sending…' : 'Send reply'}
-        </Button>
+        {polishReply.isError && <p className="text-sm text-destructive">{polishError}</p>}
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" onClick={handlePolish} disabled={busy || body.trim() === ''}>
+            {polishReply.isPending ? 'Polishing…' : 'Polish'}
+          </Button>
+          <Button type="submit" disabled={busy || body.trim() === ''}>
+            {createReply.isPending ? 'Sending…' : 'Send reply'}
+          </Button>
+        </div>
       </form>
     </section>
   )
