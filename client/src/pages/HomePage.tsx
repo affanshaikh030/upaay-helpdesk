@@ -1,5 +1,6 @@
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { TicketsPerDayChart } from '@/components/TicketsPerDayChart'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useStats } from '@/hooks/use-stats'
 
@@ -44,20 +45,33 @@ export default function HomePage() {
           ))}
         </div>
       ) : (
-        <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {cards.map((card) => (
-            <Card key={card.label}>
-              <CardHeader>
-                <CardDescription>
-                  <dt>{card.label}</dt>
-                </CardDescription>
-                <CardTitle className="text-3xl">
-                  <dd>{card.value}</dd>
-                </CardTitle>
-              </CardHeader>
-            </Card>
-          ))}
-        </dl>
+        <>
+          <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {cards.map((card) => (
+              <Card key={card.label}>
+                <CardHeader>
+                  <CardDescription>
+                    <dt>{card.label}</dt>
+                  </CardDescription>
+                  <CardTitle className="text-3xl">
+                    <dd>{card.value}</dd>
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+            ))}
+          </dl>
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle>
+                <h2>Tickets per day</h2>
+              </CardTitle>
+              <CardDescription>New tickets received over the last 30 days (UTC)</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <TicketsPerDayChart days={data.ticketsPerDay} />
+            </CardContent>
+          </Card>
+        </>
       )}
     </main>
   )

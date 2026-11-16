@@ -8,6 +8,8 @@ export type Stats = {
   resolvedByAi: number
   aiResolvedPercent: number
   avgResolutionSeconds: number | null
+  // The last 30 days (UTC), oldest first, zero-filled
+  ticketsPerDay: { date: string; count: number }[]
 }
 
 // Lives under the tickets key, so changing a ticket (which invalidates that key) refreshes the dashboard too
