@@ -120,6 +120,8 @@ model Ticket {
   category     TicketCategory?
   // Answered and resolved by AI from the knowledge base; hidden from the ticket list
   resolvedByAi Boolean         @default(false)
+  // When the ticket last became RESOLVED (kept when it is later CLOSED, cleared if reopened); drives the average resolution time
+  resolvedAt   DateTime?
   // Agent handling the ticket; cleared when that user is deleted
   assignedToId String?
   assignedTo   User?           @relation(fields: [assignedToId], references: [id], onDelete: SetNull)

@@ -3,7 +3,7 @@ import { generateText } from "ai";
 import { aiModel, describeAiError, isAiConfigured } from "../ai";
 import { UNCATEGORIZED, createReplySchema, polishReplySchema, ticketListQuerySchema, updateTicketSchema } from "@helpdesk/core";
 import { prisma } from "../db";
-import { Role, SenderType, type TicketCategory } from "../generated/prisma/enums";
+import { Role, SenderType, TicketStatus, type TicketCategory } from "../generated/prisma/enums";
 import { Prisma } from "../generated/prisma/client";
 
 export const ticketsRouter = Router();
@@ -87,10 +87,19 @@ ticketsRouter.patch("/:id", async (req, res) => {
       return;
     }
   }
+  const id = parseId(req.params.id);
+  // resolvedAt marks the move to RESOLVED (not re-saving RESOLVED), is kept on CLOSED and cleared when reopened
+  let resolvedAt: Date | null | undefined;
+  if (status === TicketStatus.RESOLVED) {
+    const current = await prisma.ticket.findUnique({ where: { id }, select: { status: true } });
+    if (current && current.status !== TicketStatus.RESOLVED) resolvedAt = new Date();
+  } else if (status === TicketStatus.OPEN) {
+    resolvedAt = null;
+  }
   try {
     const ticket = await prisma.ticket.update({
-      where: { id: parseId(req.params.id) },
-      data: { assignedToId, status, category },
+      where: { id },
+      data: { assignedToId, status, category, resolvedAt },
       include: { assignedTo: assigneeSelect },
     });
     res.json(ticket);

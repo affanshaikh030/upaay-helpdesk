@@ -51,7 +51,7 @@ export async function autoResolveTicket(ticketId: number): Promise<void> {
   await prisma.$transaction(async (tx) => {
     const { count } = await tx.ticket.updateMany({
       where: { id: ticketId, status: TicketStatus.OPEN, resolvedByAi: false },
-      data: { status: TicketStatus.RESOLVED, resolvedByAi: true },
+      data: { status: TicketStatus.RESOLVED, resolvedByAi: true, resolvedAt: new Date() },
     });
     if (count === 0) return;
     await tx.reply.create({ data: { ticketId, body: reply.slice(0, 10_000), senderType: SenderType.AGENT } });
