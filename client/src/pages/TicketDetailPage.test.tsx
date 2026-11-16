@@ -15,6 +15,7 @@ const ticket: TicketDetail = {
   fromEmail: 'jane@example.com',
   bodyHtml: null,
   messageId: null,
+  resolvedByAi: false,
   status: TicketStatus.OPEN,
   category: TicketCategory.REFUND_REQUEST,
   createdAt: '2026-11-11T10:30:00.000Z',

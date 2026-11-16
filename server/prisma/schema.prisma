@@ -118,6 +118,8 @@ model Ticket {
   status       TicketStatus    @default(OPEN)
   // Unset until AI classification assigns one (no default)
   category     TicketCategory?
+  // Answered and resolved by AI from the knowledge base; hidden from the ticket list
+  resolvedByAi Boolean         @default(false)
   // Agent handling the ticket; cleared when that user is deleted
   assignedToId String?
   assignedTo   User?           @relation(fields: [assignedToId], references: [id], onDelete: SetNull)

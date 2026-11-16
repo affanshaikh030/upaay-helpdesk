@@ -1054,11 +1054,13 @@ export const TicketScalarFieldEnum = {
   id: 'id',
   subject: 'subject',
   body: 'body',
+  bodyHtml: 'bodyHtml',
   fromEmail: 'fromEmail',
   fromName: 'fromName',
   messageId: 'messageId',
   status: 'status',
   category: 'category',
+  resolvedByAi: 'resolvedByAi',
   assignedToId: 'assignedToId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

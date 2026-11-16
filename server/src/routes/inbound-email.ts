@@ -4,7 +4,7 @@ import { inboundEmailSchema } from "@helpdesk/core";
 import { z } from "zod";
 import { Prisma } from "../generated/prisma/client";
 import { prisma } from "../db";
-import { enqueueClassify } from "../queue";
+import { enqueueAutoResolve, enqueueClassify } from "../queue";
 
 const SECRET_PLACEHOLDER = "generate-with-openssl-rand-base64-32";
 
@@ -61,10 +61,12 @@ inboundEmailRouter.post("/", requireInboundSecret, express.json({ limit: "1mb" }
     });
     // Only for new tickets (the duplicate path below doesn't reach this). A queue failure must not fail the request:
     // the ticket is stored, and a provider retry would only hit the duplicate path and never classify
-    try {
-      await enqueueClassify(ticket.id);
-    } catch (queueErr) {
-      console.error(`Enqueue classify ticket ${ticket.id} failed:`, queueErr instanceof Error ? queueErr.message : queueErr);
+    for (const enqueue of [enqueueClassify, enqueueAutoResolve]) {
+      try {
+        await enqueue(ticket.id);
+      } catch (queueErr) {
+        console.error(`Enqueue ${enqueue.name} for ticket ${ticket.id} failed:`, queueErr instanceof Error ? queueErr.message : queueErr);
+      }
     }
     res.status(201).json({ id: ticket.id });
   } catch (err) {

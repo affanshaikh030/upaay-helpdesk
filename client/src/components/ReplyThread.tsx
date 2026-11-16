@@ -20,7 +20,7 @@ const textareaClass =
   'block min-h-24 w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:opacity-50 aria-invalid:border-destructive dark:bg-input/30'
 
 // Replies on a ticket, oldest first, with a form to add one
-export function ReplyThread({ ticket }: { ticket: Pick<TicketDetail, 'id' | 'subject' | 'fromName' | 'body'> }) {
+export function ReplyThread({ ticket }: { ticket: Pick<TicketDetail, 'id' | 'subject' | 'fromName' | 'body' | 'resolvedByAi'> }) {
   const ticketId = ticket.id
   const { data: replies, error } = useReplies(String(ticketId))
   const createReply = useCreateReply(ticketId)
@@ -81,7 +81,7 @@ export function ReplyThread({ ticket }: { ticket: Pick<TicketDetail, 'id' | 'sub
               className={`rounded-lg border p-4 ${reply.senderType === SenderType.CUSTOMER ? 'bg-muted/40' : ''}`}
             >
               <p className="mb-2 text-xs text-muted-foreground">
-                {reply.senderType === SenderType.CUSTOMER ? 'Customer' : (reply.author?.name ?? 'Former agent')} ·{' '}
+                {reply.senderType === SenderType.CUSTOMER ? 'Customer' : (reply.author?.name ?? (ticket.resolvedByAi ? 'AI assistant' : 'Former agent'))} ·{' '}
                 {dateFormat.format(new Date(reply.createdAt))}
               </p>
               <p className="whitespace-pre-wrap text-sm">{reply.body}</p>

@@ -36,7 +36,7 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-const ticket = { id: 7, subject: 'Refund', fromName: 'Ada Lovelace', body: 'Please refund me.' }
+const ticket = { id: 7, subject: 'Refund', fromName: 'Ada Lovelace', body: 'Please refund me.', resolvedByAi: false }
 
 describe('ReplyThread', () => {
   describe('loading', () => {

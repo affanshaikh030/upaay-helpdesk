@@ -20,7 +20,9 @@ ticketsRouter.get("/", async (req, res) => {
   }
   const { sortBy, sortOrder, status, category, search, page, pageSize } = parsed.data;
 
+  // Tickets resolved by AI are kept off the list
   const where: Prisma.TicketWhereInput = {
+    resolvedByAi: false,
     ...(status && { status }),
     ...(category && { category: category === UNCATEGORIZED ? null : (category as TicketCategory) }),
     ...(search && {

@@ -38,11 +38,13 @@ export type TicketMinAggregateOutputType = {
   id: number | null
   subject: string | null
   body: string | null
+  bodyHtml: string | null
   fromEmail: string | null
   fromName: string | null
   messageId: string | null
   status: $Enums.TicketStatus | null
   category: $Enums.TicketCategory | null
+  resolvedByAi: boolean | null
   assignedToId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -52,11 +54,13 @@ export type TicketMaxAggregateOutputType = {
   id: number | null
   subject: string | null
   body: string | null
+  bodyHtml: string | null
   fromEmail: string | null
   fromName: string | null
   messageId: string | null
   status: $Enums.TicketStatus | null
   category: $Enums.TicketCategory | null
+  resolvedByAi: boolean | null
   assignedToId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -66,11 +70,13 @@ export type TicketCountAggregateOutputType = {
   id: number
   subject: number
   body: number
+  bodyHtml: number
   fromEmail: number
   fromName: number
   messageId: number
   status: number
   category: number
+  resolvedByAi: number
   assignedToId: number
   createdAt: number
   updatedAt: number
@@ -90,11 +96,13 @@ export type TicketMinAggregateInputType = {
   id?: true
   subject?: true
   body?: true
+  bodyHtml?: true
   fromEmail?: true
   fromName?: true
   messageId?: true
   status?: true
   category?: true
+  resolvedByAi?: true
   assignedToId?: true
   createdAt?: true
   updatedAt?: true
@@ -104,11 +112,13 @@ export type TicketMaxAggregateInputType = {
   id?: true
   subject?: true
   body?: true
+  bodyHtml?: true
   fromEmail?: true
   fromName?: true
   messageId?: true
   status?: true
   category?: true
+  resolvedByAi?: true
   assignedToId?: true
   createdAt?: true
   updatedAt?: true
@@ -118,11 +128,13 @@ export type TicketCountAggregateInputType = {
   id?: true
   subject?: true
   body?: true
+  bodyHtml?: true
   fromEmail?: true
   fromName?: true
   messageId?: true
   status?: true
   category?: true
+  resolvedByAi?: true
   assignedToId?: true
   createdAt?: true
   updatedAt?: true
@@ -219,11 +231,13 @@ export type TicketGroupByOutputType = {
   id: number
   subject: string
   body: string
+  bodyHtml: string | null
   fromEmail: string
   fromName: string
   messageId: string | null
   status: $Enums.TicketStatus
   category: $Enums.TicketCategory | null
+  resolvedByAi: boolean
   assignedToId: string | null
   createdAt: Date
   updatedAt: Date
@@ -256,11 +270,13 @@ export type TicketWhereInput = {
   id?: Prisma.IntFilter<"Ticket"> | number
   subject?: Prisma.StringFilter<"Ticket"> | string
   body?: Prisma.StringFilter<"Ticket"> | string
+  bodyHtml?: Prisma.StringNullableFilter<"Ticket"> | string | null
   fromEmail?: Prisma.StringFilter<"Ticket"> | string
   fromName?: Prisma.StringFilter<"Ticket"> | string
   messageId?: Prisma.StringNullableFilter<"Ticket"> | string | null
   status?: Prisma.EnumTicketStatusFilter<"Ticket"> | $Enums.TicketStatus
   category?: Prisma.EnumTicketCategoryNullableFilter<"Ticket"> | $Enums.TicketCategory | null
+  resolvedByAi?: Prisma.BoolFilter<"Ticket"> | boolean
   assignedToId?: Prisma.StringNullableFilter<"Ticket"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Ticket"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Ticket"> | Date | string
@@ -272,11 +288,13 @@ export type TicketOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   subject?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  bodyHtml?: Prisma.SortOrderInput | Prisma.SortOrder
   fromEmail?: Prisma.SortOrder
   fromName?: Prisma.SortOrder
   messageId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolvedByAi?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -292,10 +310,12 @@ export type TicketWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.TicketWhereInput | Prisma.TicketWhereInput[]
   subject?: Prisma.StringFilter<"Ticket"> | string
   body?: Prisma.StringFilter<"Ticket"> | string
+  bodyHtml?: Prisma.StringNullableFilter<"Ticket"> | string | null
   fromEmail?: Prisma.StringFilter<"Ticket"> | string
   fromName?: Prisma.StringFilter<"Ticket"> | string
   status?: Prisma.EnumTicketStatusFilter<"Ticket"> | $Enums.TicketStatus
   category?: Prisma.EnumTicketCategoryNullableFilter<"Ticket"> | $Enums.TicketCategory | null
+  resolvedByAi?: Prisma.BoolFilter<"Ticket"> | boolean
   assignedToId?: Prisma.StringNullableFilter<"Ticket"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Ticket"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Ticket"> | Date | string
@@ -307,11 +327,13 @@ export type TicketOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   subject?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  bodyHtml?: Prisma.SortOrderInput | Prisma.SortOrder
   fromEmail?: Prisma.SortOrder
   fromName?: Prisma.SortOrder
   messageId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
+  resolvedByAi?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -329,11 +351,13 @@ export type TicketScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"Ticket"> | number
   subject?: Prisma.StringWithAggregatesFilter<"Ticket"> | string
   body?: Prisma.StringWithAggregatesFilter<"Ticket"> | string
+  bodyHtml?: Prisma.StringNullableWithAggregatesFilter<"Ticket"> | string | null
   fromEmail?: Prisma.StringWithAggregatesFilter<"Ticket"> | string
   fromName?: Prisma.StringWithAggregatesFilter<"Ticket"> | string
   messageId?: Prisma.StringNullableWithAggregatesFilter<"Ticket"> | string | null
   status?: Prisma.EnumTicketStatusWithAggregatesFilter<"Ticket"> | $Enums.TicketStatus
   category?: Prisma.EnumTicketCategoryNullableWithAggregatesFilter<"Ticket"> | $Enums.TicketCategory | null
+  resolvedByAi?: Prisma.BoolWithAggregatesFilter<"Ticket"> | boolean
   assignedToId?: Prisma.StringNullableWithAggregatesFilter<"Ticket"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Ticket"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Ticket"> | Date | string
@@ -342,11 +366,13 @@ export type TicketScalarWhereWithAggregatesInput = {
 export type TicketCreateInput = {
   subject: string
   body: string
+  bodyHtml?: string | null
   fromEmail: string
   fromName: string
   messageId?: string | null
   status?: $Enums.TicketStatus
   category?: $Enums.TicketCategory | null
+  resolvedByAi?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedTo?: Prisma.UserCreateNestedOneWithoutTicketsInput
@@ -357,11 +383,13 @@ export type TicketUncheckedCreateInput = {
   id?: number
   subject: string
   body: string
+  bodyHtml?: string | null
   fromEmail: string
   fromName: string
   messageId?: string | null
   status?: $Enums.TicketStatus
   category?: $Enums.TicketCategory | null
+  resolvedByAi?: boolean
   assignedToId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -371,11 +399,13 @@ export type TicketUncheckedCreateInput = {
 export type TicketUpdateInput = {
   subject?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
+  bodyHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fromEmail?: Prisma.StringFieldUpdateOperationsInput | string
   fromName?: Prisma.StringFieldUpdateOperationsInput | string
   messageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTicketStatusFieldUpdateOperationsInput | $Enums.TicketStatus
   category?: Prisma.NullableEnumTicketCategoryFieldUpdateOperationsInput | $Enums.TicketCategory | null
+  resolvedByAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedTo?: Prisma.UserUpdateOneWithoutTicketsNestedInput
@@ -386,11 +416,13 @@ export type TicketUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   subject?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
+  bodyHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fromEmail?: Prisma.StringFieldUpdateOperationsInput | string
   fromName?: Prisma.StringFieldUpdateOperationsInput | string
   messageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTicketStatusFieldUpdateOperationsInput | $Enums.TicketStatus
   category?: Prisma.NullableEnumTicketCategoryFieldUpdateOperationsInput | $Enums.TicketCategory | null
+  resolvedByAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -401,11 +433,13 @@ export type TicketCreateManyInput = {
   id?: number
   subject: string
   body: string
+  bodyHtml?: string | null
   fromEmail: string
   fromName: string
   messageId?: string | null
   status?: $Enums.TicketStatus
   category?: $Enums.TicketCategory | null
+  resolvedByAi?: boolean
   assignedToId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -414,11 +448,13 @@ export type TicketCreateManyInput = {
 export type TicketUpdateManyMutationInput = {
   subject?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
+  bodyHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fromEmail?: Prisma.StringFieldUpdateOperationsInput | string
   fromName?: Prisma.StringFieldUpdateOperationsInput | string
   messageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTicketStatusFieldUpdateOperationsInput | $Enums.TicketStatus
   category?: Prisma.NullableEnumTicketCategoryFieldUpdateOperationsInput | $Enums.TicketCategory | null
+  resolvedByAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -427,11 +463,13 @@ export type TicketUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   subject?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
+  bodyHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fromEmail?: Prisma.StringFieldUpdateOperationsInput | string
   fromName?: Prisma.StringFieldUpdateOperationsInput | string
   messageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTicketStatusFieldUpdateOperationsInput | $Enums.TicketStatus
   category?: Prisma.NullableEnumTicketCategoryFieldUpdateOperationsInput | $Enums.TicketCategory | null
+  resolvedByAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -451,11 +489,13 @@ export type TicketCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   subject?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  bodyHtml?: Prisma.SortOrder
   fromEmail?: Prisma.SortOrder
   fromName?: Prisma.SortOrder
   messageId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  resolvedByAi?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -469,11 +509,13 @@ export type TicketMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   subject?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  bodyHtml?: Prisma.SortOrder
   fromEmail?: Prisma.SortOrder
   fromName?: Prisma.SortOrder
   messageId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  resolvedByAi?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -483,11 +525,13 @@ export type TicketMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   subject?: Prisma.SortOrder
   body?: Prisma.SortOrder
+  bodyHtml?: Prisma.SortOrder
   fromEmail?: Prisma.SortOrder
   fromName?: Prisma.SortOrder
   messageId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   category?: Prisma.SortOrder
+  resolvedByAi?: Prisma.SortOrder
   assignedToId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -569,11 +613,13 @@ export type TicketUpdateOneRequiredWithoutRepliesNestedInput = {
 export type TicketCreateWithoutAssignedToInput = {
   subject: string
   body: string
+  bodyHtml?: string | null
   fromEmail: string
   fromName: string
   messageId?: string | null
   status?: $Enums.TicketStatus
   category?: $Enums.TicketCategory | null
+  resolvedByAi?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   replies?: Prisma.ReplyCreateNestedManyWithoutTicketInput
@@ -583,11 +629,13 @@ export type TicketUncheckedCreateWithoutAssignedToInput = {
   id?: number
   subject: string
   body: string
+  bodyHtml?: string | null
   fromEmail: string
   fromName: string
   messageId?: string | null
   status?: $Enums.TicketStatus
   category?: $Enums.TicketCategory | null
+  resolvedByAi?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   replies?: Prisma.ReplyUncheckedCreateNestedManyWithoutTicketInput
@@ -626,11 +674,13 @@ export type TicketScalarWhereInput = {
   id?: Prisma.IntFilter<"Ticket"> | number
   subject?: Prisma.StringFilter<"Ticket"> | string
   body?: Prisma.StringFilter<"Ticket"> | string
+  bodyHtml?: Prisma.StringNullableFilter<"Ticket"> | string | null
   fromEmail?: Prisma.StringFilter<"Ticket"> | string
   fromName?: Prisma.StringFilter<"Ticket"> | string
   messageId?: Prisma.StringNullableFilter<"Ticket"> | string | null
   status?: Prisma.EnumTicketStatusFilter<"Ticket"> | $Enums.TicketStatus
   category?: Prisma.EnumTicketCategoryNullableFilter<"Ticket"> | $Enums.TicketCategory | null
+  resolvedByAi?: Prisma.BoolFilter<"Ticket"> | boolean
   assignedToId?: Prisma.StringNullableFilter<"Ticket"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Ticket"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Ticket"> | Date | string
@@ -639,11 +689,13 @@ export type TicketScalarWhereInput = {
 export type TicketCreateWithoutRepliesInput = {
   subject: string
   body: string
+  bodyHtml?: string | null
   fromEmail: string
   fromName: string
   messageId?: string | null
   status?: $Enums.TicketStatus
   category?: $Enums.TicketCategory | null
+  resolvedByAi?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedTo?: Prisma.UserCreateNestedOneWithoutTicketsInput
@@ -653,11 +705,13 @@ export type TicketUncheckedCreateWithoutRepliesInput = {
   id?: number
   subject: string
   body: string
+  bodyHtml?: string | null
   fromEmail: string
   fromName: string
   messageId?: string | null
   status?: $Enums.TicketStatus
   category?: $Enums.TicketCategory | null
+  resolvedByAi?: boolean
   assignedToId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -682,11 +736,13 @@ export type TicketUpdateToOneWithWhereWithoutRepliesInput = {
 export type TicketUpdateWithoutRepliesInput = {
   subject?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
+  bodyHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fromEmail?: Prisma.StringFieldUpdateOperationsInput | string
   fromName?: Prisma.StringFieldUpdateOperationsInput | string
   messageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTicketStatusFieldUpdateOperationsInput | $Enums.TicketStatus
   category?: Prisma.NullableEnumTicketCategoryFieldUpdateOperationsInput | $Enums.TicketCategory | null
+  resolvedByAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedTo?: Prisma.UserUpdateOneWithoutTicketsNestedInput
@@ -696,11 +752,13 @@ export type TicketUncheckedUpdateWithoutRepliesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   subject?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
+  bodyHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fromEmail?: Prisma.StringFieldUpdateOperationsInput | string
   fromName?: Prisma.StringFieldUpdateOperationsInput | string
   messageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTicketStatusFieldUpdateOperationsInput | $Enums.TicketStatus
   category?: Prisma.NullableEnumTicketCategoryFieldUpdateOperationsInput | $Enums.TicketCategory | null
+  resolvedByAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -710,11 +768,13 @@ export type TicketCreateManyAssignedToInput = {
   id?: number
   subject: string
   body: string
+  bodyHtml?: string | null
   fromEmail: string
   fromName: string
   messageId?: string | null
   status?: $Enums.TicketStatus
   category?: $Enums.TicketCategory | null
+  resolvedByAi?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -722,11 +782,13 @@ export type TicketCreateManyAssignedToInput = {
 export type TicketUpdateWithoutAssignedToInput = {
   subject?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
+  bodyHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fromEmail?: Prisma.StringFieldUpdateOperationsInput | string
   fromName?: Prisma.StringFieldUpdateOperationsInput | string
   messageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTicketStatusFieldUpdateOperationsInput | $Enums.TicketStatus
   category?: Prisma.NullableEnumTicketCategoryFieldUpdateOperationsInput | $Enums.TicketCategory | null
+  resolvedByAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   replies?: Prisma.ReplyUpdateManyWithoutTicketNestedInput
@@ -736,11 +798,13 @@ export type TicketUncheckedUpdateWithoutAssignedToInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   subject?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
+  bodyHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fromEmail?: Prisma.StringFieldUpdateOperationsInput | string
   fromName?: Prisma.StringFieldUpdateOperationsInput | string
   messageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTicketStatusFieldUpdateOperationsInput | $Enums.TicketStatus
   category?: Prisma.NullableEnumTicketCategoryFieldUpdateOperationsInput | $Enums.TicketCategory | null
+  resolvedByAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   replies?: Prisma.ReplyUncheckedUpdateManyWithoutTicketNestedInput
@@ -750,11 +814,13 @@ export type TicketUncheckedUpdateManyWithoutAssignedToInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   subject?: Prisma.StringFieldUpdateOperationsInput | string
   body?: Prisma.StringFieldUpdateOperationsInput | string
+  bodyHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fromEmail?: Prisma.StringFieldUpdateOperationsInput | string
   fromName?: Prisma.StringFieldUpdateOperationsInput | string
   messageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumTicketStatusFieldUpdateOperationsInput | $Enums.TicketStatus
   category?: Prisma.NullableEnumTicketCategoryFieldUpdateOperationsInput | $Enums.TicketCategory | null
+  resolvedByAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -794,11 +860,13 @@ export type TicketSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   id?: boolean
   subject?: boolean
   body?: boolean
+  bodyHtml?: boolean
   fromEmail?: boolean
   fromName?: boolean
   messageId?: boolean
   status?: boolean
   category?: boolean
+  resolvedByAi?: boolean
   assignedToId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -811,11 +879,13 @@ export type TicketSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   subject?: boolean
   body?: boolean
+  bodyHtml?: boolean
   fromEmail?: boolean
   fromName?: boolean
   messageId?: boolean
   status?: boolean
   category?: boolean
+  resolvedByAi?: boolean
   assignedToId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -826,11 +896,13 @@ export type TicketSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   subject?: boolean
   body?: boolean
+  bodyHtml?: boolean
   fromEmail?: boolean
   fromName?: boolean
   messageId?: boolean
   status?: boolean
   category?: boolean
+  resolvedByAi?: boolean
   assignedToId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -841,17 +913,19 @@ export type TicketSelectScalar = {
   id?: boolean
   subject?: boolean
   body?: boolean
+  bodyHtml?: boolean
   fromEmail?: boolean
   fromName?: boolean
   messageId?: boolean
   status?: boolean
   category?: boolean
+  resolvedByAi?: boolean
   assignedToId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TicketOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "subject" | "body" | "fromEmail" | "fromName" | "messageId" | "status" | "category" | "assignedToId" | "createdAt" | "updatedAt", ExtArgs["result"]["ticket"]>
+export type TicketOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "subject" | "body" | "bodyHtml" | "fromEmail" | "fromName" | "messageId" | "status" | "category" | "resolvedByAi" | "assignedToId" | "createdAt" | "updatedAt", ExtArgs["result"]["ticket"]>
 export type TicketInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedTo?: boolean | Prisma.Ticket$assignedToArgs<ExtArgs>
   replies?: boolean | Prisma.Ticket$repliesArgs<ExtArgs>
@@ -874,11 +948,13 @@ export type $TicketPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     id: number
     subject: string
     body: string
+    bodyHtml: string | null
     fromEmail: string
     fromName: string
     messageId: string | null
     status: $Enums.TicketStatus
     category: $Enums.TicketCategory | null
+    resolvedByAi: boolean
     assignedToId: string | null
     createdAt: Date
     updatedAt: Date
@@ -1310,11 +1386,13 @@ export interface TicketFieldRefs {
   readonly id: Prisma.FieldRef<"Ticket", 'Int'>
   readonly subject: Prisma.FieldRef<"Ticket", 'String'>
   readonly body: Prisma.FieldRef<"Ticket", 'String'>
+  readonly bodyHtml: Prisma.FieldRef<"Ticket", 'String'>
   readonly fromEmail: Prisma.FieldRef<"Ticket", 'String'>
   readonly fromName: Prisma.FieldRef<"Ticket", 'String'>
   readonly messageId: Prisma.FieldRef<"Ticket", 'String'>
   readonly status: Prisma.FieldRef<"Ticket", 'TicketStatus'>
   readonly category: Prisma.FieldRef<"Ticket", 'TicketCategory'>
+  readonly resolvedByAi: Prisma.FieldRef<"Ticket", 'Boolean'>
   readonly assignedToId: Prisma.FieldRef<"Ticket", 'String'>
   readonly createdAt: Prisma.FieldRef<"Ticket", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Ticket", 'DateTime'>

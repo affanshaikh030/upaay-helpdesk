@@ -19,6 +19,7 @@ export type TicketDetail = Ticket & {
   body: string
   bodyHtml: string | null
   messageId: string | null
+  resolvedByAi: boolean
   updatedAt: string
 }
 
