@@ -33,7 +33,7 @@ export default defineConfig({
         BETTER_AUTH_URL: serverUrl,
         INBOUND_EMAIL_SECRET: env.inboundEmailSecret,
         TRUSTED_ORIGINS: clientUrl,
-        // Empty on purpose: Bun would otherwise load the real key from server/.env, and e2e must never call Gemini (classification is skipped)
+        // Empty on purpose: Bun would otherwise load the real key from server/.env, and e2e must never call Gemini (the pg-boss classify worker is not registered without a key; jobs are only enqueued)
         GOOGLE_GENERATIVE_AI_API_KEY: '',
         E2E_ADMIN_EMAIL: process.env.E2E_ADMIN_EMAIL!,
         E2E_ADMIN_PASSWORD: process.env.E2E_ADMIN_PASSWORD!,
