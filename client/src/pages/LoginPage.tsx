@@ -3,7 +3,6 @@ import { Navigate, useNavigate } from 'react-router'
 import { authClient } from '../lib/auth-client'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
@@ -52,13 +51,19 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-muted/40 px-4">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-xl">Sign in to Helpdesk</CardTitle>
-          <CardDescription>Enter your email and password to continue.</CardDescription>
-        </CardHeader>
-        <CardContent>
+    <main className="grid min-h-screen lg:grid-cols-2">
+      <aside className="hidden flex-col justify-between bg-primary p-12 text-primary-foreground lg:flex">
+        <p className="text-lg font-semibold tracking-tight">Helpdesk</p>
+        <p className="max-w-sm text-2xl leading-snug font-semibold tracking-tight">
+          Support tickets from email, classified and answered with AI.
+        </p>
+      </aside>
+      <div className="flex items-center px-6 py-12 sm:px-12 lg:px-20">
+        <div className="w-full max-w-sm">
+          <h1 className="text-xl font-semibold tracking-tight">Sign in to Helpdesk</h1>
+          <p className="mt-1 mb-6 text-sm text-muted-foreground">
+            Enter your email and password to continue.
+          </p>
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
             {error && (
               <Alert variant="destructive">
@@ -100,8 +105,8 @@ export default function LoginPage() {
               {submitting ? 'Signing in…' : 'Sign in'}
             </Button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </main>
   )
 }
