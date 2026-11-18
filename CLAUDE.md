@@ -29,7 +29,7 @@ Source-of-truth docs (read these first):
   - `prisma/schema.prisma` is the source of truth; `core/src/roles.ts` mirrors it for the client, and `server/src/enum-sync.ts` fails typecheck if the two differ (it also covers `TicketStatus` and `TicketCategory`, mirrored in `core/src/tickets.ts`). When adding a value to any of these enums, update the Prisma enum and the `core/` mirror together. In the client use `TicketStatus.OPEN`, `TicketCategory.REFUND_REQUEST` etc. from `@helpdesk/core`, not string literals.
 - **First admin:** `cd server && bun run seed` reads `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` (min 12 characters, no placeholders), `SEED_ADMIN_NAME` (optional). Idempotent: an existing ADMIN is a no-op; an existing non-admin with that email is only promoted if `SEED_PROMOTE_EXISTING=true`, otherwise the script exits with an error.
 - **Reset a password:** the seed never changes an existing user's password. Use `cd server && NEW_PASSWORD='...' bun run reset-password <email>` (`server/scripts/reset-password.ts`): hashes with Better Auth, updates only that user's credential account, keeps sessions, never prints the password. Same 12-character minimum as the seed.
-- **Env vars** (see `.env.example`): `DATABASE_URL`, `BETTER_AUTH_SECRET` (required, 32+ characters, not the `.env.example` placeholder; `auth.ts` throws at startup otherwise), `BETTER_AUTH_URL` (server origin), `INBOUND_EMAIL_SECRET` (optional; enables the inbound email webhook, see below), `TRUSTED_ORIGINS` (comma-separated browser origins, default `http://localhost:5173`; add the deployed client origin).
+- **Env vars** (see `.env.example`): `DATABASE_URL`, `BETTER_AUTH_SECRET` (required, 32+ characters, not the `.env.example` placeholder; `auth.ts` throws at startup otherwise), `BETTER_AUTH_URL` (server origin), `INBOUND_EMAIL_SECRET` (optional; enables the inbound email webhook, see below), `TRUSTED_ORIGINS` (comma-separated browser origins, default `http://localhost:5173`; add the deployed client origin), `SENTRY_DSN` (optional; enables server error monitoring, see below).
 - **Protecting routes:** server: everything under `/api` after `/api/health` goes through `requireAuth` (`server/src/middleware/auth.ts`, 401 without a session, sets `res.locals.user`/`session`); add `requireRole("ADMIN")` per route for admin-only endpoints (403 otherwise). Never rely on client-side guards (`AdminRoute`) for authorization. Client: `Layout` redirects to `/login` without a session; `LoginPage` redirects to `/` with one.
 - **Rate limiting:** enabled only when `NODE_ENV=production` (off in dev and tests) in `auth.ts`, with database storage (`rateLimit` table); `/sign-in/email` is limited to 5 per 60s per IP, others 100 per 60s. Behind a reverse proxy set `TRUST_PROXY_HEADERS=true` so real client IPs are used. `NODE_ENV=production` must be set in the deployment or there is no limiting at all.
 
@@ -50,10 +50,17 @@ Source-of-truth docs (read these first):
 
 - **Summarise:** `POST /api/tickets/:id/summary` (no body) loads the ticket and its replies from the database and returns `{ summary }` from the same Gemini model, regenerated on every call and never saved. Same key and 503 behaviour as polish. The "Summarise" button (sparkles icon, `TicketSummary`) sits below the message in `TicketDetail`.
 
-## Error monitoring (Sentry, client)
+## Error monitoring (Sentry, client and server)
+### Client
 - `@sentry/react` is initialised in `client/src/main.tsx` **only when `VITE_SENTRY_DSN` is set** (see `client/.env.example`), so dev, tests and CI send nothing. Never hard-code the DSN.
 - Errors only: no tracing, replay or logs. SDK v11 has no `sendDefaultPii`; `dataCollection` is set to collect nothing extra (no user info, cookies, headers, bodies or query params).
 - The app is wrapped in `Sentry.ErrorBoundary` with `ErrorFallback` (shadcn `Alert` + reload button).
+
+### Server
+- `@sentry/bun`, initialised in `server/src/instrument.ts` **only when `SENTRY_DSN` is set** (in `server/.env`; empty in `.env.example`), so the server runs fine without it. Never hard-code the DSN.
+- It is loaded with `bun --preload ./src/instrument.ts` (the `dev` and `start` scripts), Bun's equivalent of Node's `--import instrument.js`, so it runs before any other module. The e2e API starts with plain `bun src/index.ts`, so it sends nothing.
+- Errors only: no tracing, profiling or logs. `dataCollection` collects nothing and `beforeSend` drops `event.request` and `event.user` (no emails, ticket text, bodies, headers or cookies).
+- Bun can't auto-patch Express, so `Sentry.setupExpressErrorHandler(app)` (after all routes in `server/src/index.ts`) is what captures route errors.
 
 ## Testing strategy
 - **Default to component tests; E2E only when necessary.** Cover UI behaviour (rendering, loading/empty/error states, forms and validation, dialogs, role-dependent UI, labels) with component tests: they are fast and need no server or database. Don't duplicate in E2E what a component test already covers, and when a feature could be tested either way, write the component test.

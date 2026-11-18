@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/bun";
 import express from "express";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./auth";
@@ -38,6 +39,9 @@ app.use("/api/stats", statsRouter);
 app.use("/api/tickets", ticketsRouter);
 
 app.use("/api/me", meRouter);
+
+// Must come after all routes. Bun can't auto-patch Express, so this middleware is what captures route errors
+Sentry.setupExpressErrorHandler(app);
 
 await startQueue();
 
