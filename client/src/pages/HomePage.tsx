@@ -22,7 +22,7 @@ export default function HomePage() {
   const cards = data && [
     { label: 'Total tickets', value: data.total.toLocaleString() },
     { label: 'Open tickets', value: data.open.toLocaleString() },
-    { label: 'Resolved by AI', value: data.resolvedByAi.toLocaleString() },
+    { label: 'Resolved by AI', value: data.resolvedByAi.toLocaleString(), ai: true },
     { label: '% resolved by AI', value: `${data.aiResolvedPercent}%` },
     {
       label: 'Average resolution time',
@@ -32,8 +32,8 @@ export default function HomePage() {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-8">
-      <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-      <p className="mt-1 mb-6 text-gray-600">Ticket overview, including tickets resolved by AI.</p>
+      <h1 className="text-2xl font-semibold tracking-tight text-foreground">Dashboard</h1>
+      <p className="mt-1 mb-6 text-muted-foreground">Ticket overview, including tickets resolved by AI.</p>
       {error ? (
         <Alert variant="destructive">
           <AlertDescription>Failed to load stats</AlertDescription>
@@ -46,18 +46,17 @@ export default function HomePage() {
         </div>
       ) : (
         <>
-          <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {/* gap-px over a border-coloured background draws the hairline dividers at every breakpoint */}
+          <dl className="grid gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-2 lg:grid-cols-5">
             {cards.map((card) => (
-              <Card key={card.label}>
-                <CardHeader>
-                  <CardDescription>
-                    <dt>{card.label}</dt>
-                  </CardDescription>
-                  <CardTitle className="text-3xl">
-                    <dd>{card.value}</dd>
-                  </CardTitle>
-                </CardHeader>
-              </Card>
+              <div key={card.label} className="bg-card p-5 last:sm:col-span-2 last:lg:col-span-1">
+                <dt className="text-sm text-muted-foreground">{card.label}</dt>
+                <dd
+                  className={`mt-1 text-3xl font-semibold tracking-tight tabular-nums ${card.ai ? 'text-ai' : 'text-card-foreground'}`}
+                >
+                  {card.value}
+                </dd>
+              </div>
             ))}
           </dl>
           <Card className="mt-4">

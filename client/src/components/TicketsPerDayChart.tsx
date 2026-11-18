@@ -26,6 +26,14 @@ function barPath(x: number, y: number, w: number, h: number) {
   return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`
 }
 
+// Signal blue, in a lighter tone on weekends (UTC, like the day buckets)
+function barFill(date: string, hovered: boolean) {
+  const day = new Date(`${date}T00:00:00Z`).getUTCDay()
+  const weekend = day === 0 || day === 6
+  if (weekend) return hovered ? 'fill-signal/70' : 'fill-signal/40'
+  return hovered ? 'fill-signal' : 'fill-signal/85'
+}
+
 export function TicketsPerDayChart({ days }: { days: Stats['ticketsPerDay'] }) {
   const [hovered, setHovered] = useState<number | null>(null)
 
@@ -48,7 +56,15 @@ export function TicketsPerDayChart({ days }: { days: Stats['ticketsPerDay'] }) {
       >
         {ticks.map((tick) => (
           <g key={tick}>
-            <line x1={MARGIN.left} x2={WIDTH - MARGIN.right} y1={y(tick)} y2={y(tick)} className="stroke-border" strokeWidth={1} />
+            <line
+              x1={MARGIN.left}
+              x2={WIDTH - MARGIN.right}
+              y1={y(tick)}
+              y2={y(tick)}
+              className="stroke-border"
+              strokeWidth={1}
+              vectorEffect="non-scaling-stroke"
+            />
             <text x={MARGIN.left - 6} y={y(tick)} textAnchor="end" dominantBaseline="middle" className="fill-current text-[11px]">
               {tick}
             </text>
@@ -60,7 +76,7 @@ export function TicketsPerDayChart({ days }: { days: Stats['ticketsPerDay'] }) {
           return (
             <g key={day.date}>
               {day.count > 0 && (
-                <path d={barPath(cx - barW / 2, y(day.count), barW, h)} className={hovered === i ? 'fill-primary' : 'fill-primary/80'} />
+                <path d={barPath(cx - barW / 2, y(day.count), barW, h)} className={barFill(day.date, hovered === i)} />
               )}
               {i % LABEL_EVERY === 0 && (
                 <text x={cx} y={HEIGHT - 8} textAnchor="middle" className="fill-current text-[11px]">
