@@ -49,6 +49,11 @@ Source-of-truth docs (read these first):
 
 - **Summarise:** `POST /api/tickets/:id/summary` (no body) loads the ticket and its replies from the database and returns `{ summary }` from the same Gemini model, regenerated on every call and never saved. Same key and 503 behaviour as polish. The "Summarise" button (sparkles icon, `TicketSummary`) sits below the message in `TicketDetail`.
 
+## Error monitoring (Sentry, client)
+- `@sentry/react` is initialised in `client/src/main.tsx` **only when `VITE_SENTRY_DSN` is set** (see `client/.env.example`), so dev, tests and CI send nothing. Never hard-code the DSN.
+- Errors only: no tracing, replay or logs. SDK v11 has no `sendDefaultPii`; `dataCollection` is set to collect nothing extra (no user info, cookies, headers, bodies or query params).
+- The app is wrapped in `Sentry.ErrorBoundary` with `ErrorFallback` (shadcn `Alert` + reload button).
+
 ## Testing strategy
 - **Default to component tests; E2E only when necessary.** Cover UI behaviour (rendering, loading/empty/error states, forms and validation, dialogs, role-dependent UI, labels) with component tests: they are fast and need no server or database. Don't duplicate in E2E what a component test already covers, and when a feature could be tested either way, write the component test.
 - **E2E is for what component tests can't prove**, because it needs the real client, server and database together: session and cookie auth, authorization enforced by the server, database effects (soft delete, uniqueness, idempotency), server-only endpoints such as the inbound email webhook, and flows that span pages. Keep E2E suites small and focused on these happy paths and critical checks.
