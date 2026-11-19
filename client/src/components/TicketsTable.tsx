@@ -30,7 +30,11 @@ const buildColumns = (t: Dictionary): ColumnDef<Ticket>[] => [
     accessorKey: 'subject',
     header: t.columnSubject,
     cell: ({ row }) => (
-      <Link to={`/tickets/${row.original.id}`} className="block max-w-xs truncate font-medium hover:underline">
+      <Link
+        to={`/tickets/${row.original.id}`}
+        title={row.original.subject}
+        className="block max-w-48 truncate font-medium hover:underline"
+      >
         {row.original.subject}
       </Link>
     ),
@@ -76,7 +80,10 @@ const buildColumns = (t: Dictionary): ColumnDef<Ticket>[] => [
   {
     accessorKey: 'createdAt',
     header: t.columnCreated,
-    cell: ({ row }) => <span className="whitespace-nowrap">{dateFormat.format(new Date(row.original.createdAt))}</span>,
+    // Never let the date shrink or wrap: below this width the table scrolls instead
+    cell: ({ row }) => (
+      <span className="inline-block min-w-44 whitespace-nowrap">{dateFormat.format(new Date(row.original.createdAt))}</span>
+    ),
   },
 ]
 
