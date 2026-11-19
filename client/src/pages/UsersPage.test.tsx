@@ -53,7 +53,7 @@ describe('UsersPage', () => {
       renderWithQuery(<UsersPage />)
 
       expect(screen.getByRole('heading', { name: 'Users' })).toBeInTheDocument()
-      expect(screen.getByText('Admins and agents with access to Helpdesk')).toBeInTheDocument()
+      expect(screen.getByText('Admins and agents with access to Upaay')).toBeInTheDocument()
     })
 
     it('replaces the skeletons with the table once loaded', async () => {

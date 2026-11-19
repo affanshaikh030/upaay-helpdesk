@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router'
 import { useDesktopSite } from '../hooks/use-desktop-site'
 import { useTheme } from '../hooks/use-theme'
 import { authClient } from '../lib/auth-client'
+import { BRAND_NAME } from '../lib/brand'
 
 export default function NavBar({ name, isAdmin }: { name: string; isAdmin: boolean }) {
   const navigate = useNavigate()
@@ -19,7 +20,7 @@ export default function NavBar({ name, isAdmin }: { name: string; isAdmin: boole
     <nav className="flex items-center justify-between border-b border-border bg-card px-6 py-3">
       <div className="flex items-center gap-6">
         <Link to="/" className="text-lg font-semibold text-foreground">
-          Helpdesk
+          {BRAND_NAME}
         </Link>
         <Link to="/tickets" className="text-sm font-medium text-muted-foreground hover:text-foreground">
           Tickets

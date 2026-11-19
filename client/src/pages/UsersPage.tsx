@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useUsers, type User } from '@/hooks/use-users'
+import { BRAND_NAME } from '@/lib/brand'
 
 export default function UsersPage() {
   const { data: users, error } = useUsers()
@@ -36,7 +37,7 @@ export default function UsersPage() {
             <h1>Users</h1>
           </CardTitle>
           <CardDescription>
-            {users ? `${users.length} ${users.length === 1 ? 'user' : 'users'}` : 'Admins and agents with access to Helpdesk'}
+            {users ? `${users.length} ${users.length === 1 ? 'user' : 'users'}` : `Admins and agents with access to ${BRAND_NAME}`}
           </CardDescription>
         </CardHeader>
         <CardContent>
