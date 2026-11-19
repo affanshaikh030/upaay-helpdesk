@@ -2,13 +2,16 @@ import { Monitor, Moon, Smartphone, Sun } from 'lucide-react'
 import { Link, useNavigate } from 'react-router'
 import { useDesktopSite } from '../hooks/use-desktop-site'
 import { useTheme } from '../hooks/use-theme'
+import { useLanguage } from '../i18n/use-language'
 import { authClient } from '../lib/auth-client'
 import { BRAND_NAME } from '../lib/brand'
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 export default function NavBar({ name, isAdmin }: { name: string; isAdmin: boolean }) {
   const navigate = useNavigate()
   const { isDark, toggle } = useTheme()
   const { isDesktop, toggle: toggleDesktop } = useDesktopSite()
+  const { language, setLanguage, t } = useLanguage()
 
   const handleSignOut = async () => {
     await authClient.signOut({
@@ -17,26 +20,26 @@ export default function NavBar({ name, isAdmin }: { name: string; isAdmin: boole
   }
 
   return (
-    <nav className="flex items-center justify-between border-b border-border bg-card px-6 py-3">
-      <div className="flex items-center gap-6">
+    <nav className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-border bg-card px-4 py-3 sm:px-6">
+      <div className="flex items-center gap-4 sm:gap-6">
         <Link to="/" className="text-lg font-semibold text-foreground">
           {BRAND_NAME}
         </Link>
         <Link to="/tickets" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-          Tickets
+          {t.navTickets}
         </Link>
         {isAdmin && (
           <Link to="/users" className="text-sm font-medium text-muted-foreground hover:text-foreground">
-            Users
+            {t.navUsers}
           </Link>
         )}
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={toggle}
-            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-label={isDark ? t.switchToLightMode : t.switchToDarkMode}
             className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           >
             {isDark ? <Sun className="size-4" aria-hidden="true" /> : <Moon className="size-4" aria-hidden="true" />}
@@ -44,7 +47,7 @@ export default function NavBar({ name, isAdmin }: { name: string; isAdmin: boole
           <button
             type="button"
             onClick={toggleDesktop}
-            aria-label={isDesktop ? 'Switch to mobile site' : 'Switch to desktop site'}
+            aria-label={isDesktop ? t.switchToMobileSite : t.switchToDesktopSite}
             className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
           >
             {isDesktop ? (
@@ -53,6 +56,7 @@ export default function NavBar({ name, isAdmin }: { name: string; isAdmin: boole
               <Monitor className="size-4" aria-hidden="true" />
             )}
           </button>
+          <LanguageSwitcher variant="theme" value={language} onChange={setLanguage} label={t.language} />
         </div>
         <span className="text-sm text-muted-foreground">{name}</span>
         <button
@@ -60,7 +64,7 @@ export default function NavBar({ name, isAdmin }: { name: string; isAdmin: boole
           onClick={handleSignOut}
           className="rounded-md border border-border px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent"
         >
-          Sign out
+          {t.signOut}
         </button>
       </div>
     </nav>

@@ -1,6 +1,7 @@
 import { UNCATEGORIZED, type TicketCategory, type TicketStatus } from '@helpdesk/core'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useLanguage } from '@/i18n/use-language'
 import { categoryLabels, statusLabels } from '@/lib/ticket-labels'
 
 export type TicketFilters = {
@@ -17,27 +18,29 @@ const selectClass =
 type Props = { filters: TicketFilters; onChange: (filters: TicketFilters) => void }
 
 export function TicketsFilters({ filters, onChange }: Props) {
+  const { t } = useLanguage()
+
   return (
     <div className="mb-4 flex flex-wrap items-end gap-4">
       <div className="min-w-48 flex-1 space-y-1.5">
-        <Label htmlFor="ticket-search">Search</Label>
+        <Label htmlFor="ticket-search">{t.search}</Label>
         <Input
           id="ticket-search"
           type="search"
-          placeholder="Subject, name or email"
+          placeholder={t.searchPlaceholder}
           value={filters.search}
           onChange={(e) => onChange({ ...filters, search: e.target.value })}
         />
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="ticket-status">Status</Label>
+        <Label htmlFor="ticket-status">{t.filterStatus}</Label>
         <select
           id="ticket-status"
           className={selectClass}
           value={filters.status}
           onChange={(e) => onChange({ ...filters, status: e.target.value as TicketFilters['status'] })}
         >
-          <option value="">All statuses</option>
+          <option value="">{t.allStatuses}</option>
           {Object.entries(statusLabels).map(([value, label]) => (
             <option key={value} value={value}>
               {label}
@@ -46,20 +49,20 @@ export function TicketsFilters({ filters, onChange }: Props) {
         </select>
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="ticket-category">Category</Label>
+        <Label htmlFor="ticket-category">{t.filterCategory}</Label>
         <select
           id="ticket-category"
           className={selectClass}
           value={filters.category}
           onChange={(e) => onChange({ ...filters, category: e.target.value as TicketFilters['category'] })}
         >
-          <option value="">All categories</option>
+          <option value="">{t.allCategories}</option>
           {Object.entries(categoryLabels).map(([value, label]) => (
             <option key={value} value={value}>
               {label}
             </option>
           ))}
-          <option value={UNCATEGORIZED}>Uncategorized</option>
+          <option value={UNCATEGORIZED}>{t.uncategorized}</option>
         </select>
       </div>
     </div>

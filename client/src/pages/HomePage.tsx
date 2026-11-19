@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { TicketsPerDayChart } from '@/components/TicketsPerDayChart'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useStats } from '@/hooks/use-stats'
+import { useLanguage } from '@/i18n/use-language'
 
 // 90 -> "1m", 8100 -> "2h 15m", 100000 -> "1d 4h": the two largest non-zero units
 function formatDuration(seconds: number) {
@@ -18,28 +19,29 @@ function formatDuration(seconds: number) {
 
 export default function HomePage() {
   const { data, error } = useStats()
+  const { t } = useLanguage()
 
   const cards = data && [
-    { label: 'Total tickets', value: data.total.toLocaleString() },
-    { label: 'Open tickets', value: data.open.toLocaleString() },
-    { label: 'Resolved by AI', value: data.resolvedByAi.toLocaleString(), ai: true },
-    { label: '% resolved by AI', value: `${data.aiResolvedPercent}%` },
+    { label: t.statTotal, value: data.total.toLocaleString() },
+    { label: t.statOpen, value: data.open.toLocaleString() },
+    { label: t.statResolvedByAi, value: data.resolvedByAi.toLocaleString(), ai: true },
+    { label: t.statResolvedByAiPercent, value: `${data.aiResolvedPercent}%` },
     {
-      label: 'Average resolution time',
+      label: t.statAvgResolution,
       value: data.avgResolutionSeconds === null ? '-' : formatDuration(data.avgResolutionSeconds),
     },
   ]
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-8">
-      <h1 className="text-2xl font-semibold tracking-tight text-foreground">Dashboard</h1>
-      <p className="mt-1 mb-6 text-muted-foreground">Ticket overview, including tickets resolved by AI.</p>
+      <h1 className="text-2xl font-semibold tracking-tight text-foreground">{t.dashboardTitle}</h1>
+      <p className="mt-1 mb-6 text-muted-foreground">{t.dashboardSubtitle}</p>
       {error ? (
         <Alert variant="destructive">
-          <AlertDescription>Failed to load stats</AlertDescription>
+          <AlertDescription>{t.statsLoadFailed}</AlertDescription>
         </Alert>
       ) : !cards ? (
-        <div role="status" aria-label="Loading stats" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div role="status" aria-label={t.statsLoading} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 5 }, (_, i) => (
             <Skeleton key={i} className="h-28 w-full" />
           ))}
@@ -62,9 +64,9 @@ export default function HomePage() {
           <Card className="mt-4">
             <CardHeader>
               <CardTitle>
-                <h2>Tickets per day</h2>
+                <h2>{t.ticketsPerDayTitle}</h2>
               </CardTitle>
-              <CardDescription>New tickets received over the last 30 days (UTC)</CardDescription>
+              <CardDescription>{t.ticketsPerDayDescription}</CardDescription>
             </CardHeader>
             <CardContent>
               <TicketsPerDayChart days={data.ticketsPerDay} />

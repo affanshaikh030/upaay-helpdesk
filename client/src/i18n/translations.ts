@@ -9,6 +9,7 @@ export const LANGUAGES: { code: Language; label: string }[] = [
 ]
 
 export interface Dictionary {
+  // Login
   signInTo: (brand: string) => string
   tagline: string
   subtitle: string
@@ -23,6 +24,64 @@ export interface Dictionary {
   emailInvalid: string
   passwordRequired: string
   language: string
+
+  // Navigation
+  navTickets: string
+  navUsers: string
+  signOut: string
+  switchToLightMode: string
+  switchToDarkMode: string
+  switchToDesktopSite: string
+  switchToMobileSite: string
+
+  // Dashboard
+  dashboardTitle: string
+  dashboardSubtitle: string
+  statsLoadFailed: string
+  statsLoading: string
+  statTotal: string
+  statOpen: string
+  statResolvedByAi: string
+  statResolvedByAiPercent: string
+  statAvgResolution: string
+  ticketsPerDayTitle: string
+  ticketsPerDayDescription: string
+  chartAriaLabel: string
+  ticketOne: string
+  ticketMany: string
+  viewAsTable: string
+  columnDay: string
+  columnTickets: string
+
+  // Tickets list
+  ticketsTitle: string
+  ticketCount: (count: number) => string
+  ticketsSubtitle: string
+  ticketsLoadFailed: string
+  ticketsLoading: string
+  noTicketsMatch: string
+  noTicketsYet: string
+  search: string
+  searchPlaceholder: string
+  filterStatus: string
+  filterCategory: string
+  allStatuses: string
+  allCategories: string
+  uncategorized: string
+  unassigned: string
+  columnSubject: string
+  columnFrom: string
+  columnStatus: string
+  columnCategory: string
+  columnAssignedTo: string
+  columnCreated: string
+
+  // Pagination
+  paginationLabel: string
+  showing: (from: number, to: number, total: number) => string
+  previous: string
+  next: string
+  pageOf: (page: number, pageCount: number) => string
 }
 
 export const translations: Record<Language, Dictionary> = {
@@ -41,6 +100,60 @@ export const translations: Record<Language, Dictionary> = {
     emailInvalid: 'Enter a valid email address',
     passwordRequired: 'Password is required',
     language: 'Language',
+
+    navTickets: 'Tickets',
+    navUsers: 'Users',
+    signOut: 'Sign out',
+    switchToLightMode: 'Switch to light mode',
+    switchToDarkMode: 'Switch to dark mode',
+    switchToDesktopSite: 'Switch to desktop site',
+    switchToMobileSite: 'Switch to mobile site',
+
+    dashboardTitle: 'Dashboard',
+    dashboardSubtitle: 'Ticket overview, including tickets resolved by AI.',
+    statsLoadFailed: 'Failed to load stats',
+    statsLoading: 'Loading stats',
+    statTotal: 'Total tickets',
+    statOpen: 'Open tickets',
+    statResolvedByAi: 'Resolved by AI',
+    statResolvedByAiPercent: '% resolved by AI',
+    statAvgResolution: 'Average resolution time',
+    ticketsPerDayTitle: 'Tickets per day',
+    ticketsPerDayDescription: 'New tickets received over the last 30 days (UTC)',
+    chartAriaLabel: 'Bar chart of tickets received per day over the last 30 days',
+    ticketOne: 'ticket',
+    ticketMany: 'tickets',
+    viewAsTable: 'View as table',
+    columnDay: 'Day',
+    columnTickets: 'Tickets',
+
+    ticketsTitle: 'Tickets',
+    ticketCount: (count) => `${count} ${count === 1 ? 'ticket' : 'tickets'}`,
+    ticketsSubtitle: 'Support requests received by email',
+    ticketsLoadFailed: 'Failed to load tickets',
+    ticketsLoading: 'Loading tickets',
+    noTicketsMatch: 'No tickets match your filters.',
+    noTicketsYet: 'No tickets yet.',
+    search: 'Search',
+    searchPlaceholder: 'Subject, name or email',
+    filterStatus: 'Status',
+    filterCategory: 'Category',
+    allStatuses: 'All statuses',
+    allCategories: 'All categories',
+    uncategorized: 'Uncategorized',
+    unassigned: 'Unassigned',
+    columnSubject: 'Subject',
+    columnFrom: 'From',
+    columnStatus: 'Status',
+    columnCategory: 'Category',
+    columnAssignedTo: 'Assigned to',
+    columnCreated: 'Created',
+
+    paginationLabel: 'Pagination',
+    showing: (from, to, total) => `Showing ${from}–${to} of ${total}`,
+    previous: 'Previous',
+    next: 'Next',
+    pageOf: (page, pageCount) => `Page ${page} of ${pageCount}`,
   },
   hi: {
     signInTo: (brand) => `${brand} में साइन इन करें`,
@@ -57,6 +170,60 @@ export const translations: Record<Language, Dictionary> = {
     emailInvalid: 'मान्य ईमेल पता दर्ज करें',
     passwordRequired: 'पासवर्ड आवश्यक है',
     language: 'भाषा',
+
+    navTickets: 'टिकट',
+    navUsers: 'उपयोगकर्ता',
+    signOut: 'साइन आउट',
+    switchToLightMode: 'लाइट मोड पर जाएँ',
+    switchToDarkMode: 'डार्क मोड पर जाएँ',
+    switchToDesktopSite: 'डेस्कटॉप साइट पर जाएँ',
+    switchToMobileSite: 'मोबाइल साइट पर जाएँ',
+
+    dashboardTitle: 'डैशबोर्ड',
+    dashboardSubtitle: 'टिकटों का अवलोकन, जिसमें AI द्वारा हल किए गए टिकट भी शामिल हैं।',
+    statsLoadFailed: 'आँकड़े लोड नहीं हो सके',
+    statsLoading: 'आँकड़े लोड हो रहे हैं',
+    statTotal: 'कुल टिकट',
+    statOpen: 'खुले टिकट',
+    statResolvedByAi: 'AI द्वारा हल किए गए',
+    statResolvedByAiPercent: 'AI द्वारा हल किए गए (%)',
+    statAvgResolution: 'औसत समाधान समय',
+    ticketsPerDayTitle: 'प्रति दिन टिकट',
+    ticketsPerDayDescription: 'पिछले 30 दिनों में प्राप्त नए टिकट (UTC)',
+    chartAriaLabel: 'पिछले 30 दिनों में प्रति दिन प्राप्त टिकटों का बार चार्ट',
+    ticketOne: 'टिकट',
+    ticketMany: 'टिकट',
+    viewAsTable: 'तालिका के रूप में देखें',
+    columnDay: 'दिन',
+    columnTickets: 'टिकट',
+
+    ticketsTitle: 'टिकट',
+    ticketCount: (count) => `${count} टिकट`,
+    ticketsSubtitle: 'ईमेल से प्राप्त सहायता अनुरोध',
+    ticketsLoadFailed: 'टिकट लोड नहीं हो सके',
+    ticketsLoading: 'टिकट लोड हो रहे हैं',
+    noTicketsMatch: 'आपके फ़िल्टर से कोई टिकट मेल नहीं खाता।',
+    noTicketsYet: 'अभी कोई टिकट नहीं है।',
+    search: 'खोजें',
+    searchPlaceholder: 'विषय, नाम या ईमेल',
+    filterStatus: 'स्थिति',
+    filterCategory: 'श्रेणी',
+    allStatuses: 'सभी स्थितियाँ',
+    allCategories: 'सभी श्रेणियाँ',
+    uncategorized: 'श्रेणी रहित',
+    unassigned: 'असाइन नहीं किया गया',
+    columnSubject: 'विषय',
+    columnFrom: 'प्रेषक',
+    columnStatus: 'स्थिति',
+    columnCategory: 'श्रेणी',
+    columnAssignedTo: 'असाइन किया गया',
+    columnCreated: 'बनाया गया',
+
+    paginationLabel: 'पृष्ठ संख्या',
+    showing: (from, to, total) => `${total} में से ${from}–${to} दिखा रहे हैं`,
+    previous: 'पिछला',
+    next: 'अगला',
+    pageOf: (page, pageCount) => `पृष्ठ ${page} / ${pageCount}`,
   },
   gu: {
     signInTo: (brand) => `${brand} માં સાઇન ઇન કરો`,
@@ -73,5 +240,59 @@ export const translations: Record<Language, Dictionary> = {
     emailInvalid: 'માન્ય ઇમેઇલ સરનામું દાખલ કરો',
     passwordRequired: 'પાસવર્ડ જરૂરી છે',
     language: 'ભાષા',
+
+    navTickets: 'ટિકિટ',
+    navUsers: 'વપરાશકર્તાઓ',
+    signOut: 'સાઇન આઉટ',
+    switchToLightMode: 'લાઇટ મોડ પર જાઓ',
+    switchToDarkMode: 'ડાર્ક મોડ પર જાઓ',
+    switchToDesktopSite: 'ડેસ્કટોપ સાઇટ પર જાઓ',
+    switchToMobileSite: 'મોબાઇલ સાઇટ પર જાઓ',
+
+    dashboardTitle: 'ડેશબોર્ડ',
+    dashboardSubtitle: 'ટિકિટોની ઝાંખી, જેમાં AI દ્વારા ઉકેલાયેલી ટિકિટો પણ સામેલ છે.',
+    statsLoadFailed: 'આંકડા લોડ થઈ શક્યા નથી',
+    statsLoading: 'આંકડા લોડ થઈ રહ્યા છે',
+    statTotal: 'કુલ ટિકિટ',
+    statOpen: 'ખુલ્લી ટિકિટ',
+    statResolvedByAi: 'AI દ્વારા ઉકેલાયેલી',
+    statResolvedByAiPercent: 'AI દ્વારા ઉકેલાયેલી (%)',
+    statAvgResolution: 'સરેરાશ ઉકેલ સમય',
+    ticketsPerDayTitle: 'દરરોજ ટિકિટ',
+    ticketsPerDayDescription: 'છેલ્લા 30 દિવસમાં મળેલી નવી ટિકિટ (UTC)',
+    chartAriaLabel: 'છેલ્લા 30 દિવસમાં દરરોજ મળેલી ટિકિટનો બાર ચાર્ટ',
+    ticketOne: 'ટિકિટ',
+    ticketMany: 'ટિકિટ',
+    viewAsTable: 'કોષ્ટક તરીકે જુઓ',
+    columnDay: 'દિવસ',
+    columnTickets: 'ટિકિટ',
+
+    ticketsTitle: 'ટિકિટ',
+    ticketCount: (count) => `${count} ટિકિટ`,
+    ticketsSubtitle: 'ઇમેઇલથી મળેલી સહાય વિનંતીઓ',
+    ticketsLoadFailed: 'ટિકિટ લોડ થઈ શકી નથી',
+    ticketsLoading: 'ટિકિટ લોડ થઈ રહી છે',
+    noTicketsMatch: 'તમારા ફિલ્ટર સાથે કોઈ ટિકિટ મેળ ખાતી નથી.',
+    noTicketsYet: 'હજી કોઈ ટિકિટ નથી.',
+    search: 'શોધો',
+    searchPlaceholder: 'વિષય, નામ અથવા ઇમેઇલ',
+    filterStatus: 'સ્થિતિ',
+    filterCategory: 'શ્રેણી',
+    allStatuses: 'બધી સ્થિતિઓ',
+    allCategories: 'બધી શ્રેણીઓ',
+    uncategorized: 'શ્રેણી વગરની',
+    unassigned: 'સોંપાયેલ નથી',
+    columnSubject: 'વિષય',
+    columnFrom: 'મોકલનાર',
+    columnStatus: 'સ્થિતિ',
+    columnCategory: 'શ્રેણી',
+    columnAssignedTo: 'સોંપાયેલ',
+    columnCreated: 'બનાવ્યું',
+
+    paginationLabel: 'પૃષ્ઠ ક્રમાંક',
+    showing: (from, to, total) => `${total} માંથી ${from}–${to} બતાવી રહ્યા છીએ`,
+    previous: 'પાછળ',
+    next: 'આગળ',
+    pageOf: (page, pageCount) => `પૃષ્ઠ ${page} / ${pageCount}`,
   },
 }

@@ -8,8 +8,10 @@ import { TicketsFilters, emptyFilters, type TicketFilters } from '@/components/T
 import { TicketsPagination } from '@/components/TicketsPagination'
 import { TicketsTable } from '@/components/TicketsTable'
 import { defaultTicketSort, useTickets } from '@/hooks/use-tickets'
+import { useLanguage } from '@/i18n/use-language'
 
 export default function TicketsPage() {
+  const { t } = useLanguage()
   const [sorting, setSorting] = useState<SortingState>([
     { id: defaultTicketSort.sortBy, desc: defaultTicketSort.sortOrder === 'desc' },
   ])
@@ -44,13 +46,9 @@ export default function TicketsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl">
-            <h1>Tickets</h1>
+            <h1>{t.ticketsTitle}</h1>
           </CardTitle>
-          <CardDescription>
-            {tickets
-              ? `${data.total} ${data.total === 1 ? 'ticket' : 'tickets'}`
-              : 'Support requests received by email'}
-          </CardDescription>
+          <CardDescription>{tickets ? t.ticketCount(data.total) : t.ticketsSubtitle}</CardDescription>
         </CardHeader>
         <CardContent>
           <TicketsFilters
@@ -63,10 +61,10 @@ export default function TicketsPage() {
           />
           {error ? (
             <Alert variant="destructive">
-              <AlertDescription>Failed to load tickets</AlertDescription>
+              <AlertDescription>{t.ticketsLoadFailed}</AlertDescription>
             </Alert>
           ) : !tickets ? (
-            <div role="status" aria-label="Loading tickets" className="space-y-3">
+            <div role="status" aria-label={t.ticketsLoading} className="space-y-3">
               {Array.from({ length: 5 }, (_, i) => (
                 <div key={i} className="flex items-center gap-4">
                   <Skeleton className="h-5 w-2/5" />
@@ -78,7 +76,7 @@ export default function TicketsPage() {
             </div>
           ) : tickets.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              {isFiltered ? 'No tickets match your filters.' : 'No tickets yet.'}
+              {isFiltered ? t.noTicketsMatch : t.noTicketsYet}
             </p>
           ) : (
             <>

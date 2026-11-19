@@ -8,10 +8,13 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
+import { useMemo } from 'react'
 import { Link } from 'react-router'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { Ticket } from '@/hooks/use-tickets'
+import type { Dictionary } from '@/i18n/translations'
+import { useLanguage } from '@/i18n/use-language'
 import { categoryLabels, statusLabels } from '@/lib/ticket-labels'
 
 const dateFormat = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' })
@@ -22,10 +25,10 @@ const statusVariants: Record<TicketStatus, 'default' | 'secondary' | 'outline'> 
   [TicketStatus.CLOSED]: 'outline',
 }
 
-const columns: ColumnDef<Ticket>[] = [
+const buildColumns = (t: Dictionary): ColumnDef<Ticket>[] => [
   {
     accessorKey: 'subject',
-    header: 'Subject',
+    header: t.columnSubject,
     cell: ({ row }) => (
       <Link to={`/tickets/${row.original.id}`} className="block max-w-xs truncate font-medium hover:underline">
         {row.original.subject}
@@ -34,7 +37,7 @@ const columns: ColumnDef<Ticket>[] = [
   },
   {
     accessorKey: 'fromName',
-    header: 'From',
+    header: t.columnFrom,
     cell: ({ row }) => (
       <>
         <div>{row.original.fromName}</div>
@@ -44,35 +47,35 @@ const columns: ColumnDef<Ticket>[] = [
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: t.columnStatus,
     cell: ({ row }) => (
       <Badge variant={statusVariants[row.original.status]}>{statusLabels[row.original.status]}</Badge>
     ),
   },
   {
     accessorKey: 'category',
-    header: 'Category',
+    header: t.columnCategory,
     cell: ({ row }) =>
       row.original.category ? (
         categoryLabels[row.original.category]
       ) : (
-        <span className="text-muted-foreground">Uncategorized</span>
+        <span className="text-muted-foreground">{t.uncategorized}</span>
       ),
   },
   {
     id: 'assignedTo',
-    header: 'Assigned to',
+    header: t.columnAssignedTo,
     enableSorting: false,
     cell: ({ row }) =>
       row.original.assignedTo ? (
         row.original.assignedTo.name
       ) : (
-        <span className="text-muted-foreground">Unassigned</span>
+        <span className="text-muted-foreground">{t.unassigned}</span>
       ),
   },
   {
     accessorKey: 'createdAt',
-    header: 'Created',
+    header: t.columnCreated,
     cell: ({ row }) => <span className="whitespace-nowrap">{dateFormat.format(new Date(row.original.createdAt))}</span>,
   },
 ]
@@ -85,6 +88,8 @@ type TicketsTableProps = {
 
 // Sorting is done by the API: the rows arrive already sorted and the table only reports clicks
 export function TicketsTable({ tickets, sorting, onSortingChange }: TicketsTableProps) {
+  const { t } = useLanguage()
+  const columns = useMemo(() => buildColumns(t), [t])
   const table = useReactTable({
     data: tickets,
     columns,

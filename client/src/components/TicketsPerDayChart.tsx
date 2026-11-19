@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { Stats } from '@/hooks/use-stats'
+import { useLanguage } from '@/i18n/use-language'
 
 const WIDTH = 720
 const HEIGHT = 240
@@ -36,6 +37,7 @@ function barFill(date: string, hovered: boolean) {
 
 export function TicketsPerDayChart({ days }: { days: Stats['ticketsPerDay'] }) {
   const [hovered, setHovered] = useState<number | null>(null)
+  const { t } = useLanguage()
 
   const step = niceStep(Math.max(...days.map((d) => d.count)))
   const top = step * 4
@@ -50,7 +52,7 @@ export function TicketsPerDayChart({ days }: { days: Stats['ticketsPerDay'] }) {
       <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         role="img"
-        aria-label="Bar chart of tickets received per day over the last 30 days"
+        aria-label={t.chartAriaLabel}
         className="w-full text-muted-foreground"
         onMouseLeave={() => setHovered(null)}
       >
@@ -104,17 +106,17 @@ export function TicketsPerDayChart({ days }: { days: Stats['ticketsPerDay'] }) {
         >
           <div className="font-medium">{formatDay(active.date)}</div>
           <div>
-            {active.count} {active.count === 1 ? 'ticket' : 'tickets'}
+            {active.count} {active.count === 1 ? t.ticketOne : t.ticketMany}
           </div>
         </div>
       )}
       <details className="mt-2 text-sm text-muted-foreground">
-        <summary className="cursor-pointer">View as table</summary>
+        <summary className="cursor-pointer">{t.viewAsTable}</summary>
         <table className="mt-2 w-full max-w-xs text-left">
           <thead>
             <tr>
-              <th className="font-medium">Day</th>
-              <th className="font-medium">Tickets</th>
+              <th className="font-medium">{t.columnDay}</th>
+              <th className="font-medium">{t.columnTickets}</th>
             </tr>
           </thead>
           <tbody>
