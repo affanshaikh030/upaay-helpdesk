@@ -1,9 +1,12 @@
 node_modules/
 dist/
+# Real env files, at any depth: only the committed templates are allowed
 .env
+.env.*
+!.env.example
+!.env.test.example
 *.log
 
 src/generated/
-.env.test
 test-results/
 playwright-report/
