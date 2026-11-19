@@ -7,7 +7,7 @@ test.describe('unauthenticated access', () => {
     test(`${path} redirects to /login`, async ({ page }) => {
       await page.goto(path)
       await expect(page).toHaveURL('/login')
-      await expect(page.getByText('Sign in to Helpdesk')).toBeVisible()
+      await expect(page.getByText('Sign in to Upaay')).toBeVisible()
     })
   }
 })
@@ -27,7 +27,7 @@ test.describe('session', () => {
 
     await page.goBack()
     await expect(page).toHaveURL(/\/login$/)
-    await expect(page.getByText('Sign in to Helpdesk')).toBeVisible()
+    await expect(page.getByText('Sign in to Upaay')).toBeVisible()
 
     await page.goto('/')
     await expect(page).toHaveURL('/login')

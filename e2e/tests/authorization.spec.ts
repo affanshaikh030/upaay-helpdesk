@@ -14,7 +14,7 @@ test.describe('client route authorization', () => {
     await loginViaUi(page, testUsers.agent)
     await page.goto('/users')
     await expect(page).toHaveURL('/')
-    await expect(page.getByRole('heading', { name: 'Welcome to Helpdesk' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
   })
 })
 
@@ -110,7 +110,7 @@ test.describe('sign-up disabled', () => {
   test('the new credentials cannot log in through the UI', async ({ page }) => {
     await page.goto('/login')
     await page.getByLabel('Email').fill(newUser.email)
-    await page.getByLabel('Password').fill(newUser.password)
+    await page.getByLabel('Password', { exact: true }).fill(newUser.password)
     await page.getByRole('button', { name: 'Sign in' }).click()
     await expect(page.getByRole('alert')).toBeVisible()
     await expect(page).toHaveURL('/login')

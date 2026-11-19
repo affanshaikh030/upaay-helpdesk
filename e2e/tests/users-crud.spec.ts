@@ -31,7 +31,7 @@ async function tryLogin(browser: Browser, baseURL: string | undefined, user: Cre
   const page = await context.newPage()
   await page.goto('/login')
   await page.getByLabel('Email').fill(user.email)
-  await page.getByLabel('Password').fill(user.password)
+  await page.getByLabel('Password', { exact: true }).fill(user.password)
   await page.getByRole('button', { name: 'Sign in' }).click()
   return { page, close: () => context.close() }
 }

@@ -10,11 +10,11 @@ test.describe('login', () => {
   })
 
   const email = (page: import('@playwright/test').Page) => page.getByLabel('Email')
-  const password = (page: import('@playwright/test').Page) => page.getByLabel('Password')
+  const password = (page: import('@playwright/test').Page) => page.getByLabel('Password', { exact: true })
   const submit = (page: import('@playwright/test').Page) => page.getByRole('button', { name: /sign in|signing in/i })
 
   test('renders the form', async ({ page }) => {
-    await expect(page.getByText('Sign in to Helpdesk')).toBeVisible()
+    await expect(page.getByText('Sign in to Upaay')).toBeVisible()
     await expect(email(page)).toBeVisible()
     await expect(submit(page)).toBeEnabled()
   })
@@ -26,7 +26,7 @@ test.describe('login', () => {
     test(`${role} can sign in and sees their name`, async ({ page }) => {
       await loginViaUi(page, user)
       await expect(page.getByRole('navigation').getByText(name)).toBeVisible()
-      await expect(page.getByRole('heading', { name: 'Welcome to Helpdesk' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
     })
   }
 
@@ -208,6 +208,6 @@ test.describe('login', () => {
     await loginViaUi(page, testUsers.agent)
     await page.goto('/login')
     await expect(page).toHaveURL('/')
-    await expect(page.getByRole('heading', { name: 'Welcome to Helpdesk' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
   })
 })
