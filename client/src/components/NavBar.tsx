@@ -1,11 +1,13 @@
-import { Moon, Sun } from 'lucide-react'
+import { Monitor, Moon, Smartphone, Sun } from 'lucide-react'
 import { Link, useNavigate } from 'react-router'
+import { useDesktopSite } from '../hooks/use-desktop-site'
 import { useTheme } from '../hooks/use-theme'
 import { authClient } from '../lib/auth-client'
 
 export default function NavBar({ name, isAdmin }: { name: string; isAdmin: boolean }) {
   const navigate = useNavigate()
   const { isDark, toggle } = useTheme()
+  const { isDesktop, toggle: toggleDesktop } = useDesktopSite()
 
   const handleSignOut = async () => {
     await authClient.signOut({
@@ -29,14 +31,28 @@ export default function NavBar({ name, isAdmin }: { name: string; isAdmin: boole
         )}
       </div>
       <div className="flex items-center gap-4">
-        <button
-          type="button"
-          onClick={toggle}
-          aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-        >
-          {isDark ? <Sun className="size-4" aria-hidden="true" /> : <Moon className="size-4" aria-hidden="true" />}
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={toggle}
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+            className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          >
+            {isDark ? <Sun className="size-4" aria-hidden="true" /> : <Moon className="size-4" aria-hidden="true" />}
+          </button>
+          <button
+            type="button"
+            onClick={toggleDesktop}
+            aria-label={isDesktop ? 'Switch to mobile site' : 'Switch to desktop site'}
+            className="rounded-md p-2 text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          >
+            {isDesktop ? (
+              <Smartphone className="size-4" aria-hidden="true" />
+            ) : (
+              <Monitor className="size-4" aria-hidden="true" />
+            )}
+          </button>
+        </div>
         <span className="text-sm text-muted-foreground">{name}</span>
         <button
           type="button"
