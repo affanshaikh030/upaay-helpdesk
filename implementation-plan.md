@@ -60,6 +60,6 @@
 
 - [ ] Add input validation and error handling across all endpoints
 - [ ] Add loading states and error states on the frontend
-- [ ] Write Dockerfile for server and client
+- [x] Write Dockerfile for server and client (one image: the API serves the built client, see CLAUDE.md "Deployment")
 - [ ] Set up Docker Compose for local development
-- [ ] Write deployment configuration
+- [x] Write deployment configuration (`railway.json`; first deploy and staging checks still to do)

@@ -1,0 +1,16 @@
+# Never send real env files or secrets into a build; the examples are templates only
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.test.example
+
+.git
+**/node_modules
+**/dist
+
+# Not needed to build or run the app
+e2e
+playwright-report
+test-results
+.claude
+*.log

@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
 import * as Sentry from "@sentry/bun";
 import express from "express";
 import { toNodeHandler } from "better-auth/node";
@@ -39,6 +41,23 @@ app.use("/api/stats", statsRouter);
 app.use("/api/tickets", ticketsRouter);
 
 app.use("/api/me", meRouter);
+
+// Production: serve the built client from the same origin as the API, so the browser needs no
+// CORS and the session cookie stays first-party. In dev the Vite server does this instead
+if (process.env.NODE_ENV === "production") {
+  const clientDist = path.resolve(import.meta.dirname, "../../client/dist");
+  if (existsSync(clientDist)) {
+    app.use(express.static(clientDist));
+    // Client-side routes (/tickets, /users, ...) all get index.html. An unknown /api path must
+    // stay an API miss (not HTML), so it is passed on instead of served the page
+    app.get("/*splat", (req, res, next) => {
+      if (req.path === "/api" || req.path.startsWith("/api/")) return next();
+      res.sendFile(path.join(clientDist, "index.html"));
+    });
+  } else {
+    console.warn(`Client build not found at ${clientDist}: only the API is served`);
+  }
+}
 
 // Must come after all routes. Bun can't auto-patch Express, so this middleware is what captures route errors
 Sentry.setupExpressErrorHandler(app);
