@@ -33,6 +33,11 @@ export default function NavBar({ name, isAdmin }: { name: string; isAdmin: boole
             {t.navUsers}
           </Link>
         )}
+        {isAdmin && (
+          <Link to="/knowledge" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+            {t.navKnowledge}
+          </Link>
+        )}
       </div>
       <div className="flex items-center gap-2 sm:gap-4">
         <div className="flex items-center gap-1">

@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router'
 import AdminRoute from './components/AdminRoute'
 import Layout from './components/Layout'
 import HomePage from './pages/HomePage'
+import KnowledgePage from './pages/KnowledgePage'
 import LoginPage from './pages/LoginPage'
 import TicketDetailPage from './pages/TicketDetailPage'
 import TicketsPage from './pages/TicketsPage'
@@ -17,6 +18,7 @@ function App() {
         <Route path="/tickets/:id" element={<TicketDetailPage />} />
         <Route element={<AdminRoute />}>
           <Route path="/users" element={<UsersPage />} />
+          <Route path="/knowledge" element={<KnowledgePage />} />
         </Route>
       </Route>
     </Routes>
