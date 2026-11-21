@@ -60,3 +60,14 @@ export const updateKnowledgeArticleSchema = z
 
 export type CreateKnowledgeArticleInput = z.input<typeof createKnowledgeArticleSchema>;
 export type UpdateKnowledgeArticleInput = z.input<typeof updateKnowledgeArticleSchema>;
+
+// Query params for GET /api/knowledge/attempts (admin only): newest first, paged
+export const ATTEMPTS_DEFAULT_PAGE_SIZE = 20;
+export const ATTEMPTS_MAX_PAGE_SIZE = 100;
+
+export const attemptListQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(ATTEMPTS_MAX_PAGE_SIZE).default(ATTEMPTS_DEFAULT_PAGE_SIZE),
+});
+
+export type AttemptListQuery = z.infer<typeof attemptListQuerySchema>;

@@ -1,4 +1,5 @@
 import {
+  aiResolvedModes,
   REANALYSE_LIMIT,
   TicketPriority,
   TicketSentiment,
@@ -9,6 +10,21 @@ import {
   updateTicketSchema,
 } from "@helpdesk/core";
 import { describe, expect, it } from "vitest";
+
+describe("ticketListQuerySchema: aiResolved", () => {
+  it("defaults to exclude, so AI-resolved tickets stay off the list", () => {
+    expect(ticketListQuerySchema.parse({}).aiResolved).toBe("exclude");
+  });
+
+  it("accepts exclude, only and include, and nothing else", () => {
+    for (const aiResolved of aiResolvedModes) {
+      expect(ticketListQuerySchema.parse({ aiResolved }).aiResolved).toBe(aiResolved);
+    }
+    for (const aiResolved of ["all", "true", "false", "ONLY", ""]) {
+      expect(ticketListQuerySchema.safeParse({ aiResolved }).success, aiResolved).toBe(false);
+    }
+  });
+});
 
 describe("ticketListQuerySchema", () => {
   it("accepts every priority and sentiment, and UNSET for tickets without one", () => {

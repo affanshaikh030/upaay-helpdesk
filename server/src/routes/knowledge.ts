@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createKnowledgeArticleSchema, updateKnowledgeArticleSchema } from "@helpdesk/core";
+import { attemptListQuerySchema, createKnowledgeArticleSchema, updateKnowledgeArticleSchema } from "@helpdesk/core";
 import { z } from "zod";
 import { prisma } from "../db";
 import { Prisma } from "../generated/prisma/client";
@@ -17,6 +17,52 @@ function parseId(raw: string | string[]): number {
   const id = Number(raw);
   return Number.isSafeInteger(id) && id >= 1 && id <= 2_147_483_647 ? id : -1;
 }
+
+// What the auto-resolve job did, or in shadow mode would have done, for each ticket, newest first and paged. The article
+// ids are stored without a foreign key, so cited titles are looked up here (null when the article was deleted since)
+knowledgeRouter.get("/attempts", async (req, res) => {
+  const parsed = attemptListQuerySchema.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0].message });
+    return;
+  }
+  const { page, pageSize } = parsed.data;
+  const [rows, total] = await Promise.all([
+    prisma.autoResolveAttempt.findMany({
+      select: {
+        id: true,
+        ticketId: true,
+        ticket: { select: { subject: true } },
+        decision: true,
+        reason: true,
+        topRank: true,
+        confidence: true,
+        draftReply: true,
+        citedArticleIds: true,
+        shadow: true,
+        acted: true,
+        createdAt: true,
+      },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.autoResolveAttempt.count(),
+  ]);
+
+  const citedIds = [...new Set(rows.flatMap((row) => row.citedArticleIds))];
+  const titles = citedIds.length
+    ? await prisma.knowledgeArticle.findMany({ where: { id: { in: citedIds } }, select: { id: true, title: true } })
+    : [];
+  const titleById = new Map(titles.map((article) => [article.id, article.title]));
+
+  const attempts = rows.map(({ ticket, citedArticleIds, ...attempt }) => ({
+    ...attempt,
+    ticketSubject: ticket.subject,
+    citedArticles: citedArticleIds.map((id) => ({ id, title: titleById.get(id) ?? null })),
+  }));
+  res.json({ attempts, total });
+});
 
 knowledgeRouter.get("/", async (_req, res) => {
   const articles = await prisma.knowledgeArticle.findMany({

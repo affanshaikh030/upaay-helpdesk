@@ -67,6 +67,11 @@ export const ticketSortColumns = ["subject", "fromName", "status", "category", "
 
 export type TicketSortColumn = (typeof ticketSortColumns)[number];
 
+// Tickets the AI answered and resolved are kept off the list by default ("exclude"); "only" lists just those, "include" lists everything
+export const aiResolvedModes = ["exclude", "only", "include"] as const;
+
+export type AiResolvedMode = (typeof aiResolvedModes)[number];
+
 export const ticketListQuerySchema = z.object({
   sortBy: z.enum(ticketSortColumns).default("createdAt"),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
@@ -74,6 +79,7 @@ export const ticketListQuerySchema = z.object({
   category: z.enum({ ...TicketCategory, UNCATEGORIZED }).optional(),
   priority: z.enum({ ...TicketPriority, UNSET }).optional(),
   sentiment: z.enum({ ...TicketSentiment, UNSET }).optional(),
+  aiResolved: z.enum(aiResolvedModes).default("exclude"),
   search: z.string().trim().max(200).optional(),
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(MAX_PAGE_SIZE).default(DEFAULT_PAGE_SIZE),
