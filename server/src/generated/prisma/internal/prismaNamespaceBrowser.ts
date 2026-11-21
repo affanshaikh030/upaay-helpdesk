@@ -57,7 +57,9 @@ export const ModelName = {
   Verification: 'Verification',
   rateLimit: 'rateLimit',
   Ticket: 'Ticket',
-  Reply: 'Reply'
+  Reply: 'Reply',
+  KnowledgeArticle: 'KnowledgeArticle',
+  AutoResolveAttempt: 'AutoResolveAttempt'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -174,10 +176,42 @@ export const ReplyScalarFieldEnum = {
   body: 'body',
   senderType: 'senderType',
   authorId: 'authorId',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  sourceArticleId: 'sourceArticleId'
 } as const
 
 export type ReplyScalarFieldEnum = (typeof ReplyScalarFieldEnum)[keyof typeof ReplyScalarFieldEnum]
+
+
+export const KnowledgeArticleScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  content: 'content',
+  language: 'language',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type KnowledgeArticleScalarFieldEnum = (typeof KnowledgeArticleScalarFieldEnum)[keyof typeof KnowledgeArticleScalarFieldEnum]
+
+
+export const AutoResolveAttemptScalarFieldEnum = {
+  id: 'id',
+  ticketId: 'ticketId',
+  suppliedArticleIds: 'suppliedArticleIds',
+  citedArticleIds: 'citedArticleIds',
+  topRank: 'topRank',
+  modelResolvable: 'modelResolvable',
+  confidence: 'confidence',
+  decision: 'decision',
+  reason: 'reason',
+  draftReply: 'draftReply',
+  acted: 'acted',
+  shadow: 'shadow',
+  createdAt: 'createdAt'
+} as const
+
+export type AutoResolveAttemptScalarFieldEnum = (typeof AutoResolveAttemptScalarFieldEnum)[keyof typeof AutoResolveAttemptScalarFieldEnum]
 
 
 export const SortOrder = {

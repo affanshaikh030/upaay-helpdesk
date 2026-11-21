@@ -1,3 +1,8 @@
+export {
+  AutoResolveDecision,
+  AutoResolveReason,
+  KnowledgeLanguage,
+} from "./knowledge";
 export { Role } from "./roles";
 export {
   createReplySchema,
