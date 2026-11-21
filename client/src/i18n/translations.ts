@@ -1,4 +1,5 @@
 import type {
+  AiResolvedMode,
   AutoResolveDecision,
   AutoResolveReason,
   KnowledgeLanguage,
@@ -107,6 +108,11 @@ export interface Dictionary {
   analysisQueued: (count: number) => string
   analysisNone: string
   analysisFailed: string
+
+  // AI-resolved tickets
+  filterAiResolved: string
+  aiResolvedOptions: Record<AiResolvedMode, string>
+  basedOn: (title: string) => string
 
   // Knowledge base (admin only)
   knowledgeTitle: string
@@ -255,6 +261,10 @@ export const translations: Record<Language, Dictionary> = {
     analysisQueued: (count) => `Analysis queued for ${count} ${count === 1 ? 'ticket' : 'tickets'}`,
     analysisNone: 'Nothing to analyse right now',
     analysisFailed: 'Could not start the analysis',
+
+    filterAiResolved: 'AI-resolved',
+    aiResolvedOptions: { exclude: 'Hide AI-resolved', only: 'Only AI-resolved', include: 'Include AI-resolved' },
+    basedOn: (title) => `Based on: ${title}`,
 
     knowledgeTitle: 'Knowledge base',
     knowledgeSubtitle: 'Articles the AI answers customers from',
@@ -414,6 +424,14 @@ export const translations: Record<Language, Dictionary> = {
     analysisNone: 'अभी विश्लेषण के लिए कुछ नहीं है',
     analysisFailed: 'विश्लेषण शुरू नहीं हो सका',
 
+    filterAiResolved: 'AI द्वारा हल किए गए',
+    aiResolvedOptions: {
+      exclude: 'AI द्वारा हल किए गए छिपाएँ',
+      only: 'केवल AI द्वारा हल किए गए',
+      include: 'AI द्वारा हल किए गए शामिल करें',
+    },
+    basedOn: (title) => `आधारित: ${title}`,
+
     knowledgeTitle: 'ज्ञान आधार',
     knowledgeSubtitle: 'वे लेख जिनसे AI ग्राहकों को जवाब देता है',
     articleCount: (count) => `${count} लेख`,
@@ -571,6 +589,14 @@ export const translations: Record<Language, Dictionary> = {
     analysisQueued: (count) => `${count} ટિકિટનું વિશ્લેષણ કતારમાં છે`,
     analysisNone: 'હાલમાં વિશ્લેષણ માટે કંઈ નથી',
     analysisFailed: 'વિશ્લેષણ શરૂ થઈ શક્યું નથી',
+
+    filterAiResolved: 'AI દ્વારા ઉકેલાયેલી',
+    aiResolvedOptions: {
+      exclude: 'AI દ્વારા ઉકેલાયેલી છુપાવો',
+      only: 'ફક્ત AI દ્વારા ઉકેલાયેલી',
+      include: 'AI દ્વારા ઉકેલાયેલી સામેલ કરો',
+    },
+    basedOn: (title) => `આધારિત: ${title}`,
 
     knowledgeTitle: 'જ્ઞાન આધાર',
     knowledgeSubtitle: 'લેખો જેમાંથી AI ગ્રાહકોને જવાબ આપે છે',

@@ -19,6 +19,7 @@ const refund: Ticket = {
   category: TicketCategory.REFUND_REQUEST,
   priority: TicketPriority.HIGH,
   sentiment: TicketSentiment.NEGATIVE,
+  resolvedByAi: false,
   createdAt: '2026-11-11T10:30:00.000Z',
   assignedTo: null,
 }
@@ -31,6 +32,7 @@ const technical: Ticket = {
   category: TicketCategory.TECHNICAL_QUESTION,
   priority: TicketPriority.MEDIUM,
   sentiment: TicketSentiment.NEUTRAL,
+  resolvedByAi: false,
   createdAt: '2026-11-10T09:00:00.000Z',
   assignedTo: null,
 }
@@ -43,7 +45,21 @@ const uncategorized: Ticket = {
   category: null,
   priority: null,
   sentiment: null,
+  resolvedByAi: false,
   createdAt: '2026-11-09T08:15:00.000Z',
+  assignedTo: null,
+}
+const aiResolved: Ticket = {
+  id: 9,
+  subject: 'Do you offer certificates?',
+  fromName: 'Priya Learner',
+  fromEmail: 'priya@example.com',
+  status: TicketStatus.RESOLVED,
+  category: TicketCategory.GENERAL_QUESTION,
+  priority: TicketPriority.LOW,
+  sentiment: TicketSentiment.NEUTRAL,
+  resolvedByAi: true,
+  createdAt: '2026-11-12T08:00:00.000Z',
   assignedTo: null,
 }
 
@@ -213,6 +229,97 @@ describe('TicketsPage', () => {
 
       expect(await screen.findByText('1 ticket')).toBeInTheDocument()
       expect(screen.queryByText(/1 tickets/)).not.toBeInTheDocument()
+    })
+  })
+
+  describe('AI-resolved filter', () => {
+    const lastParams = (get: ReturnType<typeof mockGet>) =>
+      get.mock.lastCall?.[1]?.params as Record<string, unknown> | undefined
+
+    it('has a filter that hides AI-resolved tickets by default, with the three modes', async () => {
+      mockGet().mockResolvedValue(ticketPage([refund]))
+      renderWithQuery(<TicketsPage />)
+      await screen.findByRole('table')
+
+      const select = screen.getByRole('combobox', { name: 'AI-resolved' })
+      expect(Array.from(select.querySelectorAll('option')).map((o) => o.textContent)).toEqual([
+        'Hide AI-resolved',
+        'Only AI-resolved',
+        'Include AI-resolved',
+      ])
+      expect(select).toHaveValue('')
+    })
+
+    it('sends no aiResolved parameter by default, so the server keeps hiding them', async () => {
+      const get = mockGet().mockResolvedValue(ticketPage([refund]))
+      renderWithQuery(<TicketsPage />)
+      await screen.findByRole('table')
+
+      expect(lastParams(get)?.aiResolved).toBeUndefined()
+    })
+
+    it('asks only for AI-resolved tickets, from page 1', async () => {
+      const get = mockGet().mockResolvedValue(ticketPage([refund]))
+      renderWithQuery(<TicketsPage />)
+      await screen.findByRole('table')
+
+      fireEvent.change(screen.getByRole('combobox', { name: 'AI-resolved' }), { target: { value: 'only' } })
+
+      await waitFor(() => expect(lastParams(get)).toMatchObject({ aiResolved: 'only', page: 1 }))
+    })
+
+    it('asks for every ticket, AI-resolved ones included', async () => {
+      const get = mockGet().mockResolvedValue(ticketPage([refund]))
+      renderWithQuery(<TicketsPage />)
+      await screen.findByRole('table')
+
+      fireEvent.change(screen.getByRole('combobox', { name: 'AI-resolved' }), { target: { value: 'include' } })
+
+      await waitFor(() => expect(lastParams(get)).toMatchObject({ aiResolved: 'include', page: 1 }))
+    })
+
+    it('goes back to hiding them, and sends no parameter again, when the default is chosen', async () => {
+      const get = mockGet().mockResolvedValue(ticketPage([refund]))
+      renderWithQuery(<TicketsPage />)
+      await screen.findByRole('table')
+      const select = screen.getByRole('combobox', { name: 'AI-resolved' })
+
+      fireEvent.change(select, { target: { value: 'only' } })
+      await waitFor(() => expect(lastParams(get)?.aiResolved).toBe('only'))
+      fireEvent.change(select, { target: { value: '' } })
+
+      await waitFor(() => expect(lastParams(get)?.aiResolved).toBeUndefined())
+    })
+
+    it('combines with the other filters', async () => {
+      const get = mockGet().mockResolvedValue(ticketPage([refund]))
+      renderWithQuery(<TicketsPage />)
+      await screen.findByRole('table')
+
+      fireEvent.change(screen.getByRole('combobox', { name: 'Priority' }), { target: { value: TicketPriority.LOW } })
+      fireEvent.change(screen.getByRole('combobox', { name: 'AI-resolved' }), { target: { value: 'only' } })
+
+      await waitFor(() => expect(lastParams(get)).toMatchObject({ priority: TicketPriority.LOW, aiResolved: 'only' }))
+    })
+
+    it('says no tickets match when the filter finds none', async () => {
+      mockGet().mockResolvedValueOnce(ticketPage([refund])).mockResolvedValue(ticketPage([]))
+      renderWithQuery(<TicketsPage />)
+      await screen.findByRole('table')
+
+      fireEvent.change(screen.getByRole('combobox', { name: 'AI-resolved' }), { target: { value: 'only' } })
+
+      expect(await screen.findByText('No tickets match your filters.')).toBeInTheDocument()
+    })
+
+    it('marks AI-resolved tickets in the list, and only those', async () => {
+      mockGet().mockResolvedValue(ticketPage([aiResolved, technical]))
+      renderWithQuery(<TicketsPage />)
+      await screen.findByRole('table')
+
+      const [aiRow, humanRow] = dataRows().map((row) => within(row))
+      expect(aiRow.getByText('Resolved by AI')).toBeInTheDocument()
+      expect(humanRow.queryByText('Resolved by AI')).not.toBeInTheDocument()
     })
   })
 

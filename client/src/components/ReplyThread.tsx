@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useCreateReply, usePolishReply, useReplies, type TicketDetail } from '@/hooks/use-tickets'
+import { useLanguage } from '@/i18n/use-language'
 
 function errorMessage(error: unknown, fallback: string) {
   return isAxiosError(error) && typeof error.response?.data?.error === 'string' ? error.response.data.error : fallback
@@ -22,6 +23,7 @@ const textareaClass =
 // Replies on a ticket, oldest first, with a form to add one
 export function ReplyThread({ ticket }: { ticket: Pick<TicketDetail, 'id' | 'subject' | 'fromName' | 'body' | 'resolvedByAi'> }) {
   const ticketId = ticket.id
+  const { t } = useLanguage()
   const { data: replies, error } = useReplies(String(ticketId))
   const createReply = useCreateReply(ticketId)
   const polishReply = usePolishReply(ticketId)
@@ -85,6 +87,10 @@ export function ReplyThread({ ticket }: { ticket: Pick<TicketDetail, 'id' | 'sub
                 {dateFormat.format(new Date(reply.createdAt))}
               </p>
               <p className="whitespace-pre-wrap text-sm">{reply.body}</p>
+              {/* Plain text, not a link: the article page is for admins only, and a deleted article has no source to show */}
+              {reply.sourceArticle && (
+                <p className="mt-2 text-xs text-muted-foreground">{t.basedOn(reply.sourceArticle.title)}</p>
+              )}
             </li>
           ))}
         </ul>

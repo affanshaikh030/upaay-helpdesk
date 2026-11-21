@@ -1,9 +1,10 @@
 import axios, { AxiosError, type AxiosResponse } from 'axios'
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, renderHook, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { SenderType } from '@helpdesk/core'
 import { renderWithQuery } from '@/test/render'
 import type { Reply } from '@/hooks/use-tickets'
+import { useLanguage } from '@/i18n/use-language'
 import { ReplyThread } from './ReplyThread'
 
 const agentReply: Reply = {
@@ -12,6 +13,16 @@ const agentReply: Reply = {
   senderType: SenderType.AGENT,
   createdAt: '2026-11-12T09:00:00.000Z',
   author: { id: 'agent-1', name: 'Alice Agent' },
+  sourceArticle: null,
+}
+// An answer the AI wrote from the knowledge base: no author, and the article it was based on
+const aiReply: Reply = {
+  id: 3,
+  body: 'Yes, a certificate is issued when you complete the course.',
+  senderType: SenderType.AGENT,
+  createdAt: '2026-11-12T11:00:00.000Z',
+  author: null,
+  sourceArticle: { id: 4, title: 'Certificates' },
 }
 const customerReply: Reply = {
   id: 2,
@@ -19,6 +30,7 @@ const customerReply: Reply = {
   senderType: SenderType.CUSTOMER,
   createdAt: '2026-11-12T10:00:00.000Z',
   author: null,
+  sourceArticle: null,
 }
 
 const formatDate = (iso: string) =>
@@ -100,6 +112,81 @@ describe('ReplyThread', () => {
       renderWithQuery(<ReplyThread ticket={ticket} />)
 
       expect(await screen.findByText(`Former agent · ${formatDate(agentReply.createdAt)}`)).toBeInTheDocument()
+    })
+
+    describe('Based on line', () => {
+      const aiTicket = { ...ticket, resolvedByAi: true }
+
+      it('shows the source article title under an AI reply, inside that reply', async () => {
+        mockGet().mockResolvedValue({ data: [aiReply] })
+        renderWithQuery(<ReplyThread ticket={aiTicket} />)
+
+        const item = await screen.findByRole('listitem')
+        expect(item).toHaveTextContent('Yes, a certificate is issued when you complete the course.')
+        expect(within(item).getByText('Based on: Certificates')).toBeInTheDocument()
+        expect(item).toHaveTextContent(`AI assistant · ${formatDate(aiReply.createdAt)}`)
+      })
+
+      it('comes after the reply text', async () => {
+        mockGet().mockResolvedValue({ data: [aiReply] })
+        renderWithQuery(<ReplyThread ticket={aiTicket} />)
+
+        const item = await screen.findByRole('listitem')
+        const text = item.textContent ?? ''
+        expect(text.indexOf('Based on:')).toBeGreaterThan(text.indexOf('when you complete the course.'))
+      })
+
+      it('shows nothing on a human reply or a customer reply', async () => {
+        mockGet().mockResolvedValue({ data: [agentReply, customerReply] })
+        renderWithQuery(<ReplyThread ticket={ticket} />)
+        await screen.findAllByRole('listitem')
+
+        expect(screen.queryByText(/Based on/)).not.toBeInTheDocument()
+      })
+
+      it('shows nothing when the article was deleted, and no empty label or link either', async () => {
+        mockGet().mockResolvedValue({ data: [{ ...aiReply, sourceArticle: null }] })
+        renderWithQuery(<ReplyThread ticket={aiTicket} />)
+
+        const item = await screen.findByRole('listitem')
+        expect(item).toHaveTextContent('Yes, a certificate is issued when you complete the course.')
+        expect(screen.queryByText(/Based on/)).not.toBeInTheDocument()
+        expect(within(item).queryByRole('link')).not.toBeInTheDocument()
+      })
+
+      it('is plain text, never a link (agents cannot open the knowledge base page)', async () => {
+        mockGet().mockResolvedValue({ data: [aiReply] })
+        renderWithQuery(<ReplyThread ticket={aiTicket} />)
+
+        const item = await screen.findByRole('listitem')
+        expect(within(item).queryByRole('link')).not.toBeInTheDocument()
+      })
+
+      it('shows each reply its own source', async () => {
+        const other = { ...aiReply, id: 4, sourceArticle: { id: 9, title: 'Lifetime access' } }
+        mockGet().mockResolvedValue({ data: [aiReply, agentReply, other] })
+        renderWithQuery(<ReplyThread ticket={aiTicket} />)
+
+        const items = await screen.findAllByRole('listitem')
+        expect(items[0]).toHaveTextContent('Based on: Certificates')
+        expect(items[1]).not.toHaveTextContent('Based on')
+        expect(items[2]).toHaveTextContent('Based on: Lifetime access')
+      })
+
+      it.each([
+        ['hi', 'आधारित: Certificates'],
+        ['gu', 'આધારિત: Certificates'],
+      ] as const)('is translated in %s', async (language, line) => {
+        const { result } = renderHook(() => useLanguage())
+        act(() => result.current.setLanguage(language))
+        mockGet().mockResolvedValue({ data: [aiReply] })
+        renderWithQuery(<ReplyThread ticket={aiTicket} />)
+
+        expect(await screen.findByText(line)).toBeInTheDocument()
+        expect(screen.queryByText(/Based on/)).not.toBeInTheDocument()
+
+        act(() => result.current.setLanguage('en'))
+      })
     })
 
     it('does not show the empty message', async () => {

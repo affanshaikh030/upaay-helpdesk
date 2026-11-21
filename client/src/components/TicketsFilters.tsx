@@ -1,6 +1,8 @@
 import {
   UNCATEGORIZED,
   UNSET,
+  aiResolvedModes,
+  type AiResolvedMode,
   type TicketCategory,
   type TicketPriority,
   type TicketSentiment,
@@ -17,9 +19,11 @@ export type TicketFilters = {
   category: TicketCategory | typeof UNCATEGORIZED | ''
   priority: TicketPriority | typeof UNSET | ''
   sentiment: TicketSentiment | typeof UNSET | ''
+  // '' is the default: the server hides AI-resolved tickets
+  aiResolved: AiResolvedMode | ''
 }
 
-export const emptyFilters: TicketFilters = { search: '', status: '', category: '', priority: '', sentiment: '' }
+export const emptyFilters: TicketFilters = { search: '', status: '', category: '', priority: '', sentiment: '', aiResolved: '' }
 
 const selectClass =
   'h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30'
@@ -106,6 +110,22 @@ export function TicketsFilters({ filters, onChange }: Props) {
             </option>
           ))}
           <option value={UNSET}>{t.notSet}</option>
+        </select>
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="ticket-ai-resolved">{t.filterAiResolved}</Label>
+        <select
+          id="ticket-ai-resolved"
+          className={selectClass}
+          value={filters.aiResolved}
+          onChange={(e) => onChange({ ...filters, aiResolved: e.target.value as TicketFilters['aiResolved'] })}
+        >
+          {/* The first mode is the server default (hide them), so it is the empty value and sends no parameter */}
+          {aiResolvedModes.map((mode, index) => (
+            <option key={mode} value={index === 0 ? '' : mode}>
+              {t.aiResolvedOptions[mode]}
+            </option>
+          ))}
         </select>
       </div>
     </div>

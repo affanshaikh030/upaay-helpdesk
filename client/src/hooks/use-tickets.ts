@@ -25,6 +25,8 @@ export type Ticket = {
   // Set by AI analysis (null until it has run, and for older tickets); agents can override them
   priority: TicketPriority | null
   sentiment: TicketSentiment | null
+  // Answered and resolved by the AI from the knowledge base. The list hides these unless the AI-resolved filter asks for them
+  resolvedByAi: boolean
   createdAt: string
   assignedTo: Assignee | null
 }
@@ -33,7 +35,6 @@ export type TicketDetail = Ticket & {
   body: string
   bodyHtml: string | null
   messageId: string | null
-  resolvedByAi: boolean
   updatedAt: string
 }
 
@@ -49,7 +50,9 @@ export function useTicket(id: string | undefined) {
 
 export type TicketSort = Pick<TicketListQuery, 'sortBy' | 'sortOrder'>
 export type TicketListParams = TicketSort &
-  Partial<Pick<TicketListQuery, 'status' | 'category' | 'priority' | 'sentiment' | 'search' | 'page' | 'pageSize'>>
+  Partial<
+    Pick<TicketListQuery, 'status' | 'category' | 'priority' | 'sentiment' | 'aiResolved' | 'search' | 'page' | 'pageSize'>
+  >
 
 export type TicketPage = { tickets: Ticket[]; total: number }
 
@@ -104,6 +107,8 @@ export type Reply = {
   senderType: SenderType
   createdAt: string
   author: Assignee | null
+  // The knowledge base article an AI reply was based on: null for a human reply, and once the article has been deleted
+  sourceArticle: { id: number; title: string } | null
 }
 
 export function useReplies(ticketId: string | undefined) {
