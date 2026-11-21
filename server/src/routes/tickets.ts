@@ -1,16 +1,26 @@
 import { Router } from "express";
 import { generateText } from "ai";
 import { aiModel, describeAiError, isAiConfigured } from "../ai";
-import { UNCATEGORIZED, createReplySchema, polishReplySchema, ticketListQuerySchema, updateTicketSchema } from "@helpdesk/core";
+import {
+  UNCATEGORIZED,
+  UNSET,
+  createReplySchema,
+  polishReplySchema,
+  reanalyseTicketsSchema,
+  ticketListQuerySchema,
+  updateTicketSchema,
+} from "@helpdesk/core";
 import { prisma } from "../db";
-import { Role, SenderType, TicketStatus, type TicketCategory } from "../generated/prisma/enums";
+import { Role, SenderType, TicketStatus, type TicketCategory, type TicketPriority, type TicketSentiment } from "../generated/prisma/enums";
 import { Prisma } from "../generated/prisma/client";
+import { requireRole } from "../middleware/auth";
+import { queueReanalysis } from "../reanalyse";
 
 export const ticketsRouter = Router();
 
 const assigneeSelect = { select: { id: true, name: true } };
 
-// Any signed-in user (admins and agents). Filtered by ?status=&category=&search= sorted by ?sortBy=&sortOrder= (default newest first) and paged by ?page=&pageSize=; `total` counts all matches; id
+// Any signed-in user (admins and agents). Filtered by ?status=&category=&priority=&sentiment=&search= sorted by ?sortBy=&sortOrder= (default newest first) and paged by ?page=&pageSize=; `total` counts all matches; id
 // breaks ties so the order is stable. The body is left out: it can be large and the list doesn't show it
 ticketsRouter.get("/", async (req, res) => {
   const parsed = ticketListQuerySchema.safeParse(req.query);
@@ -18,13 +28,15 @@ ticketsRouter.get("/", async (req, res) => {
     res.status(400).json({ error: parsed.error.issues[0].message });
     return;
   }
-  const { sortBy, sortOrder, status, category, search, page, pageSize } = parsed.data;
+  const { sortBy, sortOrder, status, category, priority, sentiment, search, page, pageSize } = parsed.data;
 
   // Tickets resolved by AI are kept off the list
   const where: Prisma.TicketWhereInput = {
     resolvedByAi: false,
     ...(status && { status }),
     ...(category && { category: category === UNCATEGORIZED ? null : (category as TicketCategory) }),
+    ...(priority && { priority: priority === UNSET ? null : (priority as TicketPriority) }),
+    ...(sentiment && { sentiment: sentiment === UNSET ? null : (sentiment as TicketSentiment) }),
     ...(search && {
       OR: [
         { subject: { contains: search, mode: "insensitive" } },
@@ -34,12 +46,24 @@ ticketsRouter.get("/", async (req, res) => {
     }),
   };
 
-  // Uncategorized tickets go last in either direction
-  const primary = sortBy === "category" ? { category: { sort: sortOrder, nulls: "last" as const } } : { [sortBy]: sortOrder };
+  // Tickets without a category, priority or sentiment go last in either direction
+  const nullable = sortBy === "category" || sortBy === "priority" || sortBy === "sentiment";
+  const primary = nullable ? { [sortBy]: { sort: sortOrder, nulls: "last" as const } } : { [sortBy]: sortOrder };
   const [tickets, total] = await Promise.all([
     prisma.ticket.findMany({
       where,
-      select: { id: true, subject: true, fromName: true, fromEmail: true, status: true, category: true, createdAt: true, assignedTo: assigneeSelect },
+      select: {
+        id: true,
+        subject: true,
+        fromName: true,
+        fromEmail: true,
+        status: true,
+        category: true,
+        priority: true,
+        sentiment: true,
+        createdAt: true,
+        assignedTo: assigneeSelect,
+      },
       orderBy: [primary, { id: sortOrder }],
       skip: (page - 1) * pageSize,
       take: pageSize,
@@ -47,6 +71,22 @@ ticketsRouter.get("/", async (req, res) => {
     prisma.ticket.count({ where }),
   ]);
   res.json({ tickets, total });
+});
+
+// Admin only. Queues the AI analysis again for tickets that have no sentiment or priority yet (see reanalyseTicketsSchema):
+// at most REANALYSE_LIMIT per request, never tickets that already have both, and a ticket queued in the last few
+// minutes is skipped. Works from the UI or any API client with an admin session
+ticketsRouter.post("/reanalyse", requireRole(Role.ADMIN), async (req, res) => {
+  if (!isAiConfigured()) {
+    res.status(503).json({ error: "AI analysis is not configured" });
+    return;
+  }
+  const parsed = reanalyseTicketsSchema.safeParse(req.body ?? {});
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.issues[0].message });
+    return;
+  }
+  res.json(await queueReanalysis(parsed.data.ticketIds));
 });
 
 // Any signed-in user: agents a ticket can be assigned to. Registered before /:id
@@ -72,14 +112,14 @@ ticketsRouter.get("/:id", async (req, res) => {
   res.json(ticket);
 });
 
-// Any signed-in user. Updates the assignee (an active agent, or null to unassign), status and/or category (null clears it)
+// Any signed-in user. Updates the assignee (an active agent, or null to unassign), status, category, priority and/or sentiment (null clears them)
 ticketsRouter.patch("/:id", async (req, res) => {
   const parsed = updateTicketSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Invalid input" });
     return;
   }
-  const { assignedToId, status, category } = parsed.data;
+  const { assignedToId, status, category, priority, sentiment } = parsed.data;
   if (assignedToId) {
     const agent = await prisma.user.findFirst({ where: { id: assignedToId, role: Role.AGENT, deletedAt: null } });
     if (!agent) {
@@ -99,7 +139,7 @@ ticketsRouter.patch("/:id", async (req, res) => {
   try {
     const ticket = await prisma.ticket.update({
       where: { id },
-      data: { assignedToId, status, category, resolvedAt },
+      data: { assignedToId, status, category, priority, sentiment, resolvedAt },
       include: { assignedTo: assigneeSelect },
     });
     res.json(ticket);

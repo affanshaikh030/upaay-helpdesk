@@ -1060,6 +1060,8 @@ export const TicketScalarFieldEnum = {
   messageId: 'messageId',
   status: 'status',
   category: 'category',
+  sentiment: 'sentiment',
+  priority: 'priority',
   resolvedByAi: 'resolvedByAi',
   resolvedAt: 'resolvedAt',
   assignedToId: 'assignedToId',
@@ -1214,6 +1216,34 @@ export type EnumTicketCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$P
  * Reference to a field of type 'TicketCategory[]'
  */
 export type ListEnumTicketCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TicketCategory[]'>
+    
+
+
+/**
+ * Reference to a field of type 'TicketSentiment'
+ */
+export type EnumTicketSentimentFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TicketSentiment'>
+    
+
+
+/**
+ * Reference to a field of type 'TicketSentiment[]'
+ */
+export type ListEnumTicketSentimentFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TicketSentiment[]'>
+    
+
+
+/**
+ * Reference to a field of type 'TicketPriority'
+ */
+export type EnumTicketPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TicketPriority'>
+    
+
+
+/**
+ * Reference to a field of type 'TicketPriority[]'
+ */
+export type ListEnumTicketPriorityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TicketPriority[]'>
     
 
 

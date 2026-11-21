@@ -35,6 +35,25 @@ export const TicketCategory = {
 export type TicketCategory = (typeof TicketCategory)[keyof typeof TicketCategory]
 
 
+export const TicketPriority = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+  URGENT: 'URGENT'
+} as const
+
+export type TicketPriority = (typeof TicketPriority)[keyof typeof TicketPriority]
+
+
+export const TicketSentiment = {
+  POSITIVE: 'POSITIVE',
+  NEUTRAL: 'NEUTRAL',
+  NEGATIVE: 'NEGATIVE'
+} as const
+
+export type TicketSentiment = (typeof TicketSentiment)[keyof typeof TicketSentiment]
+
+
 export const SenderType = {
   AGENT: 'AGENT',
   CUSTOMER: 'CUSTOMER'

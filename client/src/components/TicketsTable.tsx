@@ -7,9 +7,10 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, Smile } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link } from 'react-router'
+import { PriorityBadge, SentimentIcon } from '@/components/TicketTags'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import type { Ticket } from '@/hooks/use-tickets'
@@ -33,7 +34,7 @@ const buildColumns = (t: Dictionary): ColumnDef<Ticket>[] => [
       <Link
         to={`/tickets/${row.original.id}`}
         title={row.original.subject}
-        className="block max-w-48 truncate font-medium hover:underline"
+        className="block max-w-40 truncate font-medium hover:underline"
       >
         {row.original.subject}
       </Link>
@@ -55,6 +56,22 @@ const buildColumns = (t: Dictionary): ColumnDef<Ticket>[] => [
     cell: ({ row }) => (
       <Badge variant={statusVariants[row.original.status]}>{statusLabels[row.original.status]}</Badge>
     ),
+  },
+  {
+    accessorKey: 'priority',
+    header: t.columnPriority,
+    cell: ({ row }) => <PriorityBadge priority={row.original.priority} />,
+  },
+  {
+    accessorKey: 'sentiment',
+    // Icon-only header to keep the column narrow; the word is still there for screen readers
+    header: () => (
+      <>
+        <Smile className="size-4" aria-hidden="true" />
+        <span className="sr-only">{t.columnSentiment}</span>
+      </>
+    ),
+    cell: ({ row }) => <SentimentIcon sentiment={row.original.sentiment} />,
   },
   {
     accessorKey: 'category',

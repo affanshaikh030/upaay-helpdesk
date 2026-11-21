@@ -1,5 +1,16 @@
 import axios from 'axios'
-import type { CreateReplyInput, PolishReplyInput, SenderType, TicketCategory, TicketListQuery, TicketStatus, UpdateTicketInput } from '@helpdesk/core'
+import type {
+  CreateReplyInput,
+  PolishReplyInput,
+  ReanalyseTicketsInput,
+  SenderType,
+  TicketCategory,
+  TicketListQuery,
+  TicketPriority,
+  TicketSentiment,
+  TicketStatus,
+  UpdateTicketInput,
+} from '@helpdesk/core'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 export type Assignee = { id: string; name: string }
@@ -11,6 +22,9 @@ export type Ticket = {
   fromEmail: string
   status: TicketStatus
   category: TicketCategory | null
+  // Set by AI analysis (null until it has run, and for older tickets); agents can override them
+  priority: TicketPriority | null
+  sentiment: TicketSentiment | null
   createdAt: string
   assignedTo: Assignee | null
 }
@@ -34,7 +48,8 @@ export function useTicket(id: string | undefined) {
 }
 
 export type TicketSort = Pick<TicketListQuery, 'sortBy' | 'sortOrder'>
-export type TicketListParams = TicketSort & Partial<Pick<TicketListQuery, 'status' | 'category' | 'search' | 'page' | 'pageSize'>>
+export type TicketListParams = TicketSort &
+  Partial<Pick<TicketListQuery, 'status' | 'category' | 'priority' | 'sentiment' | 'search' | 'page' | 'pageSize'>>
 
 export type TicketPage = { tickets: Ticket[]; total: number }
 
@@ -65,6 +80,21 @@ export function useUpdateTicket(id: number) {
       (await axios.patch<TicketDetail>(`/api/tickets/${id}`, input)).data,
     // Refetches the list and this ticket's detail (both live under the tickets key)
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ticketsQueryKey }),
+  })
+}
+
+export type ReanalyseResult = { queued: number; remaining: number }
+
+// Admin only. Queues the AI analysis again for tickets with no priority or sentiment (up to 10 per call). The jobs run in
+// the background, so the lists are refreshed a few seconds later rather than right away
+export function useReanalyseTickets() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: ReanalyseTicketsInput = {}) =>
+      (await axios.post<ReanalyseResult>('/api/tickets/reanalyse', input)).data,
+    onSuccess: ({ queued }) => {
+      if (queued > 0) setTimeout(() => void queryClient.invalidateQueries({ queryKey: ticketsQueryKey }), 8_000)
+    },
   })
 }
 
