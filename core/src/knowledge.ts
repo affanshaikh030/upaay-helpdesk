@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 // Mirrors the Prisma enums (server/prisma/schema.prisma); server/src/enum-sync.ts fails typecheck if they differ
 export const KnowledgeLanguage = {
   EN: "EN",
@@ -31,3 +33,30 @@ export const AutoResolveReason = {
 } as const;
 
 export type AutoResolveReason = (typeof AutoResolveReason)[keyof typeof AutoResolveReason];
+
+export const KNOWLEDGE_TITLE_MAX = 200;
+export const KNOWLEDGE_CONTENT_MAX = 20_000;
+
+// POST /api/knowledge, and the admin form. Language is informational only, so it is optional (null when not set)
+export const createKnowledgeArticleSchema = z.object({
+  title: z.string().trim().min(1, "Title is required").max(KNOWLEDGE_TITLE_MAX, `Title must be at most ${KNOWLEDGE_TITLE_MAX} characters`),
+  content: z
+    .string()
+    .trim()
+    .min(1, "Content is required")
+    .max(KNOWLEDGE_CONTENT_MAX, `Content must be at most ${KNOWLEDGE_CONTENT_MAX} characters`),
+  language: z.enum(KnowledgeLanguage).nullish().transform((language) => language ?? null),
+});
+
+// PATCH /api/knowledge/:id. Send only what changes; a null language clears it
+export const updateKnowledgeArticleSchema = z
+  .object({
+    title: createKnowledgeArticleSchema.shape.title,
+    content: createKnowledgeArticleSchema.shape.content,
+    language: z.enum(KnowledgeLanguage).nullable(),
+  })
+  .partial()
+  .refine((value) => Object.keys(value).length > 0, "Nothing to update");
+
+export type CreateKnowledgeArticleInput = z.input<typeof createKnowledgeArticleSchema>;
+export type UpdateKnowledgeArticleInput = z.input<typeof updateKnowledgeArticleSchema>;

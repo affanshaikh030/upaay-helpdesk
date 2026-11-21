@@ -1,7 +1,13 @@
 export {
+  createKnowledgeArticleSchema,
+  updateKnowledgeArticleSchema,
   AutoResolveDecision,
   AutoResolveReason,
+  KNOWLEDGE_CONTENT_MAX,
+  KNOWLEDGE_TITLE_MAX,
   KnowledgeLanguage,
+  type CreateKnowledgeArticleInput,
+  type UpdateKnowledgeArticleInput,
 } from "./knowledge";
 export { Role } from "./roles";
 export {
