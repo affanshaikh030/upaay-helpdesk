@@ -4,6 +4,7 @@ import { DEFAULT_PAGE_SIZE, type TicketSortColumn } from '@helpdesk/core'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { AnalyseButton } from '@/components/AnalyseButton'
 import { TicketsFilters, emptyFilters, type TicketFilters } from '@/components/TicketsFilters'
 import { TicketsPagination } from '@/components/TicketsPagination'
 import { TicketsTable } from '@/components/TicketsTable'
@@ -26,13 +27,16 @@ export default function TicketsPage() {
     }, 300)
     return () => clearTimeout(timer)
   }, [filters.search])
-  const isFiltered = search !== '' || filters.status !== '' || filters.category !== ''
+  const isFiltered =
+    search !== '' || filters.status !== '' || filters.category !== '' || filters.priority !== '' || filters.sentiment !== ''
 
   const { data, error } = useTickets({
     page,
     pageSize: DEFAULT_PAGE_SIZE,
     status: filters.status || undefined,
     category: filters.category || undefined,
+    priority: filters.priority || undefined,
+    sentiment: filters.sentiment || undefined,
     search: search || undefined,
     sortBy: sorting[0].id as TicketSortColumn,
     sortOrder: sorting[0].desc ? 'desc' : 'asc',
@@ -42,7 +46,8 @@ export default function TicketsPage() {
   const pageCount = data ? Math.max(1, Math.ceil(data.total / DEFAULT_PAGE_SIZE)) : 1
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-8">
+    // Wider than the other pages: with the priority and sentiment columns the table needs the room to show the date at 1280px
+    <main className="mx-auto max-w-6xl px-6 py-8">
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl">
@@ -51,12 +56,20 @@ export default function TicketsPage() {
           <CardDescription>{tickets ? t.ticketCount(data.total) : t.ticketsSubtitle}</CardDescription>
         </CardHeader>
         <CardContent>
+          <AnalyseButton className="mb-4 flex flex-col items-end gap-1.5" />
           <TicketsFilters
             filters={filters}
             onChange={(next) => {
               setFilters(next)
               // Search resets the page itself once its debounce fires
-              if (next.status !== filters.status || next.category !== filters.category) setPage(1)
+              if (
+                next.status !== filters.status ||
+                next.category !== filters.category ||
+                next.priority !== filters.priority ||
+                next.sentiment !== filters.sentiment
+              ) {
+                setPage(1)
+              }
             }}
           />
           {error ? (

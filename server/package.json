@@ -11,6 +11,7 @@
     "seed:tickets": "bun prisma/seed-tickets.ts",
     "seed:replies": "bun prisma/seed-replies.ts",
     "test:db": "bun prisma/e2e-setup.ts",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -29,6 +30,7 @@
     "@types/bun": "^1.4.4",
     "@types/express": "^5.0.6",
     "prisma": "7.10.1",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
   }
 }

@@ -1,3 +1,4 @@
+import type { TicketPriority, TicketSentiment } from '@helpdesk/core'
 import { BRAND_TAGLINE } from '@/lib/brand'
 
 export type Language = 'en' | 'hi' | 'gu'
@@ -82,6 +83,23 @@ export interface Dictionary {
   previous: string
   next: string
   pageOf: (page: number, pageCount: number) => string
+
+  // Priority and sentiment (set by AI, editable by agents)
+  priorities: Record<TicketPriority, string>
+  sentiments: Record<TicketSentiment, string>
+  columnPriority: string
+  columnSentiment: string
+  filterPriority: string
+  filterSentiment: string
+  allPriorities: string
+  allSentiments: string
+  notSet: string
+  analyse: string
+  analysing: string
+  analyseUntagged: string
+  analysisQueued: (count: number) => string
+  analysisNone: string
+  analysisFailed: string
 }
 
 export const translations: Record<Language, Dictionary> = {
@@ -154,6 +172,22 @@ export const translations: Record<Language, Dictionary> = {
     previous: 'Previous',
     next: 'Next',
     pageOf: (page, pageCount) => `Page ${page} of ${pageCount}`,
+
+    priorities: { LOW: 'Low', MEDIUM: 'Medium', HIGH: 'High', URGENT: 'Urgent' },
+    sentiments: { POSITIVE: 'Positive', NEUTRAL: 'Neutral', NEGATIVE: 'Negative' },
+    columnPriority: 'Priority',
+    columnSentiment: 'Sentiment',
+    filterPriority: 'Priority',
+    filterSentiment: 'Sentiment',
+    allPriorities: 'All priorities',
+    allSentiments: 'All sentiments',
+    notSet: 'Not set',
+    analyse: 'Analyse with AI',
+    analysing: 'Starting analysis…',
+    analyseUntagged: 'Analyse untagged tickets',
+    analysisQueued: (count) => `Analysis queued for ${count} ${count === 1 ? 'ticket' : 'tickets'}`,
+    analysisNone: 'Nothing to analyse right now',
+    analysisFailed: 'Could not start the analysis',
   },
   hi: {
     signInTo: (brand) => `${brand} में साइन इन करें`,
@@ -224,6 +258,22 @@ export const translations: Record<Language, Dictionary> = {
     previous: 'पिछला',
     next: 'अगला',
     pageOf: (page, pageCount) => `पृष्ठ ${page} / ${pageCount}`,
+
+    priorities: { LOW: 'कम', MEDIUM: 'मध्यम', HIGH: 'उच्च', URGENT: 'अत्यावश्यक' },
+    sentiments: { POSITIVE: 'सकारात्मक', NEUTRAL: 'तटस्थ', NEGATIVE: 'नकारात्मक' },
+    columnPriority: 'प्राथमिकता',
+    columnSentiment: 'भावना',
+    filterPriority: 'प्राथमिकता',
+    filterSentiment: 'भावना',
+    allPriorities: 'सभी प्राथमिकताएँ',
+    allSentiments: 'सभी भावनाएँ',
+    notSet: 'तय नहीं',
+    analyse: 'AI से विश्लेषण करें',
+    analysing: 'विश्लेषण शुरू हो रहा है…',
+    analyseUntagged: 'बिना टैग वाले टिकटों का विश्लेषण करें',
+    analysisQueued: (count) => `${count} टिकट का विश्लेषण कतार में है`,
+    analysisNone: 'अभी विश्लेषण के लिए कुछ नहीं है',
+    analysisFailed: 'विश्लेषण शुरू नहीं हो सका',
   },
   gu: {
     signInTo: (brand) => `${brand} માં સાઇન ઇન કરો`,
@@ -294,5 +344,21 @@ export const translations: Record<Language, Dictionary> = {
     previous: 'પાછળ',
     next: 'આગળ',
     pageOf: (page, pageCount) => `પૃષ્ઠ ${page} / ${pageCount}`,
+
+    priorities: { LOW: 'ઓછી', MEDIUM: 'મધ્યમ', HIGH: 'ઊંચી', URGENT: 'તાત્કાલિક' },
+    sentiments: { POSITIVE: 'સકારાત્મક', NEUTRAL: 'તટસ્થ', NEGATIVE: 'નકારાત્મક' },
+    columnPriority: 'અગ્રતા',
+    columnSentiment: 'ભાવના',
+    filterPriority: 'અગ્રતા',
+    filterSentiment: 'ભાવના',
+    allPriorities: 'બધી અગ્રતાઓ',
+    allSentiments: 'બધી ભાવનાઓ',
+    notSet: 'નક્કી નથી',
+    analyse: 'AI થી વિશ્લેષણ કરો',
+    analysing: 'વિશ્લેષણ શરૂ થઈ રહ્યું છે…',
+    analyseUntagged: 'ટેગ વગરની ટિકિટનું વિશ્લેષણ કરો',
+    analysisQueued: (count) => `${count} ટિકિટનું વિશ્લેષણ કતારમાં છે`,
+    analysisNone: 'હાલમાં વિશ્લેષણ માટે કંઈ નથી',
+    analysisFailed: 'વિશ્લેષણ શરૂ થઈ શક્યું નથી',
   },
 }

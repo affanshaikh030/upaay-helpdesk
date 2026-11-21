@@ -1,4 +1,11 @@
-import { UNCATEGORIZED, type TicketCategory, type TicketStatus } from '@helpdesk/core'
+import {
+  UNCATEGORIZED,
+  UNSET,
+  type TicketCategory,
+  type TicketPriority,
+  type TicketSentiment,
+  type TicketStatus,
+} from '@helpdesk/core'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useLanguage } from '@/i18n/use-language'
@@ -8,9 +15,11 @@ export type TicketFilters = {
   search: string
   status: TicketStatus | ''
   category: TicketCategory | typeof UNCATEGORIZED | ''
+  priority: TicketPriority | typeof UNSET | ''
+  sentiment: TicketSentiment | typeof UNSET | ''
 }
 
-export const emptyFilters: TicketFilters = { search: '', status: '', category: '' }
+export const emptyFilters: TicketFilters = { search: '', status: '', category: '', priority: '', sentiment: '' }
 
 const selectClass =
   'h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30'
@@ -63,6 +72,40 @@ export function TicketsFilters({ filters, onChange }: Props) {
             </option>
           ))}
           <option value={UNCATEGORIZED}>{t.uncategorized}</option>
+        </select>
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="ticket-priority">{t.filterPriority}</Label>
+        <select
+          id="ticket-priority"
+          className={selectClass}
+          value={filters.priority}
+          onChange={(e) => onChange({ ...filters, priority: e.target.value as TicketFilters['priority'] })}
+        >
+          <option value="">{t.allPriorities}</option>
+          {Object.entries(t.priorities).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+          <option value={UNSET}>{t.notSet}</option>
+        </select>
+      </div>
+      <div className="space-y-1.5">
+        <Label htmlFor="ticket-sentiment">{t.filterSentiment}</Label>
+        <select
+          id="ticket-sentiment"
+          className={selectClass}
+          value={filters.sentiment}
+          onChange={(e) => onChange({ ...filters, sentiment: e.target.value as TicketFilters['sentiment'] })}
+        >
+          <option value="">{t.allSentiments}</option>
+          {Object.entries(t.sentiments).map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+          <option value={UNSET}>{t.notSet}</option>
         </select>
       </div>
     </div>

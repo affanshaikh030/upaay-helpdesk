@@ -24,6 +24,21 @@ enum TicketCategory {
   REFUND_REQUEST
 }
 
+// Declaration order is the sort order: ascending is low to urgent
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+// Declaration order is the sort order: descending puts NEGATIVE first
+enum TicketSentiment {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
+
 enum SenderType {
   AGENT
   CUSTOMER
@@ -118,6 +133,9 @@ model Ticket {
   status       TicketStatus    @default(OPEN)
   // Unset until AI classification assigns one (no default)
   category     TicketCategory?
+  // Set by AI analysis; null until then and for tickets created before it existed. An agent can override both
+  sentiment    TicketSentiment?
+  priority     TicketPriority?
   // Answered and resolved by AI from the knowledge base; hidden from the ticket list
   resolvedByAi Boolean         @default(false)
   // When the ticket last became RESOLVED (kept when it is later CLOSED, cleared if reopened); drives the average resolution time
@@ -131,6 +149,8 @@ model Ticket {
 
   @@index([createdAt])
   @@index([assignedToId])
+  @@index([priority])
+  @@index([sentiment])
   @@map("ticket")
 }
 

@@ -1,10 +1,14 @@
 import axios, { AxiosError, type AxiosResponse } from 'axios'
-import { screen, within } from '@testing-library/react'
+import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { TicketCategory, TicketStatus } from '@helpdesk/core'
+import { TicketCategory, TicketPriority, TicketSentiment, TicketStatus, UNSET } from '@helpdesk/core'
 import { renderWithQuery } from '@/test/render'
 import type { Ticket } from '@/hooks/use-tickets'
 import TicketsPage from './TicketsPage'
+
+// Stand in for the session: only admins see the "Analyse untagged tickets" button
+const session = vi.hoisted(() => ({ isAdmin: false }))
+vi.mock('@/hooks/use-is-admin', () => ({ useIsAdmin: () => session.isAdmin }))
 
 const refund: Ticket = {
   id: 3,
@@ -13,6 +17,8 @@ const refund: Ticket = {
   fromEmail: 'jane@example.com',
   status: TicketStatus.OPEN,
   category: TicketCategory.REFUND_REQUEST,
+  priority: TicketPriority.HIGH,
+  sentiment: TicketSentiment.NEGATIVE,
   createdAt: '2026-11-11T10:30:00.000Z',
   assignedTo: null,
 }
@@ -23,6 +29,8 @@ const technical: Ticket = {
   fromEmail: 'sam@example.com',
   status: TicketStatus.RESOLVED,
   category: TicketCategory.TECHNICAL_QUESTION,
+  priority: TicketPriority.MEDIUM,
+  sentiment: TicketSentiment.NEUTRAL,
   createdAt: '2026-11-10T09:00:00.000Z',
   assignedTo: null,
 }
@@ -33,6 +41,8 @@ const uncategorized: Ticket = {
   fromEmail: 'alex@example.com',
   status: TicketStatus.CLOSED,
   category: null,
+  priority: null,
+  sentiment: null,
   createdAt: '2026-11-09T08:15:00.000Z',
   assignedTo: null,
 }
@@ -54,6 +64,7 @@ const dataRows = () => screen.getAllByRole('row').slice(1) // skip the header ro
 
 afterEach(() => {
   vi.restoreAllMocks()
+  session.isAdmin = false
 })
 
 describe('TicketsPage', () => {
@@ -106,7 +117,7 @@ describe('TicketsPage', () => {
       await screen.findByRole('table')
 
       const headers = screen.getAllByRole('columnheader').map((h) => h.textContent)
-      expect(headers).toEqual(['Subject', 'From', 'Status', 'Category', 'Assigned to', 'Created'])
+      expect(headers).toEqual(['Subject', 'From', 'Status', 'Priority', 'Sentiment', 'Category', 'Assigned to', 'Created'])
     })
 
     it('renders one row per ticket with subject, sender, status, category and date', async () => {
@@ -202,6 +213,137 @@ describe('TicketsPage', () => {
 
       expect(await screen.findByText('1 ticket')).toBeInTheDocument()
       expect(screen.queryByText(/1 tickets/)).not.toBeInTheDocument()
+    })
+  })
+
+  describe('priority and sentiment', () => {
+    const lastParams = (get: ReturnType<typeof mockGet>) =>
+      get.mock.lastCall?.[1]?.params as Record<string, unknown> | undefined
+
+    it('shows each ticket\'s priority and sentiment, and "Not set" when the AI has not set them', async () => {
+      mockGet().mockResolvedValue(ticketPage([refund, technical, uncategorized]))
+      renderWithQuery(<TicketsPage />)
+      await screen.findByRole('table')
+
+      const [refundRow, technicalRow, untaggedRow] = dataRows().map((row) => within(row))
+      expect(refundRow.getByText('High')).toBeInTheDocument()
+      expect(refundRow.getByText('Negative')).toBeInTheDocument()
+      expect(technicalRow.getByText('Medium')).toBeInTheDocument()
+      expect(technicalRow.getByText('Neutral')).toBeInTheDocument()
+      expect(untaggedRow.getAllByText('Not set')).toHaveLength(2)
+      for (const raw of [...Object.values(TicketPriority), ...Object.values(TicketSentiment)]) {
+        expect(screen.queryByText(raw)).not.toBeInTheDocument()
+      }
+    })
+
+    it('has a priority and a sentiment filter listing every value, plus "Not set"', async () => {
+      mockGet().mockResolvedValue(ticketPage([refund]))
+      renderWithQuery(<TicketsPage />)
+      await screen.findByRole('table')
+
+      const options = (name: string) =>
+        Array.from(screen.getByRole('combobox', { name }).querySelectorAll('option')).map((o) => o.textContent)
+      expect(options('Priority')).toEqual(['All priorities', 'Low', 'Medium', 'High', 'Urgent', 'Not set'])
+      expect(options('Sentiment')).toEqual(['All sentiments', 'Positive', 'Neutral', 'Negative', 'Not set'])
+    })
+
+    it('does not filter by default', async () => {
+      const get = mockGet().mockResolvedValue(ticketPage([refund]))
+      renderWithQuery(<TicketsPage />)
+      await screen.findByRole('table')
+
+      // undefined params are dropped by axios, so nothing is sent to the server
+      expect(lastParams(get)?.priority).toBeUndefined()
+      expect(lastParams(get)?.sentiment).toBeUndefined()
+    })
+
+    it('asks the server for tickets with the chosen priority, from page 1', async () => {
+      const get = mockGet().mockResolvedValue(ticketPage([refund]))
+      renderWithQuery(<TicketsPage />)
+      await screen.findByRole('table')
+
+      fireEvent.change(screen.getByRole('combobox', { name: 'Priority' }), { target: { value: TicketPriority.URGENT } })
+
+      await waitFor(() => expect(lastParams(get)).toMatchObject({ priority: TicketPriority.URGENT, page: 1 }))
+    })
+
+    it('asks the server for tickets with the chosen sentiment', async () => {
+      const get = mockGet().mockResolvedValue(ticketPage([refund]))
+      renderWithQuery(<TicketsPage />)
+      await screen.findByRole('table')
+
+      fireEvent.change(screen.getByRole('combobox', { name: 'Sentiment' }), { target: { value: TicketSentiment.NEGATIVE } })
+
+      await waitFor(() => expect(lastParams(get)).toMatchObject({ sentiment: TicketSentiment.NEGATIVE, page: 1 }))
+    })
+
+    it('filters for tickets that have no priority or sentiment yet', async () => {
+      const get = mockGet().mockResolvedValue(ticketPage([uncategorized]))
+      renderWithQuery(<TicketsPage />)
+      await screen.findByRole('table')
+
+      fireEvent.change(screen.getByRole('combobox', { name: 'Priority' }), { target: { value: UNSET } })
+      await waitFor(() => expect(lastParams(get)).toMatchObject({ priority: UNSET }))
+
+      fireEvent.change(screen.getByRole('combobox', { name: 'Sentiment' }), { target: { value: UNSET } })
+      await waitFor(() => expect(lastParams(get)).toMatchObject({ priority: UNSET, sentiment: UNSET }))
+    })
+
+    it('says no tickets match when a priority filter finds nothing', async () => {
+      mockGet().mockResolvedValueOnce(ticketPage([refund])).mockResolvedValue(ticketPage([]))
+      renderWithQuery(<TicketsPage />)
+      await screen.findByRole('table')
+
+      fireEvent.change(screen.getByRole('combobox', { name: 'Priority' }), { target: { value: TicketPriority.URGENT } })
+
+      expect(await screen.findByText('No tickets match your filters.')).toBeInTheDocument()
+    })
+
+    it('sorts by priority and by sentiment from the column headers', async () => {
+      const get = mockGet().mockResolvedValue(ticketPage([refund]))
+      renderWithQuery(<TicketsPage />)
+      await screen.findByRole('table')
+
+      fireEvent.click(screen.getByRole('button', { name: 'Priority' }))
+      await waitFor(() => expect(lastParams(get)).toMatchObject({ sortBy: 'priority', page: 1 }))
+
+      fireEvent.click(screen.getByRole('button', { name: 'Sentiment' }))
+      await waitFor(() => expect(lastParams(get)).toMatchObject({ sortBy: 'sentiment', page: 1 }))
+    })
+  })
+
+  describe('analyse untagged tickets (admin only)', () => {
+    it('is hidden from agents', async () => {
+      mockGet().mockResolvedValue(ticketPage([uncategorized]))
+      renderWithQuery(<TicketsPage />)
+      await screen.findByRole('table')
+
+      expect(screen.queryByRole('button', { name: 'Analyse untagged tickets' })).not.toBeInTheDocument()
+    })
+
+    it('asks the server to queue the untagged tickets and reports how many', async () => {
+      session.isAdmin = true
+      mockGet().mockResolvedValue(ticketPage([uncategorized]))
+      const post = vi.spyOn(axios, 'post').mockResolvedValue({ data: { queued: 3, remaining: 0 } })
+      renderWithQuery(<TicketsPage />)
+      await screen.findByRole('table')
+
+      fireEvent.click(screen.getByRole('button', { name: 'Analyse untagged tickets' }))
+
+      await waitFor(() => expect(post).toHaveBeenCalledWith('/api/tickets/reanalyse', {}))
+      expect(await screen.findByText('Analysis queued for 3 tickets')).toBeInTheDocument()
+    })
+
+    it('shows an error when the server refuses', async () => {
+      session.isAdmin = true
+      mockGet().mockResolvedValue(ticketPage([uncategorized]))
+      vi.spyOn(axios, 'post').mockRejectedValue(httpError(503))
+      renderWithQuery(<TicketsPage />)
+      await screen.findByRole('table')
+
+      fireEvent.click(screen.getByRole('button', { name: 'Analyse untagged tickets' }))
+
+      expect(await screen.findByText('Could not start the analysis')).toBeInTheDocument()
     })
   })
 

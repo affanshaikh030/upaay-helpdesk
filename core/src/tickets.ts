@@ -30,6 +30,25 @@ export const TicketCategory = {
 
 export type TicketCategory = (typeof TicketCategory)[keyof typeof TicketCategory];
 
+// Order matters: it matches the Prisma enum, whose declaration order is the database sort order (ascending is low to urgent)
+export const TicketPriority = {
+  LOW: "LOW",
+  MEDIUM: "MEDIUM",
+  HIGH: "HIGH",
+  URGENT: "URGENT",
+} as const;
+
+export type TicketPriority = (typeof TicketPriority)[keyof typeof TicketPriority];
+
+// Order matters too: descending sorts NEGATIVE first
+export const TicketSentiment = {
+  POSITIVE: "POSITIVE",
+  NEUTRAL: "NEUTRAL",
+  NEGATIVE: "NEGATIVE",
+} as const;
+
+export type TicketSentiment = (typeof TicketSentiment)[keyof typeof TicketSentiment];
+
 export const SenderType = {
   AGENT: "AGENT",
   CUSTOMER: "CUSTOMER",
@@ -42,7 +61,9 @@ export type SenderType = (typeof SenderType)[keyof typeof SenderType];
 export const DEFAULT_PAGE_SIZE = 10;
 export const MAX_PAGE_SIZE = 100;
 export const UNCATEGORIZED = "UNCATEGORIZED";
-export const ticketSortColumns = ["subject", "fromName", "status", "category", "createdAt"] as const;
+// Filter value for tickets whose priority or sentiment hasn't been set yet
+export const UNSET = "UNSET";
+export const ticketSortColumns = ["subject", "fromName", "status", "category", "priority", "sentiment", "createdAt"] as const;
 
 export type TicketSortColumn = (typeof ticketSortColumns)[number];
 
@@ -51,6 +72,8 @@ export const ticketListQuerySchema = z.object({
   sortOrder: z.enum(["asc", "desc"]).default("desc"),
   status: z.enum(TicketStatus).optional(),
   category: z.enum({ ...TicketCategory, UNCATEGORIZED }).optional(),
+  priority: z.enum({ ...TicketPriority, UNSET }).optional(),
+  sentiment: z.enum({ ...TicketSentiment, UNSET }).optional(),
   search: z.string().trim().max(200).optional(),
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).max(MAX_PAGE_SIZE).default(DEFAULT_PAGE_SIZE),
@@ -58,17 +81,30 @@ export const ticketListQuerySchema = z.object({
 
 export type TicketListQuery = z.infer<typeof ticketListQuerySchema>;
 
-// Body for PATCH /api/tickets/:id: any of these, at least one. assignedToId null unassigns; category null clears it
+// Body for PATCH /api/tickets/:id: any of these, at least one. assignedToId null unassigns; category, priority and
+// sentiment null clear them (an agent can override what the AI set)
 export const updateTicketSchema = z
   .object({
     assignedToId: z.string().min(1).nullable(),
     status: z.enum(TicketStatus),
     category: z.enum(TicketCategory).nullable(),
+    priority: z.enum(TicketPriority).nullable(),
+    sentiment: z.enum(TicketSentiment).nullable(),
   })
   .partial()
   .refine((v) => Object.values(v).some((x) => x !== undefined), "Nothing to update");
 
 export type UpdateTicketInput = z.infer<typeof updateTicketSchema>;
+
+// Body for POST /api/tickets/reanalyse (admin only): re-run the AI analysis for tickets whose sentiment or priority is
+// still null. Without ticketIds the server picks the oldest ones; either way at most REANALYSE_LIMIT per request
+export const REANALYSE_LIMIT = 10;
+
+export const reanalyseTicketsSchema = z.object({
+  ticketIds: z.array(z.int().positive()).min(1).max(REANALYSE_LIMIT).optional(),
+});
+
+export type ReanalyseTicketsInput = z.infer<typeof reanalyseTicketsSchema>;
 
 // Body for POST /api/tickets/:id/replies
 export const createReplySchema = z.object({

@@ -55,6 +55,12 @@ export function enqueueClassify(ticketId: number) {
   return boss.send(CLASSIFY_QUEUE, { ticketId });
 }
 
+// For re-analysis: at most one job per ticket every 5 minutes, so repeated requests can't pile up model calls.
+// Resolves null when the ticket was already queued within that window
+export function enqueueClassifyThrottled(ticketId: number) {
+  return boss.sendThrottled(CLASSIFY_QUEUE, { ticketId }, null, 300, String(ticketId));
+}
+
 // Waits for the active job (up to the timeout), then closes the pool
 export function stopQueue() {
   return boss.stop({ graceful: true, timeout: 20_000 });

@@ -7,6 +7,9 @@ import { renderWithQuery } from '@/test/render'
 import type { Assignee, TicketDetail } from '@/hooks/use-tickets'
 import TicketDetailPage from './TicketDetailPage'
 
+// The page's sidebar shows an admin-only button; stand in for the session instead of calling the auth server
+vi.mock('@/hooks/use-is-admin', () => ({ useIsAdmin: () => false }))
+
 const ticket: TicketDetail = {
   id: 7,
   subject: 'Refund for the Advanced React course',
@@ -18,6 +21,8 @@ const ticket: TicketDetail = {
   resolvedByAi: false,
   status: TicketStatus.OPEN,
   category: TicketCategory.REFUND_REQUEST,
+  priority: null,
+  sentiment: null,
   createdAt: '2026-11-11T10:30:00.000Z',
   updatedAt: '2026-11-11T10:30:00.000Z',
   assignedTo: null,

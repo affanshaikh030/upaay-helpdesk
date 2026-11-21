@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { TicketCategory, TicketStatus } from '@helpdesk/core'
+import { TicketCategory, TicketPriority, TicketSentiment, TicketStatus } from '@helpdesk/core'
 import { renderWithQuery } from '@/test/render'
 import type { TicketDetail as TicketDetailData } from '@/hooks/use-tickets'
 import { TicketDetail } from './TicketDetail'
@@ -16,6 +16,8 @@ const ticket: TicketDetailData = {
   resolvedByAi: false,
   status: TicketStatus.OPEN,
   category: TicketCategory.REFUND_REQUEST,
+  priority: null,
+  sentiment: null,
   createdAt: '2026-11-11T10:30:00.000Z',
   updatedAt: '2026-11-11T10:30:00.000Z',
   assignedTo: null,
@@ -56,6 +58,44 @@ describe('TicketDetail', () => {
 
     expect(screen.getByText('Open')).toBeInTheDocument()
     expect(screen.getByText('Refund request')).toBeInTheDocument()
+  })
+
+  it('shows the priority and sentiment the AI set', () => {
+    renderWithQuery(
+      <TicketDetail ticket={{ ...ticket, priority: TicketPriority.URGENT, sentiment: TicketSentiment.NEGATIVE }} />,
+    )
+
+    expect(screen.getByText('Urgent')).toBeInTheDocument()
+    expect(screen.getByText('Negative')).toBeInTheDocument()
+    expect(screen.queryByText(TicketPriority.URGENT)).not.toBeInTheDocument()
+  })
+
+  it('labels every priority and sentiment with a readable word', () => {
+    for (const [priority, label] of [
+      [TicketPriority.LOW, 'Low'],
+      [TicketPriority.MEDIUM, 'Medium'],
+      [TicketPriority.HIGH, 'High'],
+    ] as const) {
+      const { unmount } = renderWithQuery(<TicketDetail ticket={{ ...ticket, priority }} />)
+      expect(screen.getByText(label)).toBeInTheDocument()
+      unmount()
+    }
+    for (const [sentiment, label] of [
+      [TicketSentiment.POSITIVE, 'Positive'],
+      [TicketSentiment.NEUTRAL, 'Neutral'],
+    ] as const) {
+      const { unmount } = renderWithQuery(<TicketDetail ticket={{ ...ticket, sentiment }} />)
+      expect(screen.getByText(label)).toBeInTheDocument()
+      unmount()
+    }
+  })
+
+  it('shows no priority or sentiment while the AI has not set them', () => {
+    renderWithQuery(<TicketDetail ticket={ticket} />)
+
+    for (const word of ['Low', 'Medium', 'High', 'Urgent', 'Positive', 'Neutral', 'Negative', 'Not set']) {
+      expect(screen.queryByText(word)).not.toBeInTheDocument()
+    }
   })
 
   it('shows Uncategorized when there is no category', () => {
