@@ -1,4 +1,7 @@
 import type {
+  AutoResolveDecision as CoreAutoResolveDecision,
+  AutoResolveReason as CoreAutoResolveReason,
+  KnowledgeLanguage as CoreKnowledgeLanguage,
   Role as CoreRole,
   SenderType as CoreSenderType,
   TicketCategory as CoreTicketCategory,
@@ -7,6 +10,9 @@ import type {
   TicketStatus as CoreTicketStatus,
 } from "@helpdesk/core";
 import type {
+  AutoResolveDecision as PrismaAutoResolveDecision,
+  AutoResolveReason as PrismaAutoResolveReason,
+  KnowledgeLanguage as PrismaKnowledgeLanguage,
   Role as PrismaRole,
   SenderType as PrismaSenderType,
   TicketCategory as PrismaTicketCategory,
@@ -24,3 +30,6 @@ export const ticketCategoryEnumsMatch: Equal<CoreTicketCategory, PrismaTicketCat
 export const senderTypeEnumsMatch: Equal<CoreSenderType, PrismaSenderType> = true;
 export const ticketPriorityEnumsMatch: Equal<CoreTicketPriority, PrismaTicketPriority> = true;
 export const ticketSentimentEnumsMatch: Equal<CoreTicketSentiment, PrismaTicketSentiment> = true;
+export const knowledgeLanguageEnumsMatch: Equal<CoreKnowledgeLanguage, PrismaKnowledgeLanguage> = true;
+export const autoResolveDecisionEnumsMatch: Equal<CoreAutoResolveDecision, PrismaAutoResolveDecision> = true;
+export const autoResolveReasonEnumsMatch: Equal<CoreAutoResolveReason, PrismaAutoResolveReason> = true;

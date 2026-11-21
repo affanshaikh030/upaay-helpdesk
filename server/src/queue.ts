@@ -6,6 +6,10 @@ import { classifyTicket } from "./classify-ticket";
 const CLASSIFY_QUEUE = "classify-ticket";
 const AUTO_RESOLVE_QUEUE = "auto-resolve-ticket";
 
+// autoResolve is set only for a ticket that has just arrived by email: the worker then queues auto-resolve once the
+// ticket is classified (see startQueue). Re-analysis leaves it out
+type ClassifyJob = { ticketId: number; autoResolve?: boolean };
+
 export const boss = new PgBoss(process.env.DATABASE_URL!);
 
 // Message only: the error can carry connection details
@@ -29,12 +33,23 @@ export async function startQueue() {
     console.warn("Classification worker not started: AI is not configured");
     return;
   }
-  await boss.work<{ ticketId: number }>(CLASSIFY_QUEUE, async ([job]) => {
+  await boss.work<ClassifyJob>(CLASSIFY_QUEUE, async ([job]) => {
     try {
       await classifyTicket(job.data.ticketId);
     } catch (err) {
       console.error(`Classify ticket ${job.data.ticketId} failed:`, describeAiError(err));
       throw err; // fails the job so pg-boss retries it
+    }
+    // Auto-resolve needs the priority and sentiment this job just set, so it is queued only after classification
+    // succeeded, and only for a new ticket (re-analysis leaves the flag off). A failure here fails the job: the retry
+    // finds the ticket already classified and goes straight back to this step
+    if (job.data.autoResolve) {
+      try {
+        await enqueueAutoResolve(job.data.ticketId);
+      } catch (err) {
+        console.error(`Queue auto-resolve for ticket ${job.data.ticketId} failed:`, err instanceof Error ? err.message : err);
+        throw err;
+      }
     }
   });
   await boss.work<{ ticketId: number }>(AUTO_RESOLVE_QUEUE, async ([job]) => {
@@ -51,8 +66,10 @@ export function enqueueAutoResolve(ticketId: number) {
   return boss.send(AUTO_RESOLVE_QUEUE, { ticketId });
 }
 
-export function enqueueClassify(ticketId: number) {
-  return boss.send(CLASSIFY_QUEUE, { ticketId });
+// With autoResolve, the classify worker queues auto-resolve after it succeeds, so the two never run out of order
+export function enqueueClassify(ticketId: number, options: { autoResolve?: boolean } = {}) {
+  const job: ClassifyJob = options.autoResolve ? { ticketId, autoResolve: true } : { ticketId };
+  return boss.send(CLASSIFY_QUEUE, job);
 }
 
 // For re-analysis: at most one job per ticket every 5 minutes, so repeated requests can't pile up model calls.

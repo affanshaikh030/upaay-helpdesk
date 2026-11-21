@@ -403,7 +403,9 @@ export const ModelName = {
   Verification: 'Verification',
   rateLimit: 'rateLimit',
   Ticket: 'Ticket',
-  Reply: 'Reply'
+  Reply: 'Reply',
+  KnowledgeArticle: 'KnowledgeArticle',
+  AutoResolveAttempt: 'AutoResolveAttempt'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -419,7 +421,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "rateLimit" | "ticket" | "reply"
+    modelProps: "user" | "session" | "account" | "verification" | "rateLimit" | "ticket" | "reply" | "knowledgeArticle" | "autoResolveAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -941,6 +943,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    KnowledgeArticle: {
+      payload: Prisma.$KnowledgeArticlePayload<ExtArgs>
+      fields: Prisma.KnowledgeArticleFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.KnowledgeArticleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeArticlePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.KnowledgeArticleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeArticlePayload>
+        }
+        findFirst: {
+          args: Prisma.KnowledgeArticleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeArticlePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.KnowledgeArticleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeArticlePayload>
+        }
+        findMany: {
+          args: Prisma.KnowledgeArticleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeArticlePayload>[]
+        }
+        create: {
+          args: Prisma.KnowledgeArticleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeArticlePayload>
+        }
+        createMany: {
+          args: Prisma.KnowledgeArticleCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.KnowledgeArticleCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeArticlePayload>[]
+        }
+        delete: {
+          args: Prisma.KnowledgeArticleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeArticlePayload>
+        }
+        update: {
+          args: Prisma.KnowledgeArticleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeArticlePayload>
+        }
+        deleteMany: {
+          args: Prisma.KnowledgeArticleDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.KnowledgeArticleUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.KnowledgeArticleUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeArticlePayload>[]
+        }
+        upsert: {
+          args: Prisma.KnowledgeArticleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$KnowledgeArticlePayload>
+        }
+        aggregate: {
+          args: Prisma.KnowledgeArticleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateKnowledgeArticle>
+        }
+        groupBy: {
+          args: Prisma.KnowledgeArticleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KnowledgeArticleGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.KnowledgeArticleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.KnowledgeArticleCountAggregateOutputType> | number
+        }
+      }
+    }
+    AutoResolveAttempt: {
+      payload: Prisma.$AutoResolveAttemptPayload<ExtArgs>
+      fields: Prisma.AutoResolveAttemptFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AutoResolveAttemptFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutoResolveAttemptPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AutoResolveAttemptFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutoResolveAttemptPayload>
+        }
+        findFirst: {
+          args: Prisma.AutoResolveAttemptFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutoResolveAttemptPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AutoResolveAttemptFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutoResolveAttemptPayload>
+        }
+        findMany: {
+          args: Prisma.AutoResolveAttemptFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutoResolveAttemptPayload>[]
+        }
+        create: {
+          args: Prisma.AutoResolveAttemptCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutoResolveAttemptPayload>
+        }
+        createMany: {
+          args: Prisma.AutoResolveAttemptCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AutoResolveAttemptCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutoResolveAttemptPayload>[]
+        }
+        delete: {
+          args: Prisma.AutoResolveAttemptDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutoResolveAttemptPayload>
+        }
+        update: {
+          args: Prisma.AutoResolveAttemptUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutoResolveAttemptPayload>
+        }
+        deleteMany: {
+          args: Prisma.AutoResolveAttemptDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AutoResolveAttemptUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AutoResolveAttemptUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutoResolveAttemptPayload>[]
+        }
+        upsert: {
+          args: Prisma.AutoResolveAttemptUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AutoResolveAttemptPayload>
+        }
+        aggregate: {
+          args: Prisma.AutoResolveAttemptAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAutoResolveAttempt>
+        }
+        groupBy: {
+          args: Prisma.AutoResolveAttemptGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AutoResolveAttemptGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AutoResolveAttemptCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AutoResolveAttemptCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1078,10 +1228,42 @@ export const ReplyScalarFieldEnum = {
   body: 'body',
   senderType: 'senderType',
   authorId: 'authorId',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  sourceArticleId: 'sourceArticleId'
 } as const
 
 export type ReplyScalarFieldEnum = (typeof ReplyScalarFieldEnum)[keyof typeof ReplyScalarFieldEnum]
+
+
+export const KnowledgeArticleScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  content: 'content',
+  language: 'language',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type KnowledgeArticleScalarFieldEnum = (typeof KnowledgeArticleScalarFieldEnum)[keyof typeof KnowledgeArticleScalarFieldEnum]
+
+
+export const AutoResolveAttemptScalarFieldEnum = {
+  id: 'id',
+  ticketId: 'ticketId',
+  suppliedArticleIds: 'suppliedArticleIds',
+  citedArticleIds: 'citedArticleIds',
+  topRank: 'topRank',
+  modelResolvable: 'modelResolvable',
+  confidence: 'confidence',
+  decision: 'decision',
+  reason: 'reason',
+  draftReply: 'draftReply',
+  acted: 'acted',
+  shadow: 'shadow',
+  createdAt: 'createdAt'
+} as const
+
+export type AutoResolveAttemptScalarFieldEnum = (typeof AutoResolveAttemptScalarFieldEnum)[keyof typeof AutoResolveAttemptScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1262,6 +1444,20 @@ export type ListEnumSenderTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$P
 
 
 /**
+ * Reference to a field of type 'KnowledgeLanguage'
+ */
+export type EnumKnowledgeLanguageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KnowledgeLanguage'>
+    
+
+
+/**
+ * Reference to a field of type 'KnowledgeLanguage[]'
+ */
+export type ListEnumKnowledgeLanguageFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'KnowledgeLanguage[]'>
+    
+
+
+/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -1272,6 +1468,34 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Float[]'
  */
 export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+/**
+ * Reference to a field of type 'AutoResolveDecision'
+ */
+export type EnumAutoResolveDecisionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AutoResolveDecision'>
+    
+
+
+/**
+ * Reference to a field of type 'AutoResolveDecision[]'
+ */
+export type ListEnumAutoResolveDecisionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AutoResolveDecision[]'>
+    
+
+
+/**
+ * Reference to a field of type 'AutoResolveReason'
+ */
+export type EnumAutoResolveReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AutoResolveReason'>
+    
+
+
+/**
+ * Reference to a field of type 'AutoResolveReason[]'
+ */
+export type ListEnumAutoResolveReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AutoResolveReason[]'>
     
 
 /**
@@ -1432,6 +1656,8 @@ export type GlobalOmitConfig = {
   rateLimit?: Prisma.rateLimitOmit
   ticket?: Prisma.TicketOmit
   reply?: Prisma.ReplyOmit
+  knowledgeArticle?: Prisma.KnowledgeArticleOmit
+  autoResolveAttempt?: Prisma.AutoResolveAttemptOmit
 }
 
 /* Types for Logging */

@@ -28,7 +28,12 @@ export default function TicketsPage() {
     return () => clearTimeout(timer)
   }, [filters.search])
   const isFiltered =
-    search !== '' || filters.status !== '' || filters.category !== '' || filters.priority !== '' || filters.sentiment !== ''
+    search !== '' ||
+    filters.status !== '' ||
+    filters.category !== '' ||
+    filters.priority !== '' ||
+    filters.sentiment !== '' ||
+    filters.aiResolved !== ''
 
   const { data, error } = useTickets({
     page,
@@ -37,6 +42,7 @@ export default function TicketsPage() {
     category: filters.category || undefined,
     priority: filters.priority || undefined,
     sentiment: filters.sentiment || undefined,
+    aiResolved: filters.aiResolved || undefined,
     search: search || undefined,
     sortBy: sorting[0].id as TicketSortColumn,
     sortOrder: sorting[0].desc ? 'desc' : 'asc',
@@ -66,7 +72,8 @@ export default function TicketsPage() {
                 next.status !== filters.status ||
                 next.category !== filters.category ||
                 next.priority !== filters.priority ||
-                next.sentiment !== filters.sentiment
+                next.sentiment !== filters.sentiment ||
+                next.aiResolved !== filters.aiResolved
               ) {
                 setPage(1)
               }

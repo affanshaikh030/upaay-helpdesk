@@ -20,7 +20,7 @@ export const ticketsRouter = Router();
 
 const assigneeSelect = { select: { id: true, name: true } };
 
-// Any signed-in user (admins and agents). Filtered by ?status=&category=&priority=&sentiment=&search= sorted by ?sortBy=&sortOrder= (default newest first) and paged by ?page=&pageSize=; `total` counts all matches; id
+// Any signed-in user (admins and agents). Filtered by ?status=&category=&priority=&sentiment=&aiResolved=&search= sorted by ?sortBy=&sortOrder= (default newest first) and paged by ?page=&pageSize=; `total` counts all matches; id
 // breaks ties so the order is stable. The body is left out: it can be large and the list doesn't show it
 ticketsRouter.get("/", async (req, res) => {
   const parsed = ticketListQuerySchema.safeParse(req.query);
@@ -28,11 +28,11 @@ ticketsRouter.get("/", async (req, res) => {
     res.status(400).json({ error: parsed.error.issues[0].message });
     return;
   }
-  const { sortBy, sortOrder, status, category, priority, sentiment, search, page, pageSize } = parsed.data;
+  const { sortBy, sortOrder, status, category, priority, sentiment, aiResolved, search, page, pageSize } = parsed.data;
 
-  // Tickets resolved by AI are kept off the list
+  // Tickets resolved by AI are kept off the list unless asked for: "only" lists just those, "include" lists all of them
   const where: Prisma.TicketWhereInput = {
-    resolvedByAi: false,
+    ...(aiResolved !== "include" && { resolvedByAi: aiResolved === "only" }),
     ...(status && { status }),
     ...(category && { category: category === UNCATEGORIZED ? null : (category as TicketCategory) }),
     ...(priority && { priority: priority === UNSET ? null : (priority as TicketPriority) }),
@@ -61,6 +61,7 @@ ticketsRouter.get("/", async (req, res) => {
         category: true,
         priority: true,
         sentiment: true,
+        resolvedByAi: true,
         createdAt: true,
         assignedTo: assigneeSelect,
       },
@@ -159,7 +160,15 @@ ticketsRouter.patch("/:id", async (req, res) => {
   }
 });
 
-const replySelect = { id: true, body: true, senderType: true, createdAt: true, author: assigneeSelect };
+// sourceArticle is the knowledge base article an AI answer was based on (null for a human reply, or once the article is deleted)
+const replySelect = {
+  id: true,
+  body: true,
+  senderType: true,
+  createdAt: true,
+  author: assigneeSelect,
+  sourceArticle: { select: { id: true, title: true } },
+};
 
 // Any signed-in user. The reply thread, oldest first
 ticketsRouter.get("/:id/replies", async (req, res) => {

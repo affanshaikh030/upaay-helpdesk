@@ -1,4 +1,11 @@
-import type { TicketPriority, TicketSentiment } from '@helpdesk/core'
+import type {
+  AiResolvedMode,
+  AutoResolveDecision,
+  AutoResolveReason,
+  KnowledgeLanguage,
+  TicketPriority,
+  TicketSentiment,
+} from '@helpdesk/core'
 import { BRAND_TAGLINE } from '@/lib/brand'
 
 export type Language = 'en' | 'hi' | 'gu'
@@ -29,6 +36,7 @@ export interface Dictionary {
   // Navigation
   navTickets: string
   navUsers: string
+  navKnowledge: string
   signOut: string
   switchToLightMode: string
   switchToDarkMode: string
@@ -100,6 +108,70 @@ export interface Dictionary {
   analysisQueued: (count: number) => string
   analysisNone: string
   analysisFailed: string
+
+  // AI-resolved tickets
+  filterAiResolved: string
+  aiResolvedOptions: Record<AiResolvedMode, string>
+  basedOn: (title: string) => string
+
+  // Knowledge base (admin only)
+  knowledgeTitle: string
+  knowledgeSubtitle: string
+  articleCount: (count: number) => string
+  articlesLoading: string
+  articlesLoadFailed: string
+  noAccess: string
+  noArticles: string
+  newArticle: string
+  editArticle: string
+  deleteArticle: string
+  newArticleDescription: string
+  editArticleDescription: string
+  editArticleLabel: (title: string) => string
+  deleteArticleLabel: (title: string) => string
+  columnTitle: string
+  columnLanguage: string
+  columnUpdated: string
+  columnActions: string
+  articleLanguages: Record<KnowledgeLanguage, string>
+  fieldTitle: string
+  fieldContent: string
+  fieldLanguage: string
+  contentCount: (count: number, max: number) => string
+  titleRequired: string
+  contentRequired: string
+  titleTooLong: (max: number) => string
+  contentTooLong: (max: number) => string
+  createArticleButton: string
+  creating: string
+  saveChanges: string
+  saving: string
+  cancel: string
+  deleteButton: string
+  deleting: string
+  createFailed: string
+  saveFailed: string
+  deleteFailed: string
+  deleteArticleConfirm: (title: string) => string
+
+  // AI auto-resolve results (admin only)
+  attemptsTitle: string
+  attemptsSubtitle: string
+  attemptsLoading: string
+  attemptsLoadFailed: string
+  noAttempts: string
+  columnTicket: string
+  columnDecision: string
+  columnReason: string
+  columnTopRank: string
+  columnConfidence: string
+  columnDraftReply: string
+  columnCitedArticle: string
+  decisions: Record<AutoResolveDecision, string>
+  autoResolveReasons: Record<AutoResolveReason, string>
+  modeShadow: string
+  modeLive: string
+  deletedArticle: string
 }
 
 export const translations: Record<Language, Dictionary> = {
@@ -121,6 +193,7 @@ export const translations: Record<Language, Dictionary> = {
 
     navTickets: 'Tickets',
     navUsers: 'Users',
+    navKnowledge: 'Knowledge base',
     signOut: 'Sign out',
     switchToLightMode: 'Switch to light mode',
     switchToDarkMode: 'Switch to dark mode',
@@ -188,6 +261,81 @@ export const translations: Record<Language, Dictionary> = {
     analysisQueued: (count) => `Analysis queued for ${count} ${count === 1 ? 'ticket' : 'tickets'}`,
     analysisNone: 'Nothing to analyse right now',
     analysisFailed: 'Could not start the analysis',
+
+    filterAiResolved: 'AI-resolved',
+    aiResolvedOptions: { exclude: 'Hide AI-resolved', only: 'Only AI-resolved', include: 'Include AI-resolved' },
+    basedOn: (title) => `Based on: ${title}`,
+
+    knowledgeTitle: 'Knowledge base',
+    knowledgeSubtitle: 'Articles the AI answers customers from',
+    articleCount: (count) => `${count} ${count === 1 ? 'article' : 'articles'}`,
+    articlesLoading: 'Loading articles',
+    articlesLoadFailed: 'Failed to load articles',
+    noAccess: 'You do not have access to this page',
+    noArticles: 'No articles yet. Add one for the AI to answer from.',
+    newArticle: 'New article',
+    editArticle: 'Edit article',
+    deleteArticle: 'Delete article',
+    newArticleDescription:
+      'Write what the AI may use to answer customers. Only the best matching articles are sent with each ticket.',
+    editArticleDescription: 'Update this article. Changes apply to the next ticket the AI answers.',
+    editArticleLabel: (title) => `Edit ${title}`,
+    deleteArticleLabel: (title) => `Delete ${title}`,
+    columnTitle: 'Title',
+    columnLanguage: 'Language',
+    columnUpdated: 'Updated',
+    columnActions: 'Actions',
+    articleLanguages: { EN: 'English', HI: 'हिन्दी', GU: 'ગુજરાતી' },
+    fieldTitle: 'Title',
+    fieldContent: 'Content',
+    fieldLanguage: 'Language',
+    contentCount: (count, max) => `${count.toLocaleString()} / ${max.toLocaleString()} characters`,
+    titleRequired: 'Title is required',
+    contentRequired: 'Content is required',
+    titleTooLong: (max) => `Title must be at most ${max} characters`,
+    contentTooLong: (max) => `Content must be at most ${max.toLocaleString()} characters`,
+    createArticleButton: 'Create article',
+    creating: 'Creating…',
+    saveChanges: 'Save changes',
+    saving: 'Saving…',
+    cancel: 'Cancel',
+    deleteButton: 'Delete',
+    deleting: 'Deleting…',
+    createFailed: 'Failed to create article',
+    saveFailed: 'Failed to save article',
+    deleteFailed: 'Failed to delete article',
+    deleteArticleConfirm: (title) =>
+      `Delete "${title}"? The AI will stop using it. Replies it already wrote keep their text but lose the "Based on" line.`,
+
+    attemptsTitle: 'AI auto-resolve results',
+    attemptsSubtitle: 'What the AI did, or in shadow mode would have done, for each new ticket',
+    attemptsLoading: 'Loading results',
+    attemptsLoadFailed: 'Failed to load results',
+    noAttempts: 'No results yet.',
+    columnTicket: 'Ticket',
+    columnDecision: 'Decision',
+    columnReason: 'Reason',
+    columnTopRank: 'Top rank',
+    columnConfidence: 'Confidence',
+    columnDraftReply: 'Draft reply',
+    columnCitedArticle: 'Cited article',
+    decisions: { RESOLVE: 'Resolve', ESCALATE: 'Escalate' },
+    autoResolveReasons: {
+      RESOLVED: 'Resolved',
+      NOT_CLASSIFIED: 'Not classified yet',
+      URGENT: 'Urgent priority',
+      NEGATIVE_SENTIMENT: 'Negative sentiment',
+      REFUND_REQUEST: 'Refund request',
+      ESCALATION_WORDING: 'Legal, dispute or security wording',
+      NO_RELEVANT_ARTICLE: 'No relevant article',
+      MODEL_DECLINED: 'AI could not answer',
+      LOW_CONFIDENCE: 'Low confidence',
+      INVALID_CITATION: 'Invalid article citation',
+      TICKET_CHANGED: 'Ticket changed first',
+    },
+    modeShadow: 'Shadow',
+    modeLive: 'Live',
+    deletedArticle: 'Deleted',
   },
   hi: {
     signInTo: (brand) => `${brand} में साइन इन करें`,
@@ -207,6 +355,7 @@ export const translations: Record<Language, Dictionary> = {
 
     navTickets: 'टिकट',
     navUsers: 'उपयोगकर्ता',
+    navKnowledge: 'ज्ञान आधार',
     signOut: 'साइन आउट',
     switchToLightMode: 'लाइट मोड पर जाएँ',
     switchToDarkMode: 'डार्क मोड पर जाएँ',
@@ -274,6 +423,85 @@ export const translations: Record<Language, Dictionary> = {
     analysisQueued: (count) => `${count} टिकट का विश्लेषण कतार में है`,
     analysisNone: 'अभी विश्लेषण के लिए कुछ नहीं है',
     analysisFailed: 'विश्लेषण शुरू नहीं हो सका',
+
+    filterAiResolved: 'AI द्वारा हल किए गए',
+    aiResolvedOptions: {
+      exclude: 'AI द्वारा हल किए गए छिपाएँ',
+      only: 'केवल AI द्वारा हल किए गए',
+      include: 'AI द्वारा हल किए गए शामिल करें',
+    },
+    basedOn: (title) => `आधारित: ${title}`,
+
+    knowledgeTitle: 'ज्ञान आधार',
+    knowledgeSubtitle: 'वे लेख जिनसे AI ग्राहकों को जवाब देता है',
+    articleCount: (count) => `${count} लेख`,
+    articlesLoading: 'लेख लोड हो रहे हैं',
+    articlesLoadFailed: 'लेख लोड नहीं हो सके',
+    noAccess: 'आपके पास इस पृष्ठ का एक्सेस नहीं है',
+    noArticles: 'अभी कोई लेख नहीं है। AI के जवाब देने के लिए एक जोड़ें।',
+    newArticle: 'नया लेख',
+    editArticle: 'लेख संपादित करें',
+    deleteArticle: 'लेख हटाएँ',
+    newArticleDescription:
+      'वह लिखें जिसका उपयोग AI ग्राहकों को जवाब देने के लिए कर सकता है। हर टिकट के साथ केवल सबसे मेल खाने वाले लेख भेजे जाते हैं।',
+    editArticleDescription: 'इस लेख को अपडेट करें। बदलाव अगले उस टिकट पर लागू होंगे जिसका AI जवाब देगा।',
+    editArticleLabel: (title) => `${title} संपादित करें`,
+    deleteArticleLabel: (title) => `${title} हटाएँ`,
+    columnTitle: 'शीर्षक',
+    columnLanguage: 'भाषा',
+    columnUpdated: 'अपडेट किया गया',
+    columnActions: 'कार्रवाई',
+    articleLanguages: { EN: 'English', HI: 'हिन्दी', GU: 'ગુજરાતી' },
+    fieldTitle: 'शीर्षक',
+    fieldContent: 'सामग्री',
+    fieldLanguage: 'भाषा',
+    contentCount: (count, max) => `${count.toLocaleString()} / ${max.toLocaleString()} अक्षर`,
+    titleRequired: 'शीर्षक आवश्यक है',
+    contentRequired: 'सामग्री आवश्यक है',
+    titleTooLong: (max) => `शीर्षक अधिकतम ${max} अक्षरों का होना चाहिए`,
+    contentTooLong: (max) => `सामग्री अधिकतम ${max.toLocaleString()} अक्षरों की होनी चाहिए`,
+    createArticleButton: 'लेख बनाएँ',
+    creating: 'बनाया जा रहा है…',
+    saveChanges: 'बदलाव सहेजें',
+    saving: 'सहेजा जा रहा है…',
+    cancel: 'रद्द करें',
+    deleteButton: 'हटाएँ',
+    deleting: 'हटाया जा रहा है…',
+    createFailed: 'लेख नहीं बन सका',
+    saveFailed: 'लेख सहेजा नहीं जा सका',
+    deleteFailed: 'लेख हटाया नहीं जा सका',
+    deleteArticleConfirm: (title) =>
+      `"${title}" हटाएँ? AI इसका उपयोग बंद कर देगा। पहले लिखे जा चुके जवाबों का पाठ रहेगा, पर "आधारित" पंक्ति हट जाएगी।`,
+
+    attemptsTitle: 'AI स्वतः-समाधान के परिणाम',
+    attemptsSubtitle: 'हर नए टिकट पर AI ने क्या किया, या शैडो मोड में क्या करता',
+    attemptsLoading: 'परिणाम लोड हो रहे हैं',
+    attemptsLoadFailed: 'परिणाम लोड नहीं हो सके',
+    noAttempts: 'अभी कोई परिणाम नहीं है।',
+    columnTicket: 'टिकट',
+    columnDecision: 'निर्णय',
+    columnReason: 'कारण',
+    columnTopRank: 'शीर्ष रैंक',
+    columnConfidence: 'विश्वास',
+    columnDraftReply: 'जवाब का मसौदा',
+    columnCitedArticle: 'उद्धृत लेख',
+    decisions: { RESOLVE: 'हल करें', ESCALATE: 'आगे भेजें' },
+    autoResolveReasons: {
+      RESOLVED: 'हल किया गया',
+      NOT_CLASSIFIED: 'अभी वर्गीकृत नहीं',
+      URGENT: 'अत्यावश्यक प्राथमिकता',
+      NEGATIVE_SENTIMENT: 'नकारात्मक भावना',
+      REFUND_REQUEST: 'रिफंड अनुरोध',
+      ESCALATION_WORDING: 'कानूनी, विवाद या सुरक्षा संबंधी शब्द',
+      NO_RELEVANT_ARTICLE: 'कोई प्रासंगिक लेख नहीं',
+      MODEL_DECLINED: 'AI जवाब नहीं दे सका',
+      LOW_CONFIDENCE: 'कम विश्वास',
+      INVALID_CITATION: 'अमान्य लेख उद्धरण',
+      TICKET_CHANGED: 'टिकट पहले बदल गया',
+    },
+    modeShadow: 'शैडो',
+    modeLive: 'लाइव',
+    deletedArticle: 'हटाया गया',
   },
   gu: {
     signInTo: (brand) => `${brand} માં સાઇન ઇન કરો`,
@@ -293,6 +521,7 @@ export const translations: Record<Language, Dictionary> = {
 
     navTickets: 'ટિકિટ',
     navUsers: 'વપરાશકર્તાઓ',
+    navKnowledge: 'જ્ઞાન આધાર',
     signOut: 'સાઇન આઉટ',
     switchToLightMode: 'લાઇટ મોડ પર જાઓ',
     switchToDarkMode: 'ડાર્ક મોડ પર જાઓ',
@@ -360,5 +589,84 @@ export const translations: Record<Language, Dictionary> = {
     analysisQueued: (count) => `${count} ટિકિટનું વિશ્લેષણ કતારમાં છે`,
     analysisNone: 'હાલમાં વિશ્લેષણ માટે કંઈ નથી',
     analysisFailed: 'વિશ્લેષણ શરૂ થઈ શક્યું નથી',
+
+    filterAiResolved: 'AI દ્વારા ઉકેલાયેલી',
+    aiResolvedOptions: {
+      exclude: 'AI દ્વારા ઉકેલાયેલી છુપાવો',
+      only: 'ફક્ત AI દ્વારા ઉકેલાયેલી',
+      include: 'AI દ્વારા ઉકેલાયેલી સામેલ કરો',
+    },
+    basedOn: (title) => `આધારિત: ${title}`,
+
+    knowledgeTitle: 'જ્ઞાન આધાર',
+    knowledgeSubtitle: 'લેખો જેમાંથી AI ગ્રાહકોને જવાબ આપે છે',
+    articleCount: (count) => `${count} લેખ`,
+    articlesLoading: 'લેખ લોડ થઈ રહ્યા છે',
+    articlesLoadFailed: 'લેખ લોડ થઈ શક્યા નથી',
+    noAccess: 'તમને આ પૃષ્ઠની ઍક્સેસ નથી',
+    noArticles: 'હજી કોઈ લેખ નથી. AI ને જવાબ આપવા માટે એક ઉમેરો.',
+    newArticle: 'નવો લેખ',
+    editArticle: 'લેખ સંપાદિત કરો',
+    deleteArticle: 'લેખ કાઢી નાખો',
+    newArticleDescription:
+      'AI ગ્રાહકોને જવાબ આપવા માટે જે વાપરી શકે તે લખો. દરેક ટિકિટ સાથે ફક્ત સૌથી વધુ મેળ ખાતા લેખ મોકલવામાં આવે છે.',
+    editArticleDescription: 'આ લેખ અપડેટ કરો. ફેરફાર AI જે આગલી ટિકિટનો જવાબ આપશે તેને લાગુ પડશે.',
+    editArticleLabel: (title) => `${title} સંપાદિત કરો`,
+    deleteArticleLabel: (title) => `${title} કાઢી નાખો`,
+    columnTitle: 'શીર્ષક',
+    columnLanguage: 'ભાષા',
+    columnUpdated: 'અપડેટ કર્યું',
+    columnActions: 'ક્રિયાઓ',
+    articleLanguages: { EN: 'English', HI: 'हिन्दी', GU: 'ગુજરાતી' },
+    fieldTitle: 'શીર્ષક',
+    fieldContent: 'સામગ્રી',
+    fieldLanguage: 'ભાષા',
+    contentCount: (count, max) => `${count.toLocaleString()} / ${max.toLocaleString()} અક્ષર`,
+    titleRequired: 'શીર્ષક જરૂરી છે',
+    contentRequired: 'સામગ્રી જરૂરી છે',
+    titleTooLong: (max) => `શીર્ષક વધુમાં વધુ ${max} અક્ષરનું હોવું જોઈએ`,
+    contentTooLong: (max) => `સામગ્રી વધુમાં વધુ ${max.toLocaleString()} અક્ષરની હોવી જોઈએ`,
+    createArticleButton: 'લેખ બનાવો',
+    creating: 'બનાવી રહ્યા છીએ…',
+    saveChanges: 'ફેરફાર સાચવો',
+    saving: 'સાચવી રહ્યા છીએ…',
+    cancel: 'રદ કરો',
+    deleteButton: 'કાઢી નાખો',
+    deleting: 'કાઢી નાખી રહ્યા છીએ…',
+    createFailed: 'લેખ બનાવી શકાયો નથી',
+    saveFailed: 'લેખ સાચવી શકાયો નથી',
+    deleteFailed: 'લેખ કાઢી શકાયો નથી',
+    deleteArticleConfirm: (title) =>
+      `"${title}" કાઢી નાખવો? AI તેનો ઉપયોગ બંધ કરશે. અગાઉ લખાઈ ચૂકેલા જવાબોનું લખાણ રહેશે, પણ "આધારિત" લીટી દૂર થશે.`,
+
+    attemptsTitle: 'AI સ્વતઃ-ઉકેલના પરિણામો',
+    attemptsSubtitle: 'દરેક નવી ટિકિટ પર AI એ શું કર્યું, અથવા શેડો મોડમાં શું કરત',
+    attemptsLoading: 'પરિણામો લોડ થઈ રહ્યા છે',
+    attemptsLoadFailed: 'પરિણામો લોડ થઈ શક્યા નથી',
+    noAttempts: 'હજી કોઈ પરિણામ નથી.',
+    columnTicket: 'ટિકિટ',
+    columnDecision: 'નિર્ણય',
+    columnReason: 'કારણ',
+    columnTopRank: 'ટોચનો ક્રમ',
+    columnConfidence: 'વિશ્વાસ',
+    columnDraftReply: 'જવાબનો મુસદ્દો',
+    columnCitedArticle: 'ટાંકેલ લેખ',
+    decisions: { RESOLVE: 'ઉકેલો', ESCALATE: 'આગળ મોકલો' },
+    autoResolveReasons: {
+      RESOLVED: 'ઉકેલાયું',
+      NOT_CLASSIFIED: 'હજી વર્ગીકૃત નથી',
+      URGENT: 'તાત્કાલિક અગ્રતા',
+      NEGATIVE_SENTIMENT: 'નકારાત્મક ભાવના',
+      REFUND_REQUEST: 'રિફંડ વિનંતી',
+      ESCALATION_WORDING: 'કાનૂની, વિવાદ અથવા સુરક્ષા સંબંધી શબ્દો',
+      NO_RELEVANT_ARTICLE: 'કોઈ સંબંધિત લેખ નથી',
+      MODEL_DECLINED: 'AI જવાબ આપી શક્યું નહીં',
+      LOW_CONFIDENCE: 'ઓછો વિશ્વાસ',
+      INVALID_CITATION: 'અમાન્ય લેખ ઉલ્લેખ',
+      TICKET_CHANGED: 'ટિકિટ પહેલાં બદલાઈ',
+    },
+    modeShadow: 'શેડો',
+    modeLive: 'લાઇવ',
+    deletedArticle: 'કાઢી નાખેલ',
   },
 }

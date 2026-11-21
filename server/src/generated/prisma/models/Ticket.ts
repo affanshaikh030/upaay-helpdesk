@@ -306,6 +306,7 @@ export type TicketWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Ticket"> | Date | string
   assignedTo?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   replies?: Prisma.ReplyListRelationFilter
+  autoResolveAttempt?: Prisma.XOR<Prisma.AutoResolveAttemptNullableScalarRelationFilter, Prisma.AutoResolveAttemptWhereInput> | null
 }
 
 export type TicketOrderByWithRelationInput = {
@@ -327,6 +328,7 @@ export type TicketOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   assignedTo?: Prisma.UserOrderByWithRelationInput
   replies?: Prisma.ReplyOrderByRelationAggregateInput
+  autoResolveAttempt?: Prisma.AutoResolveAttemptOrderByWithRelationInput
 }
 
 export type TicketWhereUniqueInput = Prisma.AtLeast<{
@@ -351,6 +353,7 @@ export type TicketWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Ticket"> | Date | string
   assignedTo?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   replies?: Prisma.ReplyListRelationFilter
+  autoResolveAttempt?: Prisma.XOR<Prisma.AutoResolveAttemptNullableScalarRelationFilter, Prisma.AutoResolveAttemptWhereInput> | null
 }, "id" | "messageId">
 
 export type TicketOrderByWithAggregationInput = {
@@ -416,6 +419,7 @@ export type TicketCreateInput = {
   updatedAt?: Date | string
   assignedTo?: Prisma.UserCreateNestedOneWithoutTicketsInput
   replies?: Prisma.ReplyCreateNestedManyWithoutTicketInput
+  autoResolveAttempt?: Prisma.AutoResolveAttemptCreateNestedOneWithoutTicketInput
 }
 
 export type TicketUncheckedCreateInput = {
@@ -436,6 +440,7 @@ export type TicketUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   replies?: Prisma.ReplyUncheckedCreateNestedManyWithoutTicketInput
+  autoResolveAttempt?: Prisma.AutoResolveAttemptUncheckedCreateNestedOneWithoutTicketInput
 }
 
 export type TicketUpdateInput = {
@@ -455,6 +460,7 @@ export type TicketUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedTo?: Prisma.UserUpdateOneWithoutTicketsNestedInput
   replies?: Prisma.ReplyUpdateManyWithoutTicketNestedInput
+  autoResolveAttempt?: Prisma.AutoResolveAttemptUpdateOneWithoutTicketNestedInput
 }
 
 export type TicketUncheckedUpdateInput = {
@@ -475,6 +481,7 @@ export type TicketUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   replies?: Prisma.ReplyUncheckedUpdateManyWithoutTicketNestedInput
+  autoResolveAttempt?: Prisma.AutoResolveAttemptUncheckedUpdateOneWithoutTicketNestedInput
 }
 
 export type TicketCreateManyInput = {
@@ -684,6 +691,20 @@ export type TicketUpdateOneRequiredWithoutRepliesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TicketUpdateToOneWithWhereWithoutRepliesInput, Prisma.TicketUpdateWithoutRepliesInput>, Prisma.TicketUncheckedUpdateWithoutRepliesInput>
 }
 
+export type TicketCreateNestedOneWithoutAutoResolveAttemptInput = {
+  create?: Prisma.XOR<Prisma.TicketCreateWithoutAutoResolveAttemptInput, Prisma.TicketUncheckedCreateWithoutAutoResolveAttemptInput>
+  connectOrCreate?: Prisma.TicketCreateOrConnectWithoutAutoResolveAttemptInput
+  connect?: Prisma.TicketWhereUniqueInput
+}
+
+export type TicketUpdateOneRequiredWithoutAutoResolveAttemptNestedInput = {
+  create?: Prisma.XOR<Prisma.TicketCreateWithoutAutoResolveAttemptInput, Prisma.TicketUncheckedCreateWithoutAutoResolveAttemptInput>
+  connectOrCreate?: Prisma.TicketCreateOrConnectWithoutAutoResolveAttemptInput
+  upsert?: Prisma.TicketUpsertWithoutAutoResolveAttemptInput
+  connect?: Prisma.TicketWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TicketUpdateToOneWithWhereWithoutAutoResolveAttemptInput, Prisma.TicketUpdateWithoutAutoResolveAttemptInput>, Prisma.TicketUncheckedUpdateWithoutAutoResolveAttemptInput>
+}
+
 export type TicketCreateWithoutAssignedToInput = {
   subject: string
   body: string
@@ -700,6 +721,7 @@ export type TicketCreateWithoutAssignedToInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   replies?: Prisma.ReplyCreateNestedManyWithoutTicketInput
+  autoResolveAttempt?: Prisma.AutoResolveAttemptCreateNestedOneWithoutTicketInput
 }
 
 export type TicketUncheckedCreateWithoutAssignedToInput = {
@@ -719,6 +741,7 @@ export type TicketUncheckedCreateWithoutAssignedToInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   replies?: Prisma.ReplyUncheckedCreateNestedManyWithoutTicketInput
+  autoResolveAttempt?: Prisma.AutoResolveAttemptUncheckedCreateNestedOneWithoutTicketInput
 }
 
 export type TicketCreateOrConnectWithoutAssignedToInput = {
@@ -785,6 +808,7 @@ export type TicketCreateWithoutRepliesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   assignedTo?: Prisma.UserCreateNestedOneWithoutTicketsInput
+  autoResolveAttempt?: Prisma.AutoResolveAttemptCreateNestedOneWithoutTicketInput
 }
 
 export type TicketUncheckedCreateWithoutRepliesInput = {
@@ -804,6 +828,7 @@ export type TicketUncheckedCreateWithoutRepliesInput = {
   assignedToId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  autoResolveAttempt?: Prisma.AutoResolveAttemptUncheckedCreateNestedOneWithoutTicketInput
 }
 
 export type TicketCreateOrConnectWithoutRepliesInput = {
@@ -838,6 +863,7 @@ export type TicketUpdateWithoutRepliesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assignedTo?: Prisma.UserUpdateOneWithoutTicketsNestedInput
+  autoResolveAttempt?: Prisma.AutoResolveAttemptUpdateOneWithoutTicketNestedInput
 }
 
 export type TicketUncheckedUpdateWithoutRepliesInput = {
@@ -857,6 +883,101 @@ export type TicketUncheckedUpdateWithoutRepliesInput = {
   assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  autoResolveAttempt?: Prisma.AutoResolveAttemptUncheckedUpdateOneWithoutTicketNestedInput
+}
+
+export type TicketCreateWithoutAutoResolveAttemptInput = {
+  subject: string
+  body: string
+  bodyHtml?: string | null
+  fromEmail: string
+  fromName: string
+  messageId?: string | null
+  status?: $Enums.TicketStatus
+  category?: $Enums.TicketCategory | null
+  sentiment?: $Enums.TicketSentiment | null
+  priority?: $Enums.TicketPriority | null
+  resolvedByAi?: boolean
+  resolvedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assignedTo?: Prisma.UserCreateNestedOneWithoutTicketsInput
+  replies?: Prisma.ReplyCreateNestedManyWithoutTicketInput
+}
+
+export type TicketUncheckedCreateWithoutAutoResolveAttemptInput = {
+  id?: number
+  subject: string
+  body: string
+  bodyHtml?: string | null
+  fromEmail: string
+  fromName: string
+  messageId?: string | null
+  status?: $Enums.TicketStatus
+  category?: $Enums.TicketCategory | null
+  sentiment?: $Enums.TicketSentiment | null
+  priority?: $Enums.TicketPriority | null
+  resolvedByAi?: boolean
+  resolvedAt?: Date | string | null
+  assignedToId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  replies?: Prisma.ReplyUncheckedCreateNestedManyWithoutTicketInput
+}
+
+export type TicketCreateOrConnectWithoutAutoResolveAttemptInput = {
+  where: Prisma.TicketWhereUniqueInput
+  create: Prisma.XOR<Prisma.TicketCreateWithoutAutoResolveAttemptInput, Prisma.TicketUncheckedCreateWithoutAutoResolveAttemptInput>
+}
+
+export type TicketUpsertWithoutAutoResolveAttemptInput = {
+  update: Prisma.XOR<Prisma.TicketUpdateWithoutAutoResolveAttemptInput, Prisma.TicketUncheckedUpdateWithoutAutoResolveAttemptInput>
+  create: Prisma.XOR<Prisma.TicketCreateWithoutAutoResolveAttemptInput, Prisma.TicketUncheckedCreateWithoutAutoResolveAttemptInput>
+  where?: Prisma.TicketWhereInput
+}
+
+export type TicketUpdateToOneWithWhereWithoutAutoResolveAttemptInput = {
+  where?: Prisma.TicketWhereInput
+  data: Prisma.XOR<Prisma.TicketUpdateWithoutAutoResolveAttemptInput, Prisma.TicketUncheckedUpdateWithoutAutoResolveAttemptInput>
+}
+
+export type TicketUpdateWithoutAutoResolveAttemptInput = {
+  subject?: Prisma.StringFieldUpdateOperationsInput | string
+  body?: Prisma.StringFieldUpdateOperationsInput | string
+  bodyHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fromEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  fromName?: Prisma.StringFieldUpdateOperationsInput | string
+  messageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTicketStatusFieldUpdateOperationsInput | $Enums.TicketStatus
+  category?: Prisma.NullableEnumTicketCategoryFieldUpdateOperationsInput | $Enums.TicketCategory | null
+  sentiment?: Prisma.NullableEnumTicketSentimentFieldUpdateOperationsInput | $Enums.TicketSentiment | null
+  priority?: Prisma.NullableEnumTicketPriorityFieldUpdateOperationsInput | $Enums.TicketPriority | null
+  resolvedByAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assignedTo?: Prisma.UserUpdateOneWithoutTicketsNestedInput
+  replies?: Prisma.ReplyUpdateManyWithoutTicketNestedInput
+}
+
+export type TicketUncheckedUpdateWithoutAutoResolveAttemptInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  subject?: Prisma.StringFieldUpdateOperationsInput | string
+  body?: Prisma.StringFieldUpdateOperationsInput | string
+  bodyHtml?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fromEmail?: Prisma.StringFieldUpdateOperationsInput | string
+  fromName?: Prisma.StringFieldUpdateOperationsInput | string
+  messageId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTicketStatusFieldUpdateOperationsInput | $Enums.TicketStatus
+  category?: Prisma.NullableEnumTicketCategoryFieldUpdateOperationsInput | $Enums.TicketCategory | null
+  sentiment?: Prisma.NullableEnumTicketSentimentFieldUpdateOperationsInput | $Enums.TicketSentiment | null
+  priority?: Prisma.NullableEnumTicketPriorityFieldUpdateOperationsInput | $Enums.TicketPriority | null
+  resolvedByAi?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  resolvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  assignedToId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  replies?: Prisma.ReplyUncheckedUpdateManyWithoutTicketNestedInput
 }
 
 export type TicketCreateManyAssignedToInput = {
@@ -893,6 +1014,7 @@ export type TicketUpdateWithoutAssignedToInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   replies?: Prisma.ReplyUpdateManyWithoutTicketNestedInput
+  autoResolveAttempt?: Prisma.AutoResolveAttemptUpdateOneWithoutTicketNestedInput
 }
 
 export type TicketUncheckedUpdateWithoutAssignedToInput = {
@@ -912,6 +1034,7 @@ export type TicketUncheckedUpdateWithoutAssignedToInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   replies?: Prisma.ReplyUncheckedUpdateManyWithoutTicketNestedInput
+  autoResolveAttempt?: Prisma.AutoResolveAttemptUncheckedUpdateOneWithoutTicketNestedInput
 }
 
 export type TicketUncheckedUpdateManyWithoutAssignedToInput = {
@@ -982,6 +1105,7 @@ export type TicketSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   updatedAt?: boolean
   assignedTo?: boolean | Prisma.Ticket$assignedToArgs<ExtArgs>
   replies?: boolean | Prisma.Ticket$repliesArgs<ExtArgs>
+  autoResolveAttempt?: boolean | Prisma.Ticket$autoResolveAttemptArgs<ExtArgs>
   _count?: boolean | Prisma.TicketCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["ticket"]>
 
@@ -1048,6 +1172,7 @@ export type TicketOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 export type TicketInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assignedTo?: boolean | Prisma.Ticket$assignedToArgs<ExtArgs>
   replies?: boolean | Prisma.Ticket$repliesArgs<ExtArgs>
+  autoResolveAttempt?: boolean | Prisma.Ticket$autoResolveAttemptArgs<ExtArgs>
   _count?: boolean | Prisma.TicketCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TicketIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1062,6 +1187,7 @@ export type $TicketPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   objects: {
     assignedTo: Prisma.$UserPayload<ExtArgs> | null
     replies: Prisma.$ReplyPayload<ExtArgs>[]
+    autoResolveAttempt: Prisma.$AutoResolveAttemptPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1476,6 +1602,7 @@ export interface Prisma__TicketClient<T, Null = never, ExtArgs extends runtime.T
   readonly [Symbol.toStringTag]: "PrismaPromise"
   assignedTo<T extends Prisma.Ticket$assignedToArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ticket$assignedToArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   replies<T extends Prisma.Ticket$repliesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ticket$repliesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReplyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  autoResolveAttempt<T extends Prisma.Ticket$autoResolveAttemptArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ticket$autoResolveAttemptArgs<ExtArgs>>): Prisma.Prisma__AutoResolveAttemptClient<runtime.Types.Result.GetResult<Prisma.$AutoResolveAttemptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1962,6 +2089,25 @@ export type Ticket$repliesArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.ReplyScalarFieldEnum | Prisma.ReplyScalarFieldEnum[]
+}
+
+/**
+ * Ticket.autoResolveAttempt
+ */
+export type Ticket$autoResolveAttemptArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AutoResolveAttempt
+   */
+  select?: Prisma.AutoResolveAttemptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AutoResolveAttempt
+   */
+  omit?: Prisma.AutoResolveAttemptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AutoResolveAttemptInclude<ExtArgs> | null
+  where?: Prisma.AutoResolveAttemptWhereInput
 }
 
 /**

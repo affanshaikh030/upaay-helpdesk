@@ -7,7 +7,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { ArrowDown, ArrowUp, ArrowUpDown, Smile } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, Smile, Sparkles } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link } from 'react-router'
 import { PriorityBadge, SentimentIcon } from '@/components/TicketTags'
@@ -54,7 +54,16 @@ const buildColumns = (t: Dictionary): ColumnDef<Ticket>[] => [
     accessorKey: 'status',
     header: t.columnStatus,
     cell: ({ row }) => (
-      <Badge variant={statusVariants[row.original.status]}>{statusLabels[row.original.status]}</Badge>
+      <span className="inline-flex items-center gap-1.5">
+        <Badge variant={statusVariants[row.original.status]}>{statusLabels[row.original.status]}</Badge>
+        {/* Only the AI-resolved filter brings these onto the list, so this tells them apart */}
+        {row.original.resolvedByAi && (
+          <span className="text-ai" title={t.statResolvedByAi}>
+            <Sparkles className="size-3.5" aria-hidden="true" />
+            <span className="sr-only">{t.statResolvedByAi}</span>
+          </span>
+        )}
+      </span>
     ),
   },
   {

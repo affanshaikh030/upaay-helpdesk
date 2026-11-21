@@ -8,6 +8,7 @@ import { inboundEmailRouter } from "./routes/inbound-email";
 import { prisma } from "./db";
 import { requireAuth } from "./middleware/auth";
 import { startQueue, stopQueue } from "./queue";
+import { knowledgeRouter } from "./routes/knowledge";
 import { statsRouter } from "./routes/stats";
 import { ticketsRouter } from "./routes/tickets";
 import { meRouter, usersRouter } from "./routes/users";
@@ -39,6 +40,7 @@ app.use("/api", requireAuth);
 app.use("/api/users", usersRouter);
 app.use("/api/stats", statsRouter);
 app.use("/api/tickets", ticketsRouter);
+app.use("/api/knowledge", knowledgeRouter);
 
 app.use("/api/me", meRouter);
 

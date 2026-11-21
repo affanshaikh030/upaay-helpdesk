@@ -44,6 +44,38 @@ enum SenderType {
   CUSTOMER
 }
 
+enum KnowledgeLanguage {
+  EN
+  HI
+  GU
+}
+
+// What the auto-resolve pipeline concluded for a ticket
+enum AutoResolveDecision {
+  RESOLVE
+  ESCALATE
+}
+
+// Why. RESOLVED is the only success value; everything else is a reason to leave the ticket to a human
+enum AutoResolveReason {
+  RESOLVED
+  // Sentiment or priority still null
+  NOT_CLASSIFIED
+  URGENT
+  NEGATIVE_SENTIMENT
+  REFUND_REQUEST
+  // Legal, chargeback, dispute or security wording
+  ESCALATION_WORDING
+  // Best search rank below the minimum, so the AI was not called
+  NO_RELEVANT_ARTICLE
+  MODEL_DECLINED
+  LOW_CONFIDENCE
+  // Cited ids empty or not among the articles supplied
+  INVALID_CITATION
+  // An agent got there first, or a cited article was deleted
+  TICKET_CHANGED
+}
+
 model User {
   id            String    @id
   name          String
@@ -121,31 +153,32 @@ model rateLimit {
 
 // Created from inbound support emails
 model Ticket {
-  id           Int             @id @default(autoincrement())
-  subject      String
-  body         String
+  id                 Int                 @id @default(autoincrement())
+  subject            String
+  body               String
   // Optional HTML version of the email; sanitized on the client before display
-  bodyHtml     String?
-  fromEmail    String
-  fromName     String
+  bodyHtml           String?
+  fromEmail          String
+  fromName           String
   // Email Message-ID: makes webhook retries idempotent (and lets threading be added later)
-  messageId    String?         @unique
-  status       TicketStatus    @default(OPEN)
+  messageId          String?             @unique
+  status             TicketStatus        @default(OPEN)
   // Unset until AI classification assigns one (no default)
-  category     TicketCategory?
+  category           TicketCategory?
   // Set by AI analysis; null until then and for tickets created before it existed. An agent can override both
-  sentiment    TicketSentiment?
-  priority     TicketPriority?
+  sentiment          TicketSentiment?
+  priority           TicketPriority?
   // Answered and resolved by AI from the knowledge base; hidden from the ticket list
-  resolvedByAi Boolean         @default(false)
+  resolvedByAi       Boolean             @default(false)
   // When the ticket last became RESOLVED (kept when it is later CLOSED, cleared if reopened); drives the average resolution time
-  resolvedAt   DateTime?
+  resolvedAt         DateTime?
   // Agent handling the ticket; cleared when that user is deleted
-  assignedToId String?
-  assignedTo   User?           @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
-  replies      Reply[]
+  assignedToId       String?
+  assignedTo         User?               @relation(fields: [assignedToId], references: [id], onDelete: SetNull)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  replies            Reply[]
+  autoResolveAttempt AutoResolveAttempt?
 
   @@index([createdAt])
   @@index([assignedToId])
@@ -156,17 +189,67 @@ model Ticket {
 
 // An agent's reply on a ticket, shown as a thread under the original message
 model Reply {
-  id         Int        @id @default(autoincrement())
-  ticketId   Int
-  ticket     Ticket     @relation(fields: [ticketId], references: [id], onDelete: Cascade)
-  body       String
+  id              Int               @id @default(autoincrement())
+  ticketId        Int
+  ticket          Ticket            @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  body            String
   // Who wrote it. Replies from the web app are AGENT; CUSTOMER is for the customer's own emails
-  senderType SenderType @default(AGENT)
+  senderType      SenderType        @default(AGENT)
   // Agent who wrote it (always null for CUSTOMER replies)
-  authorId   String?
-  author     User?      @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  createdAt  DateTime   @default(now())
+  authorId        String?
+  author          User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  createdAt       DateTime          @default(now())
+  // Knowledge base article an AI answer was based on; cleared when the article is deleted
+  sourceArticleId Int?
+  sourceArticle   KnowledgeArticle? @relation(fields: [sourceArticleId], references: [id], onDelete: SetNull)
 
   @@index([ticketId, createdAt])
+  @@index([sourceArticleId])
   @@map("reply")
+}
+
+// Support knowledge the AI answers from. Admins manage it; only the best matches are sent to the model
+model KnowledgeArticle {
+  id           Int                      @id @default(autoincrement())
+  title        String
+  content      String
+  // Informational only: retrieval does not filter on it
+  language     KnowledgeLanguage?
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
+  // Full-text search vector kept by Postgres (a generated column, written by hand in the migration). Prisma can't read or
+  // write it: it is queried with $queryRaw
+  searchVector Unsupported("tsvector")?
+  replies      Reply[]
+
+  @@index([searchVector], type: Gin)
+  @@map("knowledge_article")
+}
+
+// One row per ticket: the audit trail, and the record of what the AI would have done in shadow mode
+model AutoResolveAttempt {
+  id                 Int                 @id @default(autoincrement())
+  // Unique, so a retried or duplicate job can't record a second attempt
+  ticketId           Int                 @unique
+  ticket             Ticket              @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  // Plain ids with no foreign key, so the audit trail survives deleting an article
+  suppliedArticleIds Int[]
+  citedArticleIds    Int[]
+  // Best full-text rank, to tune the minimum from shadow data
+  topRank            Float?
+  // Null when the AI was not called
+  modelResolvable    Boolean?
+  confidence         Float?
+  decision           AutoResolveDecision
+  reason             AutoResolveReason
+  // What would have been sent
+  draftReply         String?
+  // True only when the ticket was really resolved
+  acted              Boolean             @default(false)
+  // The shadow-mode setting when it ran
+  shadow             Boolean
+  createdAt          DateTime            @default(now())
+
+  @@index([createdAt])
+  @@map("auto_resolve_attempt")
 }

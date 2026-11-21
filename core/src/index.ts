@@ -1,3 +1,18 @@
+export {
+  attemptListQuerySchema,
+  createKnowledgeArticleSchema,
+  updateKnowledgeArticleSchema,
+  ATTEMPTS_DEFAULT_PAGE_SIZE,
+  ATTEMPTS_MAX_PAGE_SIZE,
+  AutoResolveDecision,
+  AutoResolveReason,
+  KNOWLEDGE_CONTENT_MAX,
+  KNOWLEDGE_TITLE_MAX,
+  KnowledgeLanguage,
+  type AttemptListQuery,
+  type CreateKnowledgeArticleInput,
+  type UpdateKnowledgeArticleInput,
+} from "./knowledge";
 export { Role } from "./roles";
 export {
   createReplySchema,
@@ -7,6 +22,7 @@ export {
   ticketListQuerySchema,
   ticketSortColumns,
   updateTicketSchema,
+  aiResolvedModes,
   DEFAULT_PAGE_SIZE,
   MAX_PAGE_SIZE,
   REANALYSE_LIMIT,
@@ -17,6 +33,7 @@ export {
   TicketPriority,
   TicketSentiment,
   TicketStatus,
+  type AiResolvedMode,
   type CreateReplyInput,
   type InboundEmail,
   type PolishReplyInput,

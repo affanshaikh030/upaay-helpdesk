@@ -76,3 +76,13 @@ export type Ticket = Prisma.TicketModel
  * 
  */
 export type Reply = Prisma.ReplyModel
+/**
+ * Model KnowledgeArticle
+ * 
+ */
+export type KnowledgeArticle = Prisma.KnowledgeArticleModel
+/**
+ * Model AutoResolveAttempt
+ * 
+ */
+export type AutoResolveAttempt = Prisma.AutoResolveAttemptModel

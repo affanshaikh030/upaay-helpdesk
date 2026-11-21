@@ -29,11 +29,13 @@ export type AggregateReply = {
 export type ReplyAvgAggregateOutputType = {
   id: number | null
   ticketId: number | null
+  sourceArticleId: number | null
 }
 
 export type ReplySumAggregateOutputType = {
   id: number | null
   ticketId: number | null
+  sourceArticleId: number | null
 }
 
 export type ReplyMinAggregateOutputType = {
@@ -43,6 +45,7 @@ export type ReplyMinAggregateOutputType = {
   senderType: $Enums.SenderType | null
   authorId: string | null
   createdAt: Date | null
+  sourceArticleId: number | null
 }
 
 export type ReplyMaxAggregateOutputType = {
@@ -52,6 +55,7 @@ export type ReplyMaxAggregateOutputType = {
   senderType: $Enums.SenderType | null
   authorId: string | null
   createdAt: Date | null
+  sourceArticleId: number | null
 }
 
 export type ReplyCountAggregateOutputType = {
@@ -61,6 +65,7 @@ export type ReplyCountAggregateOutputType = {
   senderType: number
   authorId: number
   createdAt: number
+  sourceArticleId: number
   _all: number
 }
 
@@ -68,11 +73,13 @@ export type ReplyCountAggregateOutputType = {
 export type ReplyAvgAggregateInputType = {
   id?: true
   ticketId?: true
+  sourceArticleId?: true
 }
 
 export type ReplySumAggregateInputType = {
   id?: true
   ticketId?: true
+  sourceArticleId?: true
 }
 
 export type ReplyMinAggregateInputType = {
@@ -82,6 +89,7 @@ export type ReplyMinAggregateInputType = {
   senderType?: true
   authorId?: true
   createdAt?: true
+  sourceArticleId?: true
 }
 
 export type ReplyMaxAggregateInputType = {
@@ -91,6 +99,7 @@ export type ReplyMaxAggregateInputType = {
   senderType?: true
   authorId?: true
   createdAt?: true
+  sourceArticleId?: true
 }
 
 export type ReplyCountAggregateInputType = {
@@ -100,6 +109,7 @@ export type ReplyCountAggregateInputType = {
   senderType?: true
   authorId?: true
   createdAt?: true
+  sourceArticleId?: true
   _all?: true
 }
 
@@ -196,6 +206,7 @@ export type ReplyGroupByOutputType = {
   senderType: $Enums.SenderType
   authorId: string | null
   createdAt: Date
+  sourceArticleId: number | null
   _count: ReplyCountAggregateOutputType | null
   _avg: ReplyAvgAggregateOutputType | null
   _sum: ReplySumAggregateOutputType | null
@@ -228,8 +239,10 @@ export type ReplyWhereInput = {
   senderType?: Prisma.EnumSenderTypeFilter<"Reply"> | $Enums.SenderType
   authorId?: Prisma.StringNullableFilter<"Reply"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Reply"> | Date | string
+  sourceArticleId?: Prisma.IntNullableFilter<"Reply"> | number | null
   ticket?: Prisma.XOR<Prisma.TicketScalarRelationFilter, Prisma.TicketWhereInput>
   author?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  sourceArticle?: Prisma.XOR<Prisma.KnowledgeArticleNullableScalarRelationFilter, Prisma.KnowledgeArticleWhereInput> | null
 }
 
 export type ReplyOrderByWithRelationInput = {
@@ -239,8 +252,10 @@ export type ReplyOrderByWithRelationInput = {
   senderType?: Prisma.SortOrder
   authorId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  sourceArticleId?: Prisma.SortOrderInput | Prisma.SortOrder
   ticket?: Prisma.TicketOrderByWithRelationInput
   author?: Prisma.UserOrderByWithRelationInput
+  sourceArticle?: Prisma.KnowledgeArticleOrderByWithRelationInput
 }
 
 export type ReplyWhereUniqueInput = Prisma.AtLeast<{
@@ -253,8 +268,10 @@ export type ReplyWhereUniqueInput = Prisma.AtLeast<{
   senderType?: Prisma.EnumSenderTypeFilter<"Reply"> | $Enums.SenderType
   authorId?: Prisma.StringNullableFilter<"Reply"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Reply"> | Date | string
+  sourceArticleId?: Prisma.IntNullableFilter<"Reply"> | number | null
   ticket?: Prisma.XOR<Prisma.TicketScalarRelationFilter, Prisma.TicketWhereInput>
   author?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  sourceArticle?: Prisma.XOR<Prisma.KnowledgeArticleNullableScalarRelationFilter, Prisma.KnowledgeArticleWhereInput> | null
 }, "id">
 
 export type ReplyOrderByWithAggregationInput = {
@@ -264,6 +281,7 @@ export type ReplyOrderByWithAggregationInput = {
   senderType?: Prisma.SortOrder
   authorId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  sourceArticleId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ReplyCountOrderByAggregateInput
   _avg?: Prisma.ReplyAvgOrderByAggregateInput
   _max?: Prisma.ReplyMaxOrderByAggregateInput
@@ -281,6 +299,7 @@ export type ReplyScalarWhereWithAggregatesInput = {
   senderType?: Prisma.EnumSenderTypeWithAggregatesFilter<"Reply"> | $Enums.SenderType
   authorId?: Prisma.StringNullableWithAggregatesFilter<"Reply"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Reply"> | Date | string
+  sourceArticleId?: Prisma.IntNullableWithAggregatesFilter<"Reply"> | number | null
 }
 
 export type ReplyCreateInput = {
@@ -289,6 +308,7 @@ export type ReplyCreateInput = {
   createdAt?: Date | string
   ticket: Prisma.TicketCreateNestedOneWithoutRepliesInput
   author?: Prisma.UserCreateNestedOneWithoutRepliesInput
+  sourceArticle?: Prisma.KnowledgeArticleCreateNestedOneWithoutRepliesInput
 }
 
 export type ReplyUncheckedCreateInput = {
@@ -298,6 +318,7 @@ export type ReplyUncheckedCreateInput = {
   senderType?: $Enums.SenderType
   authorId?: string | null
   createdAt?: Date | string
+  sourceArticleId?: number | null
 }
 
 export type ReplyUpdateInput = {
@@ -306,6 +327,7 @@ export type ReplyUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ticket?: Prisma.TicketUpdateOneRequiredWithoutRepliesNestedInput
   author?: Prisma.UserUpdateOneWithoutRepliesNestedInput
+  sourceArticle?: Prisma.KnowledgeArticleUpdateOneWithoutRepliesNestedInput
 }
 
 export type ReplyUncheckedUpdateInput = {
@@ -315,6 +337,7 @@ export type ReplyUncheckedUpdateInput = {
   senderType?: Prisma.EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
   authorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceArticleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReplyCreateManyInput = {
@@ -324,6 +347,7 @@ export type ReplyCreateManyInput = {
   senderType?: $Enums.SenderType
   authorId?: string | null
   createdAt?: Date | string
+  sourceArticleId?: number | null
 }
 
 export type ReplyUpdateManyMutationInput = {
@@ -339,6 +363,7 @@ export type ReplyUncheckedUpdateManyInput = {
   senderType?: Prisma.EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
   authorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceArticleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReplyListRelationFilter = {
@@ -358,11 +383,13 @@ export type ReplyCountOrderByAggregateInput = {
   senderType?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  sourceArticleId?: Prisma.SortOrder
 }
 
 export type ReplyAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   ticketId?: Prisma.SortOrder
+  sourceArticleId?: Prisma.SortOrder
 }
 
 export type ReplyMaxOrderByAggregateInput = {
@@ -372,6 +399,7 @@ export type ReplyMaxOrderByAggregateInput = {
   senderType?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  sourceArticleId?: Prisma.SortOrder
 }
 
 export type ReplyMinOrderByAggregateInput = {
@@ -381,11 +409,13 @@ export type ReplyMinOrderByAggregateInput = {
   senderType?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  sourceArticleId?: Prisma.SortOrder
 }
 
 export type ReplySumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   ticketId?: Prisma.SortOrder
+  sourceArticleId?: Prisma.SortOrder
 }
 
 export type ReplyCreateNestedManyWithoutAuthorInput = {
@@ -476,11 +506,62 @@ export type EnumSenderTypeFieldUpdateOperationsInput = {
   set?: $Enums.SenderType
 }
 
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type ReplyCreateNestedManyWithoutSourceArticleInput = {
+  create?: Prisma.XOR<Prisma.ReplyCreateWithoutSourceArticleInput, Prisma.ReplyUncheckedCreateWithoutSourceArticleInput> | Prisma.ReplyCreateWithoutSourceArticleInput[] | Prisma.ReplyUncheckedCreateWithoutSourceArticleInput[]
+  connectOrCreate?: Prisma.ReplyCreateOrConnectWithoutSourceArticleInput | Prisma.ReplyCreateOrConnectWithoutSourceArticleInput[]
+  createMany?: Prisma.ReplyCreateManySourceArticleInputEnvelope
+  connect?: Prisma.ReplyWhereUniqueInput | Prisma.ReplyWhereUniqueInput[]
+}
+
+export type ReplyUncheckedCreateNestedManyWithoutSourceArticleInput = {
+  create?: Prisma.XOR<Prisma.ReplyCreateWithoutSourceArticleInput, Prisma.ReplyUncheckedCreateWithoutSourceArticleInput> | Prisma.ReplyCreateWithoutSourceArticleInput[] | Prisma.ReplyUncheckedCreateWithoutSourceArticleInput[]
+  connectOrCreate?: Prisma.ReplyCreateOrConnectWithoutSourceArticleInput | Prisma.ReplyCreateOrConnectWithoutSourceArticleInput[]
+  createMany?: Prisma.ReplyCreateManySourceArticleInputEnvelope
+  connect?: Prisma.ReplyWhereUniqueInput | Prisma.ReplyWhereUniqueInput[]
+}
+
+export type ReplyUpdateManyWithoutSourceArticleNestedInput = {
+  create?: Prisma.XOR<Prisma.ReplyCreateWithoutSourceArticleInput, Prisma.ReplyUncheckedCreateWithoutSourceArticleInput> | Prisma.ReplyCreateWithoutSourceArticleInput[] | Prisma.ReplyUncheckedCreateWithoutSourceArticleInput[]
+  connectOrCreate?: Prisma.ReplyCreateOrConnectWithoutSourceArticleInput | Prisma.ReplyCreateOrConnectWithoutSourceArticleInput[]
+  upsert?: Prisma.ReplyUpsertWithWhereUniqueWithoutSourceArticleInput | Prisma.ReplyUpsertWithWhereUniqueWithoutSourceArticleInput[]
+  createMany?: Prisma.ReplyCreateManySourceArticleInputEnvelope
+  set?: Prisma.ReplyWhereUniqueInput | Prisma.ReplyWhereUniqueInput[]
+  disconnect?: Prisma.ReplyWhereUniqueInput | Prisma.ReplyWhereUniqueInput[]
+  delete?: Prisma.ReplyWhereUniqueInput | Prisma.ReplyWhereUniqueInput[]
+  connect?: Prisma.ReplyWhereUniqueInput | Prisma.ReplyWhereUniqueInput[]
+  update?: Prisma.ReplyUpdateWithWhereUniqueWithoutSourceArticleInput | Prisma.ReplyUpdateWithWhereUniqueWithoutSourceArticleInput[]
+  updateMany?: Prisma.ReplyUpdateManyWithWhereWithoutSourceArticleInput | Prisma.ReplyUpdateManyWithWhereWithoutSourceArticleInput[]
+  deleteMany?: Prisma.ReplyScalarWhereInput | Prisma.ReplyScalarWhereInput[]
+}
+
+export type ReplyUncheckedUpdateManyWithoutSourceArticleNestedInput = {
+  create?: Prisma.XOR<Prisma.ReplyCreateWithoutSourceArticleInput, Prisma.ReplyUncheckedCreateWithoutSourceArticleInput> | Prisma.ReplyCreateWithoutSourceArticleInput[] | Prisma.ReplyUncheckedCreateWithoutSourceArticleInput[]
+  connectOrCreate?: Prisma.ReplyCreateOrConnectWithoutSourceArticleInput | Prisma.ReplyCreateOrConnectWithoutSourceArticleInput[]
+  upsert?: Prisma.ReplyUpsertWithWhereUniqueWithoutSourceArticleInput | Prisma.ReplyUpsertWithWhereUniqueWithoutSourceArticleInput[]
+  createMany?: Prisma.ReplyCreateManySourceArticleInputEnvelope
+  set?: Prisma.ReplyWhereUniqueInput | Prisma.ReplyWhereUniqueInput[]
+  disconnect?: Prisma.ReplyWhereUniqueInput | Prisma.ReplyWhereUniqueInput[]
+  delete?: Prisma.ReplyWhereUniqueInput | Prisma.ReplyWhereUniqueInput[]
+  connect?: Prisma.ReplyWhereUniqueInput | Prisma.ReplyWhereUniqueInput[]
+  update?: Prisma.ReplyUpdateWithWhereUniqueWithoutSourceArticleInput | Prisma.ReplyUpdateWithWhereUniqueWithoutSourceArticleInput[]
+  updateMany?: Prisma.ReplyUpdateManyWithWhereWithoutSourceArticleInput | Prisma.ReplyUpdateManyWithWhereWithoutSourceArticleInput[]
+  deleteMany?: Prisma.ReplyScalarWhereInput | Prisma.ReplyScalarWhereInput[]
+}
+
 export type ReplyCreateWithoutAuthorInput = {
   body: string
   senderType?: $Enums.SenderType
   createdAt?: Date | string
   ticket: Prisma.TicketCreateNestedOneWithoutRepliesInput
+  sourceArticle?: Prisma.KnowledgeArticleCreateNestedOneWithoutRepliesInput
 }
 
 export type ReplyUncheckedCreateWithoutAuthorInput = {
@@ -489,6 +570,7 @@ export type ReplyUncheckedCreateWithoutAuthorInput = {
   body: string
   senderType?: $Enums.SenderType
   createdAt?: Date | string
+  sourceArticleId?: number | null
 }
 
 export type ReplyCreateOrConnectWithoutAuthorInput = {
@@ -527,6 +609,7 @@ export type ReplyScalarWhereInput = {
   senderType?: Prisma.EnumSenderTypeFilter<"Reply"> | $Enums.SenderType
   authorId?: Prisma.StringNullableFilter<"Reply"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Reply"> | Date | string
+  sourceArticleId?: Prisma.IntNullableFilter<"Reply"> | number | null
 }
 
 export type ReplyCreateWithoutTicketInput = {
@@ -534,6 +617,7 @@ export type ReplyCreateWithoutTicketInput = {
   senderType?: $Enums.SenderType
   createdAt?: Date | string
   author?: Prisma.UserCreateNestedOneWithoutRepliesInput
+  sourceArticle?: Prisma.KnowledgeArticleCreateNestedOneWithoutRepliesInput
 }
 
 export type ReplyUncheckedCreateWithoutTicketInput = {
@@ -542,6 +626,7 @@ export type ReplyUncheckedCreateWithoutTicketInput = {
   senderType?: $Enums.SenderType
   authorId?: string | null
   createdAt?: Date | string
+  sourceArticleId?: number | null
 }
 
 export type ReplyCreateOrConnectWithoutTicketInput = {
@@ -570,12 +655,56 @@ export type ReplyUpdateManyWithWhereWithoutTicketInput = {
   data: Prisma.XOR<Prisma.ReplyUpdateManyMutationInput, Prisma.ReplyUncheckedUpdateManyWithoutTicketInput>
 }
 
+export type ReplyCreateWithoutSourceArticleInput = {
+  body: string
+  senderType?: $Enums.SenderType
+  createdAt?: Date | string
+  ticket: Prisma.TicketCreateNestedOneWithoutRepliesInput
+  author?: Prisma.UserCreateNestedOneWithoutRepliesInput
+}
+
+export type ReplyUncheckedCreateWithoutSourceArticleInput = {
+  id?: number
+  ticketId: number
+  body: string
+  senderType?: $Enums.SenderType
+  authorId?: string | null
+  createdAt?: Date | string
+}
+
+export type ReplyCreateOrConnectWithoutSourceArticleInput = {
+  where: Prisma.ReplyWhereUniqueInput
+  create: Prisma.XOR<Prisma.ReplyCreateWithoutSourceArticleInput, Prisma.ReplyUncheckedCreateWithoutSourceArticleInput>
+}
+
+export type ReplyCreateManySourceArticleInputEnvelope = {
+  data: Prisma.ReplyCreateManySourceArticleInput | Prisma.ReplyCreateManySourceArticleInput[]
+  skipDuplicates?: boolean
+}
+
+export type ReplyUpsertWithWhereUniqueWithoutSourceArticleInput = {
+  where: Prisma.ReplyWhereUniqueInput
+  update: Prisma.XOR<Prisma.ReplyUpdateWithoutSourceArticleInput, Prisma.ReplyUncheckedUpdateWithoutSourceArticleInput>
+  create: Prisma.XOR<Prisma.ReplyCreateWithoutSourceArticleInput, Prisma.ReplyUncheckedCreateWithoutSourceArticleInput>
+}
+
+export type ReplyUpdateWithWhereUniqueWithoutSourceArticleInput = {
+  where: Prisma.ReplyWhereUniqueInput
+  data: Prisma.XOR<Prisma.ReplyUpdateWithoutSourceArticleInput, Prisma.ReplyUncheckedUpdateWithoutSourceArticleInput>
+}
+
+export type ReplyUpdateManyWithWhereWithoutSourceArticleInput = {
+  where: Prisma.ReplyScalarWhereInput
+  data: Prisma.XOR<Prisma.ReplyUpdateManyMutationInput, Prisma.ReplyUncheckedUpdateManyWithoutSourceArticleInput>
+}
+
 export type ReplyCreateManyAuthorInput = {
   id?: number
   ticketId: number
   body: string
   senderType?: $Enums.SenderType
   createdAt?: Date | string
+  sourceArticleId?: number | null
 }
 
 export type ReplyUpdateWithoutAuthorInput = {
@@ -583,6 +712,7 @@ export type ReplyUpdateWithoutAuthorInput = {
   senderType?: Prisma.EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ticket?: Prisma.TicketUpdateOneRequiredWithoutRepliesNestedInput
+  sourceArticle?: Prisma.KnowledgeArticleUpdateOneWithoutRepliesNestedInput
 }
 
 export type ReplyUncheckedUpdateWithoutAuthorInput = {
@@ -591,6 +721,7 @@ export type ReplyUncheckedUpdateWithoutAuthorInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   senderType?: Prisma.EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceArticleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReplyUncheckedUpdateManyWithoutAuthorInput = {
@@ -599,6 +730,7 @@ export type ReplyUncheckedUpdateManyWithoutAuthorInput = {
   body?: Prisma.StringFieldUpdateOperationsInput | string
   senderType?: Prisma.EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceArticleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReplyCreateManyTicketInput = {
@@ -607,6 +739,7 @@ export type ReplyCreateManyTicketInput = {
   senderType?: $Enums.SenderType
   authorId?: string | null
   createdAt?: Date | string
+  sourceArticleId?: number | null
 }
 
 export type ReplyUpdateWithoutTicketInput = {
@@ -614,6 +747,7 @@ export type ReplyUpdateWithoutTicketInput = {
   senderType?: Prisma.EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   author?: Prisma.UserUpdateOneWithoutRepliesNestedInput
+  sourceArticle?: Prisma.KnowledgeArticleUpdateOneWithoutRepliesNestedInput
 }
 
 export type ReplyUncheckedUpdateWithoutTicketInput = {
@@ -622,10 +756,47 @@ export type ReplyUncheckedUpdateWithoutTicketInput = {
   senderType?: Prisma.EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
   authorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceArticleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type ReplyUncheckedUpdateManyWithoutTicketInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  body?: Prisma.StringFieldUpdateOperationsInput | string
+  senderType?: Prisma.EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
+  authorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceArticleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+}
+
+export type ReplyCreateManySourceArticleInput = {
+  id?: number
+  ticketId: number
+  body: string
+  senderType?: $Enums.SenderType
+  authorId?: string | null
+  createdAt?: Date | string
+}
+
+export type ReplyUpdateWithoutSourceArticleInput = {
+  body?: Prisma.StringFieldUpdateOperationsInput | string
+  senderType?: Prisma.EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ticket?: Prisma.TicketUpdateOneRequiredWithoutRepliesNestedInput
+  author?: Prisma.UserUpdateOneWithoutRepliesNestedInput
+}
+
+export type ReplyUncheckedUpdateWithoutSourceArticleInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  ticketId?: Prisma.IntFieldUpdateOperationsInput | number
+  body?: Prisma.StringFieldUpdateOperationsInput | string
+  senderType?: Prisma.EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
+  authorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ReplyUncheckedUpdateManyWithoutSourceArticleInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  ticketId?: Prisma.IntFieldUpdateOperationsInput | number
   body?: Prisma.StringFieldUpdateOperationsInput | string
   senderType?: Prisma.EnumSenderTypeFieldUpdateOperationsInput | $Enums.SenderType
   authorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -641,8 +812,10 @@ export type ReplySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   senderType?: boolean
   authorId?: boolean
   createdAt?: boolean
+  sourceArticleId?: boolean
   ticket?: boolean | Prisma.TicketDefaultArgs<ExtArgs>
   author?: boolean | Prisma.Reply$authorArgs<ExtArgs>
+  sourceArticle?: boolean | Prisma.Reply$sourceArticleArgs<ExtArgs>
 }, ExtArgs["result"]["reply"]>
 
 export type ReplySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -652,8 +825,10 @@ export type ReplySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   senderType?: boolean
   authorId?: boolean
   createdAt?: boolean
+  sourceArticleId?: boolean
   ticket?: boolean | Prisma.TicketDefaultArgs<ExtArgs>
   author?: boolean | Prisma.Reply$authorArgs<ExtArgs>
+  sourceArticle?: boolean | Prisma.Reply$sourceArticleArgs<ExtArgs>
 }, ExtArgs["result"]["reply"]>
 
 export type ReplySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -663,8 +838,10 @@ export type ReplySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   senderType?: boolean
   authorId?: boolean
   createdAt?: boolean
+  sourceArticleId?: boolean
   ticket?: boolean | Prisma.TicketDefaultArgs<ExtArgs>
   author?: boolean | Prisma.Reply$authorArgs<ExtArgs>
+  sourceArticle?: boolean | Prisma.Reply$sourceArticleArgs<ExtArgs>
 }, ExtArgs["result"]["reply"]>
 
 export type ReplySelectScalar = {
@@ -674,20 +851,24 @@ export type ReplySelectScalar = {
   senderType?: boolean
   authorId?: boolean
   createdAt?: boolean
+  sourceArticleId?: boolean
 }
 
-export type ReplyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ticketId" | "body" | "senderType" | "authorId" | "createdAt", ExtArgs["result"]["reply"]>
+export type ReplyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ticketId" | "body" | "senderType" | "authorId" | "createdAt" | "sourceArticleId", ExtArgs["result"]["reply"]>
 export type ReplyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ticket?: boolean | Prisma.TicketDefaultArgs<ExtArgs>
   author?: boolean | Prisma.Reply$authorArgs<ExtArgs>
+  sourceArticle?: boolean | Prisma.Reply$sourceArticleArgs<ExtArgs>
 }
 export type ReplyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ticket?: boolean | Prisma.TicketDefaultArgs<ExtArgs>
   author?: boolean | Prisma.Reply$authorArgs<ExtArgs>
+  sourceArticle?: boolean | Prisma.Reply$sourceArticleArgs<ExtArgs>
 }
 export type ReplyIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   ticket?: boolean | Prisma.TicketDefaultArgs<ExtArgs>
   author?: boolean | Prisma.Reply$authorArgs<ExtArgs>
+  sourceArticle?: boolean | Prisma.Reply$sourceArticleArgs<ExtArgs>
 }
 
 export type $ReplyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -695,6 +876,7 @@ export type $ReplyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   objects: {
     ticket: Prisma.$TicketPayload<ExtArgs>
     author: Prisma.$UserPayload<ExtArgs> | null
+    sourceArticle: Prisma.$KnowledgeArticlePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -703,6 +885,7 @@ export type $ReplyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     senderType: $Enums.SenderType
     authorId: string | null
     createdAt: Date
+    sourceArticleId: number | null
   }, ExtArgs["result"]["reply"]>
   composites: {}
 }
@@ -1099,6 +1282,7 @@ export interface Prisma__ReplyClient<T, Null = never, ExtArgs extends runtime.Ty
   readonly [Symbol.toStringTag]: "PrismaPromise"
   ticket<T extends Prisma.TicketDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TicketDefaultArgs<ExtArgs>>): Prisma.Prisma__TicketClient<runtime.Types.Result.GetResult<Prisma.$TicketPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   author<T extends Prisma.Reply$authorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reply$authorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  sourceArticle<T extends Prisma.Reply$sourceArticleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Reply$sourceArticleArgs<ExtArgs>>): Prisma.Prisma__KnowledgeArticleClient<runtime.Types.Result.GetResult<Prisma.$KnowledgeArticlePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1134,6 +1318,7 @@ export interface ReplyFieldRefs {
   readonly senderType: Prisma.FieldRef<"Reply", 'SenderType'>
   readonly authorId: Prisma.FieldRef<"Reply", 'String'>
   readonly createdAt: Prisma.FieldRef<"Reply", 'DateTime'>
+  readonly sourceArticleId: Prisma.FieldRef<"Reply", 'Int'>
 }
     
 
@@ -1551,6 +1736,25 @@ export type Reply$authorArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * Reply.sourceArticle
+ */
+export type Reply$sourceArticleArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the KnowledgeArticle
+   */
+  select?: Prisma.KnowledgeArticleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the KnowledgeArticle
+   */
+  omit?: Prisma.KnowledgeArticleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.KnowledgeArticleInclude<ExtArgs> | null
+  where?: Prisma.KnowledgeArticleWhereInput
 }
 
 /**

@@ -39,8 +39,25 @@
 - [x] Implement auto-classification endpoint (categorize incoming tickets)
 - [ ] Implement AI summary endpoint (generate ticket summary)
 - [ ] Implement AI suggested reply endpoint
-- [x] Build knowledge base structure and seed with initial content (`server/knowledge-base.md`; AI auto-resolves tickets from it)
+- [x] Build knowledge base structure and seed with initial content (first version: `server/knowledge-base.md`, now replaced by database articles, see Phase B below)
 - [ ] Integrate AI features into ticket detail page UI
+
+### Phase B: Knowledge base and safer AI auto-resolve
+
+- [x] AI sentiment and priority tagging on the classify job, list filters and sorting, agent override, admin re-analyse (Phase A)
+- [x] `KnowledgeArticle` model with a Postgres generated `tsvector` column, `Reply.sourceArticleId` and the `AutoResolveAttempt` audit table (additive migration)
+- [x] Admin knowledge base API (`/api/knowledge`: list, create, edit, delete) and the admin `/knowledge` page with a navbar link, in en, hi and gu
+- [x] Postgres full-text retrieval (`ts_rank_cd`, top 5, minimum rank `MIN_RETRIEVAL_RANK`, sanitised query builder), no pgvector and no new service
+- [x] Chain auto-resolve after the classify job, so priority and sentiment exist first
+- [x] Safety gates before an AI reply: not classified, URGENT, NEGATIVE, REFUND_REQUEST, escalation wording (legal, chargeback or dispute, security), no relevant article, model must cite supplied articles, confidence >= 0.8
+- [x] Shadow mode by default (`AUTO_RESOLVE_SHADOW_MODE`; only `false` turns it off) recording each decision in `AutoResolveAttempt`, with the shadow results table on the Knowledge page
+- [x] "AI-resolved" filter on the ticket list (hidden by default) and "Based on: <article title>" under AI replies
+- [x] Stop reading `server/knowledge-base.md`, delete it, and use "Upaay" in the prompt
+- [ ] Apply the migration to the deployed database (back up first) and deploy
+- [ ] Enter the real articles on the Knowledge page (the knowledge base starts empty)
+- [ ] Review the shadow results, tune `MIN_RETRIEVAL_RANK` from the recorded `topRank`, then set `AUTO_RESOLVE_SHADOW_MODE=false`
+- [ ] Native-speaker review of the Hindi and Gujarati strings and escalation terms
+- [ ] Retrieval for Hindi and Gujarati tickets (the English-stemmed search can't match an English article from them)
 
 ## Phase 6: Email Integration
 
