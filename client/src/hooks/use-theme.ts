@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-// The inline script in index.html applies the saved or system theme before first paint,
+// The inline script in index.html applies the saved theme (dark by default) before first paint,
 // so the class on <html> is the source of truth here
 export function useTheme() {
   const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'))

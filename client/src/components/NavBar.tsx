@@ -22,7 +22,8 @@ export default function NavBar({ name, isAdmin }: { name: string; isAdmin: boole
   return (
     <nav className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-border bg-card px-4 py-3 sm:px-6">
       <div className="flex items-center gap-4 sm:gap-6">
-        <Link to="/" className="text-lg font-semibold text-foreground">
+        <Link to="/" className="flex items-center gap-2 text-lg font-semibold text-foreground">
+          <img src="/icon-192.png" alt="" width={28} height={28} className="size-7 rounded-md" />
           {BRAND_NAME}
         </Link>
         <Link to="/tickets" className="text-sm font-medium text-muted-foreground hover:text-foreground">
