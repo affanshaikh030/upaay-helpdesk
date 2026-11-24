@@ -1,11 +1,11 @@
 import { useMemo } from 'react'
-import DOMPurify from 'dompurify'
 import { TicketStatus } from '@helpdesk/core'
 import { Badge } from '@/components/ui/badge'
 import { PriorityBadge, SentimentIcon } from '@/components/TicketTags'
 import { TicketSummary } from '@/components/TicketSummary'
 import { Card,CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import type { TicketDetail as TicketDetailData } from '@/hooks/use-tickets'
+import { sanitizeEmailHtml } from '@/lib/sanitize-html'
 import { categoryLabels, statusLabels } from '@/lib/ticket-labels'
 
 const dateFormat = new Intl.DateTimeFormat(undefined, {
@@ -21,7 +21,7 @@ const statusVariants: Record<TicketStatus, 'default' | 'secondary' | 'outline'> 
 
 // The ticket's original message: subject, sender, date, status, priority, sentiment, category and body (no replies)
 export function TicketDetail({ ticket }: { ticket: TicketDetailData }) {
-  const sanitizedHtml = useMemo(() => (ticket.bodyHtml ? DOMPurify.sanitize(ticket.bodyHtml) : null), [ticket.bodyHtml])
+  const sanitizedHtml = useMemo(() => (ticket.bodyHtml ? sanitizeEmailHtml(ticket.bodyHtml) : null), [ticket.bodyHtml])
 
   return (
     <Card>
