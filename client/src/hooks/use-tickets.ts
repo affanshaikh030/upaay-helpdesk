@@ -119,6 +119,20 @@ export function useReplies(ticketId: string | undefined) {
   })
 }
 
+// The AI's draft answer for a ticket (recorded by auto-resolve, also in shadow mode). Read only: null when there is no draft
+// or the ticket already has a reply. Only fetched when `enabled`
+export type SuggestedReply = { draftReply: string; confidence: number | null; article: { id: number; title: string } | null }
+
+export function useSuggestedReply(ticketId: number, enabled: boolean) {
+  return useQuery({
+    queryKey: [...ticketsQueryKey, 'detail', String(ticketId), 'suggested-reply'],
+    queryFn: async ({ signal }) =>
+      (await axios.get<{ suggestion: SuggestedReply | null }>(`/api/tickets/${ticketId}/suggested-reply`, { signal })).data
+        .suggestion ?? null,
+    enabled,
+  })
+}
+
 // Asks the server's AI to improve a draft reply; returns the polished text and saves nothing
 export function usePolishReply(ticketId: number) {
   return useMutation({

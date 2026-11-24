@@ -11,7 +11,7 @@ import {
   updateTicketSchema,
 } from "@helpdesk/core";
 import { prisma } from "../db";
-import { Role, SenderType, TicketStatus, type TicketCategory, type TicketPriority, type TicketSentiment } from "../generated/prisma/enums";
+import { AutoResolveDecision, Role, SenderType, TicketStatus, type TicketCategory, type TicketPriority, type TicketSentiment } from "../generated/prisma/enums";
 import { Prisma } from "../generated/prisma/client";
 import { requireRole } from "../middleware/auth";
 import { queueReanalysis } from "../reanalyse";
@@ -183,6 +183,36 @@ ticketsRouter.get("/:id/replies", async (req, res) => {
     orderBy: [{ createdAt: "asc" }, { id: "asc" }],
   });
   res.json(replies);
+});
+
+// Any signed-in user. The AI's draft answer from the ticket's auto-resolve attempt, so an agent can start from it. Read only:
+// it works in shadow mode (the draft is only recorded there) and changes nothing. `suggestion` is null when there is no
+// draft or the ticket already has a reply (an agent's, or the AI's own in live mode)
+ticketsRouter.get("/:id/suggested-reply", async (req, res) => {
+  const ticketId = parseId(req.params.id);
+  if (!(await prisma.ticket.findUnique({ where: { id: ticketId }, select: { id: true } }))) {
+    res.status(404).json({ error: "Ticket not found" });
+    return;
+  }
+  const attempt = await prisma.autoResolveAttempt.findUnique({
+    where: { ticketId },
+    select: { decision: true, draftReply: true, confidence: true, citedArticleIds: true },
+  });
+  if (!attempt || attempt.decision !== AutoResolveDecision.RESOLVE || !attempt.draftReply?.trim()) {
+    res.json({ suggestion: null });
+    return;
+  }
+  if ((await prisma.reply.count({ where: { ticketId } })) > 0) {
+    res.json({ suggestion: null });
+    return;
+  }
+  // Ids are stored without a foreign key, so the article may have been deleted since: the draft is still useful then
+  const articleId = attempt.citedArticleIds[0];
+  const article =
+    articleId === undefined
+      ? null
+      : await prisma.knowledgeArticle.findUnique({ where: { id: articleId }, select: { id: true, title: true } });
+  res.json({ suggestion: { draftReply: attempt.draftReply, confidence: attempt.confidence, article } });
 });
 
 // Any signed-in user. The reply is attributed to the session user, never to anything in the request

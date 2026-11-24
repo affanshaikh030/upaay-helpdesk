@@ -113,6 +113,10 @@ export interface Dictionary {
   filterAiResolved: string
   aiResolvedOptions: Record<AiResolvedMode, string>
   basedOn: (title: string) => string
+  suggestedReplyTitle: string
+  aiDraftLabel: string
+  useThisReply: string
+  dismissSuggestion: string
 
   // Knowledge base (admin only)
   knowledgeTitle: string
@@ -265,6 +269,10 @@ export const translations: Record<Language, Dictionary> = {
     filterAiResolved: 'AI-resolved',
     aiResolvedOptions: { exclude: 'Hide AI-resolved', only: 'Only AI-resolved', include: 'Include AI-resolved' },
     basedOn: (title) => `Based on: ${title}`,
+    suggestedReplyTitle: 'Suggested reply',
+    aiDraftLabel: 'AI-generated draft',
+    useThisReply: 'Use this reply',
+    dismissSuggestion: 'Dismiss',
 
     knowledgeTitle: 'Knowledge base',
     knowledgeSubtitle: 'Articles the AI answers customers from',
@@ -431,6 +439,10 @@ export const translations: Record<Language, Dictionary> = {
       include: 'AI द्वारा हल किए गए शामिल करें',
     },
     basedOn: (title) => `आधारित: ${title}`,
+    suggestedReplyTitle: 'सुझाया गया उत्तर',
+    aiDraftLabel: 'AI द्वारा बनाया गया ड्राफ़्ट',
+    useThisReply: 'यह उत्तर उपयोग करें',
+    dismissSuggestion: 'हटाएँ',
 
     knowledgeTitle: 'ज्ञान आधार',
     knowledgeSubtitle: 'वे लेख जिनसे AI ग्राहकों को जवाब देता है',
@@ -597,6 +609,10 @@ export const translations: Record<Language, Dictionary> = {
       include: 'AI દ્વારા ઉકેલાયેલી સામેલ કરો',
     },
     basedOn: (title) => `આધારિત: ${title}`,
+    suggestedReplyTitle: 'સૂચવેલ જવાબ',
+    aiDraftLabel: 'AI દ્વારા બનાવેલ ડ્રાફ્ટ',
+    useThisReply: 'આ જવાબ વાપરો',
+    dismissSuggestion: 'છોડી દો',
 
     knowledgeTitle: 'જ્ઞાન આધાર',
     knowledgeSubtitle: 'લેખો જેમાંથી AI ગ્રાહકોને જવાબ આપે છે',

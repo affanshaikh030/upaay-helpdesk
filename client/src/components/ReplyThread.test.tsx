@@ -76,8 +76,10 @@ describe('ReplyThread', () => {
       renderWithQuery(<ReplyThread ticket={ticket} />)
       await screen.findByText('No replies yet')
 
-      expect(get).toHaveBeenCalledTimes(1)
-      expect(get).toHaveBeenCalledWith('/api/tickets/7/replies', { signal: expect.any(AbortSignal) })
+      // The suggested reply is a separate request (see the suggested reply tests)
+      const replyCalls = get.mock.calls.filter(([url]) => url === '/api/tickets/7/replies')
+      expect(replyCalls).toHaveLength(1)
+      expect(replyCalls[0]).toEqual(['/api/tickets/7/replies', { signal: expect.any(AbortSignal) }])
     })
   })
 
@@ -247,7 +249,7 @@ describe('ReplyThread', () => {
 
       await waitFor(() => expect(post).toHaveBeenCalledWith('/api/tickets/7/replies', { body: 'Hello there' }))
       await waitFor(() => expect(textbox).toHaveValue(''))
-      await waitFor(() => expect(get).toHaveBeenCalledTimes(2))
+      await waitFor(() => expect(get.mock.calls.filter(([url]) => url === '/api/tickets/7/replies')).toHaveLength(2))
     })
 
     it('disables Send reply while the field is empty', async () => {
@@ -323,6 +325,43 @@ describe('ReplyThread', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Send reply' }))
 
       expect(await screen.findByText('Failed to send reply')).toBeInTheDocument()
+    })
+  })
+
+  describe('suggested reply', () => {
+    const suggestion = { draftReply: 'Hi Ada, a certificate is issued when you finish.', confidence: 0.9, article: { id: 4, title: 'Certificates' } }
+    const mockRoutes = (replies: Reply[], suggested: unknown = { suggestion }) =>
+      mockGet().mockImplementation(async (url: string) => ({ data: url.endsWith('/suggested-reply') ? suggested : replies }))
+
+    it('fills the Reply textarea with the draft and sends nothing', async () => {
+      mockRoutes([])
+      const post = mockPost()
+      renderWithQuery(<ReplyThread ticket={ticket} />)
+
+      fireEvent.click(await screen.findByRole('button', { name: 'Use this reply' }))
+
+      const textbox = screen.getByRole('textbox', { name: 'Reply' })
+      expect(textbox).toHaveValue(suggestion.draftReply)
+      expect(textbox).toHaveFocus()
+      expect(post).not.toHaveBeenCalled()
+      expect(screen.getByRole('button', { name: 'Send reply' })).toBeEnabled()
+    })
+
+    it('does not ask for a draft, or show one, once the ticket has replies', async () => {
+      const get = mockRoutes([agentReply])
+      renderWithQuery(<ReplyThread ticket={ticket} />)
+      await screen.findByText('We have processed your refund.')
+
+      expect(screen.queryByText('Suggested reply')).not.toBeInTheDocument()
+      expect(get.mock.calls.some(([url]) => String(url).endsWith('/suggested-reply'))).toBe(false)
+    })
+
+    it('shows nothing when there is no draft', async () => {
+      mockRoutes([], { suggestion: null })
+      renderWithQuery(<ReplyThread ticket={ticket} />)
+      await screen.findByText('No replies yet')
+
+      await waitFor(() => expect(screen.queryByText('Suggested reply')).not.toBeInTheDocument())
     })
   })
 })

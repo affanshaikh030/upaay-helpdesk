@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useCreateReply, usePolishReply, useReplies, type TicketDetail } from '@/hooks/use-tickets'
 import { useLanguage } from '@/i18n/use-language'
+import { SuggestedReply } from './SuggestedReply'
 
 function errorMessage(error: unknown, fallback: string) {
   return isAxiosError(error) && typeof error.response?.data?.error === 'string' ? error.response.data.error : fallback
@@ -39,6 +40,13 @@ export function ReplyThread({ ticket }: { ticket: Pick<TicketDetail, 'id' | 'sub
     }
     setValidationError(undefined)
     createReply.mutate(parsed.data, { onSuccess: () => setBody('') })
+  }
+
+  // Only fills the box so the agent can edit it: sending stays with "Send reply"
+  function handleUseSuggestion(text: string) {
+    setBody(text)
+    setValidationError(undefined)
+    document.getElementById('reply-body')?.focus()
   }
 
   function handlePolish() {
@@ -95,6 +103,7 @@ export function ReplyThread({ ticket }: { ticket: Pick<TicketDetail, 'id' | 'sub
           ))}
         </ul>
       )}
+      <SuggestedReply ticketId={ticketId} hasNoReplies={replies?.length === 0} onUse={handleUseSuggestion} />
       <form onSubmit={handleSubmit} noValidate className="space-y-2">
         <Label htmlFor="reply-body">Reply</Label>
         <textarea
