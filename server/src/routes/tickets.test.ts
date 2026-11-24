@@ -10,6 +10,9 @@ const mocks = vi.hoisted(() => ({
   ticketFindUnique: vi.fn(),
   replyFindMany: vi.fn(),
   replyCreate: vi.fn(),
+  replyCount: vi.fn(),
+  attemptFindUnique: vi.fn(),
+  articleFindUnique: vi.fn(),
 }));
 
 vi.mock("../auth", () => ({ auth: { api: { getSession: mocks.getSession } } }));
@@ -18,7 +21,9 @@ vi.mock("../reanalyse", () => ({ queueReanalysis: vi.fn() }));
 vi.mock("../db", () => ({
   prisma: {
     ticket: { findMany: mocks.ticketFindMany, count: mocks.ticketCount, findUnique: mocks.ticketFindUnique },
-    reply: { findMany: mocks.replyFindMany, create: mocks.replyCreate },
+    reply: { findMany: mocks.replyFindMany, create: mocks.replyCreate, count: mocks.replyCount },
+    autoResolveAttempt: { findUnique: mocks.attemptFindUnique },
+    knowledgeArticle: { findUnique: mocks.articleFindUnique },
   },
 }));
 
@@ -154,6 +159,88 @@ describe("GET /api/tickets/:id/replies: sourceArticle", () => {
     expect(mocks.replyCreate.mock.calls[0][0].select.sourceArticle).toEqual({ select: { id: true, title: true } });
     // A human reply never carries a source: the request can't set one
     expect(mocks.replyCreate.mock.calls[0][0].data).not.toHaveProperty("sourceArticleId");
+  });
+});
+
+describe("GET /api/tickets/:id/suggested-reply", () => {
+  const draft = { decision: "RESOLVE", draftReply: "Hi Jane, a certificate is issued on completion.", confidence: 0.9, citedArticleIds: [4, 5] };
+  const suggest = (id = 7) => fetch(`${base}/${id}/suggested-reply`);
+
+  beforeEach(() => {
+    mocks.ticketFindUnique.mockResolvedValue({ id: 7 });
+    mocks.attemptFindUnique.mockResolvedValue(draft);
+    mocks.replyCount.mockResolvedValue(0);
+    mocks.articleFindUnique.mockResolvedValue({ id: 4, title: "Certificates" });
+  });
+
+  it("needs a session", async () => {
+    mocks.getSession.mockResolvedValue(null);
+
+    expect((await suggest()).status).toBe(401);
+    expect(mocks.attemptFindUnique).not.toHaveBeenCalled();
+  });
+
+  it("is open to agents and admins", async () => {
+    for (const role of [Role.AGENT, Role.ADMIN]) {
+      mocks.getSession.mockResolvedValue({ user: { id: "u1", role }, session: { id: "s1" } });
+      expect((await suggest()).status, role).toBe(200);
+    }
+  });
+
+  it("returns the draft, its confidence and the first cited article", async () => {
+    const res = await suggest();
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({
+      suggestion: { draftReply: draft.draftReply, confidence: 0.9, article: { id: 4, title: "Certificates" } },
+    });
+    expect(mocks.attemptFindUnique.mock.calls[0][0].where).toEqual({ ticketId: 7 });
+    expect(mocks.articleFindUnique).toHaveBeenCalledWith({ where: { id: 4 }, select: { id: true, title: true } });
+  });
+
+  it("returns 404 for an unknown ticket", async () => {
+    mocks.ticketFindUnique.mockResolvedValue(null);
+
+    expect((await suggest(99)).status).toBe(404);
+  });
+
+  it("returns no suggestion when there is no attempt", async () => {
+    mocks.attemptFindUnique.mockResolvedValue(null);
+
+    const res = await suggest();
+
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ suggestion: null });
+  });
+
+  it("returns no suggestion for an escalation or an empty draft", async () => {
+    mocks.attemptFindUnique.mockResolvedValue({ ...draft, decision: "ESCALATE", draftReply: null });
+    expect(await (await suggest()).json()).toEqual({ suggestion: null });
+
+    mocks.attemptFindUnique.mockResolvedValue({ ...draft, draftReply: "  " });
+    expect(await (await suggest()).json()).toEqual({ suggestion: null });
+  });
+
+  it("returns no suggestion once the ticket has a reply, such as one the AI already sent", async () => {
+    mocks.replyCount.mockResolvedValue(1);
+
+    expect(await (await suggest()).json()).toEqual({ suggestion: null });
+  });
+
+  it("keeps the draft when the cited article was deleted or none was cited", async () => {
+    mocks.articleFindUnique.mockResolvedValue(null);
+    expect((await (await suggest()).json()).suggestion).toMatchObject({ draftReply: draft.draftReply, article: null });
+
+    mocks.attemptFindUnique.mockResolvedValue({ ...draft, citedArticleIds: [] });
+    mocks.articleFindUnique.mockClear();
+    expect((await (await suggest()).json()).suggestion.article).toBeNull();
+    expect(mocks.articleFindUnique).not.toHaveBeenCalled();
+  });
+
+  it("changes nothing: it only reads", async () => {
+    await suggest();
+
+    expect(mocks.replyCreate).not.toHaveBeenCalled();
   });
 });
 
