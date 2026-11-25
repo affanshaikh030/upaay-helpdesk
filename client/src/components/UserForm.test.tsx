@@ -64,47 +64,47 @@ describe('UserForm', () => {
 
       expect(screen.getByText('Name must be at least 3 characters')).toBeInTheDocument()
       expect(screen.getByText('Enter a valid email address')).toBeInTheDocument()
-      expect(screen.getByText('Password must be at least 8 characters')).toBeInTheDocument()
+      expect(screen.getByText('Password must be at least 12 characters')).toBeInTheDocument()
       expect(post).not.toHaveBeenCalled()
     })
 
     it('rejects a name shorter than 3 characters', () => {
       renderForm()
-      fill({ name: 'Al', email: 'al@test.local', password: 'password123' })
+      fill({ name: 'Al', email: 'al@test.local', password: 'password12345' })
 
       submit()
 
       expect(screen.getByText('Name must be at least 3 characters')).toBeInTheDocument()
       expect(screen.queryByText('Enter a valid email address')).not.toBeInTheDocument()
-      expect(screen.queryByText('Password must be at least 8 characters')).not.toBeInTheDocument()
+      expect(screen.queryByText('Password must be at least 12 characters')).not.toBeInTheDocument()
     })
 
     it('does not count surrounding whitespace towards the name length', () => {
       renderForm()
-      fill({ name: ' Al ', email: 'al@test.local', password: 'password123' })
+      fill({ name: ' Al ', email: 'al@test.local', password: 'password12345' })
 
       submit()
 
       expect(screen.getByText('Name must be at least 3 characters')).toBeInTheDocument()
     })
 
-    it('rejects a password shorter than 8 characters but accepts exactly 8', async () => {
+    it('rejects a password shorter than 12 characters but accepts exactly 12', async () => {
       const post = vi.spyOn(axios, 'post').mockResolvedValue({ data: createdUser })
       renderForm()
-      fill({ name: 'New Agent', email: 'new@test.local', password: '1234567' })
+      fill({ name: 'New Agent', email: 'new@test.local', password: '12345678901' })
 
       submit()
-      expect(screen.getByText('Password must be at least 8 characters')).toBeInTheDocument()
+      expect(screen.getByText('Password must be at least 12 characters')).toBeInTheDocument()
       expect(post).not.toHaveBeenCalled()
 
-      fill({ password: '12345678' })
+      fill({ password: '123456789012' })
       submit()
       await waitFor(() => expect(post).toHaveBeenCalledTimes(1))
     })
 
     it('rejects a malformed email', () => {
       renderForm()
-      fill({ name: 'New Agent', email: 'not-an-email', password: 'password123' })
+      fill({ name: 'New Agent', email: 'not-an-email', password: 'password12345' })
 
       submit()
 
@@ -127,7 +127,7 @@ describe('UserForm', () => {
       submit()
       expect(screen.getByText('Name must be at least 3 characters')).toBeInTheDocument()
 
-      fill({ name: 'New Agent', email: 'new@test.local', password: 'password123' })
+      fill({ name: 'New Agent', email: 'new@test.local', password: 'password12345' })
       submit()
 
       await waitFor(() => expect(screen.queryByText('Name must be at least 3 characters')).not.toBeInTheDocument())
@@ -139,7 +139,7 @@ describe('UserForm', () => {
     it('posts the values to /api/users and calls onDone on success', async () => {
       const post = vi.spyOn(axios, 'post').mockResolvedValue({ data: createdUser })
       const { onDone } = renderForm()
-      fill({ name: 'New Agent', email: 'new@test.local', password: 'password123' })
+      fill({ name: 'New Agent', email: 'new@test.local', password: 'password12345' })
 
       submit()
 
@@ -148,14 +148,14 @@ describe('UserForm', () => {
       expect(post).toHaveBeenCalledWith('/api/users', {
         name: 'New Agent',
         email: 'new@test.local',
-        password: 'password123',
+        password: 'password12345',
       })
     })
 
     it('trims the name and lowercases the email before sending', async () => {
       const post = vi.spyOn(axios, 'post').mockResolvedValue({ data: createdUser })
       renderForm()
-      fill({ name: '  New Agent  ', email: 'New@Test.LOCAL', password: 'password123' })
+      fill({ name: '  New Agent  ', email: 'New@Test.LOCAL', password: 'password12345' })
 
       submit()
 
@@ -163,14 +163,14 @@ describe('UserForm', () => {
       expect(post).toHaveBeenCalledWith('/api/users', {
         name: 'New Agent',
         email: 'new@test.local',
-        password: 'password123',
+        password: 'password12345',
       })
     })
 
     it('never sends a role', async () => {
       const post = vi.spyOn(axios, 'post').mockResolvedValue({ data: createdUser })
       renderForm()
-      fill({ name: 'New Agent', email: 'new@test.local', password: 'password123' })
+      fill({ name: 'New Agent', email: 'new@test.local', password: 'password12345' })
 
       submit()
 
@@ -181,7 +181,7 @@ describe('UserForm', () => {
     it('disables the submit button and shows progress while the request is pending', async () => {
       vi.spyOn(axios, 'post').mockReturnValue(new Promise(() => {}))
       const { onDone } = renderForm()
-      fill({ name: 'New Agent', email: 'new@test.local', password: 'password123' })
+      fill({ name: 'New Agent', email: 'new@test.local', password: 'password12345' })
 
       submit()
 
@@ -200,7 +200,7 @@ describe('UserForm', () => {
         }),
       )
       const { onDone } = renderForm()
-      fill({ name: 'New Agent', email: 'taken@test.local', password: 'password123' })
+      fill({ name: 'New Agent', email: 'taken@test.local', password: 'password12345' })
 
       submit()
 
@@ -214,7 +214,7 @@ describe('UserForm', () => {
     it('shows a generic alert when the server fails without field errors', async () => {
       vi.spyOn(axios, 'post').mockRejectedValue(httpError(500, { error: 'Internal Server Error' }))
       const { onDone } = renderForm()
-      fill({ name: 'New Agent', email: 'new@test.local', password: 'password123' })
+      fill({ name: 'New Agent', email: 'new@test.local', password: 'password12345' })
 
       submit()
 
@@ -225,7 +225,7 @@ describe('UserForm', () => {
     it('shows a generic alert on a network error', async () => {
       vi.spyOn(axios, 'post').mockRejectedValue(new AxiosError('Network Error', 'ERR_NETWORK'))
       renderForm()
-      fill({ name: 'New Agent', email: 'new@test.local', password: 'password123' })
+      fill({ name: 'New Agent', email: 'new@test.local', password: 'password12345' })
 
       submit()
 
@@ -238,7 +238,7 @@ describe('UserForm', () => {
         .mockRejectedValueOnce(httpError(500, {}))
         .mockResolvedValueOnce({ data: createdUser })
       const { onDone } = renderForm()
-      fill({ name: 'New Agent', email: 'new@test.local', password: 'password123' })
+      fill({ name: 'New Agent', email: 'new@test.local', password: 'password12345' })
 
       submit()
       await screen.findByRole('alert')
