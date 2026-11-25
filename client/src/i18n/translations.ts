@@ -197,7 +197,7 @@ export const translations: Record<Language, Dictionary> = {
 
     navTickets: 'Tickets',
     navUsers: 'Users',
-    navKnowledge: 'Knowledge base',
+    navKnowledge: 'FAQs',
     signOut: 'Sign out',
     switchToLightMode: 'Switch to light mode',
     switchToDarkMode: 'Switch to dark mode',
@@ -274,7 +274,7 @@ export const translations: Record<Language, Dictionary> = {
     useThisReply: 'Use this reply',
     dismissSuggestion: 'Dismiss',
 
-    knowledgeTitle: 'Knowledge base',
+    knowledgeTitle: 'FAQs',
     knowledgeSubtitle: 'Articles the AI answers customers from',
     articleCount: (count) => `${count} ${count === 1 ? 'article' : 'articles'}`,
     articlesLoading: 'Loading articles',
@@ -363,7 +363,7 @@ export const translations: Record<Language, Dictionary> = {
 
     navTickets: 'टिकट',
     navUsers: 'उपयोगकर्ता',
-    navKnowledge: 'ज्ञान आधार',
+    navKnowledge: 'सामान्य प्रश्न',
     signOut: 'साइन आउट',
     switchToLightMode: 'लाइट मोड पर जाएँ',
     switchToDarkMode: 'डार्क मोड पर जाएँ',
@@ -444,7 +444,7 @@ export const translations: Record<Language, Dictionary> = {
     useThisReply: 'यह उत्तर उपयोग करें',
     dismissSuggestion: 'हटाएँ',
 
-    knowledgeTitle: 'ज्ञान आधार',
+    knowledgeTitle: 'सामान्य प्रश्न',
     knowledgeSubtitle: 'वे लेख जिनसे AI ग्राहकों को जवाब देता है',
     articleCount: (count) => `${count} लेख`,
     articlesLoading: 'लेख लोड हो रहे हैं',
@@ -533,7 +533,7 @@ export const translations: Record<Language, Dictionary> = {
 
     navTickets: 'ટિકિટ',
     navUsers: 'વપરાશકર્તાઓ',
-    navKnowledge: 'જ્ઞાન આધાર',
+    navKnowledge: 'સામાન્ય પ્રશ્નો',
     signOut: 'સાઇન આઉટ',
     switchToLightMode: 'લાઇટ મોડ પર જાઓ',
     switchToDarkMode: 'ડાર્ક મોડ પર જાઓ',
@@ -614,7 +614,7 @@ export const translations: Record<Language, Dictionary> = {
     useThisReply: 'આ જવાબ વાપરો',
     dismissSuggestion: 'છોડી દો',
 
-    knowledgeTitle: 'જ્ઞાન આધાર',
+    knowledgeTitle: 'સામાન્ય પ્રશ્નો',
     knowledgeSubtitle: 'લેખો જેમાંથી AI ગ્રાહકોને જવાબ આપે છે',
     articleCount: (count) => `${count} લેખ`,
     articlesLoading: 'લેખ લોડ થઈ રહ્યા છે',
