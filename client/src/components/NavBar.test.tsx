@@ -10,17 +10,17 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('NavBar: Knowledge base link', () => {
-  it('shows the Knowledge base link to admins, pointing at /knowledge', () => {
+describe('NavBar: FAQs link', () => {
+  it('shows the FAQs link to admins, pointing at /knowledge', () => {
     renderWithQuery(<NavBar name="Ada Admin" isAdmin />)
 
-    expect(screen.getByRole('link', { name: 'Knowledge base' })).toHaveAttribute('href', '/knowledge')
+    expect(screen.getByRole('link', { name: 'FAQs' })).toHaveAttribute('href', '/knowledge')
   })
 
-  it('hides the Knowledge base link, and Users, from agents', () => {
+  it('hides the FAQs link, and Users, from agents', () => {
     renderWithQuery(<NavBar name="Alan Agent" isAdmin={false} />)
 
-    expect(screen.queryByRole('link', { name: 'Knowledge base' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'FAQs' })).not.toBeInTheDocument()
     expect(screen.queryByRole('link', { name: 'Users' })).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Tickets' })).toBeInTheDocument()
   })

@@ -76,7 +76,7 @@ describe('KnowledgePage: articles', () => {
 
     const status = screen.getByRole('status', { name: 'Loading articles' })
     expect(status.querySelectorAll('[data-slot="skeleton"]').length).toBeGreaterThan(0)
-    expect(screen.getByRole('heading', { level: 1, name: 'Knowledge base' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'FAQs' })).toBeInTheDocument()
     expect(screen.getByText('Articles the AI answers customers from')).toBeInTheDocument()
   })
 
@@ -597,8 +597,8 @@ describe('KnowledgePage: AI auto-resolve results', () => {
 
 describe('KnowledgePage: translations', () => {
   it.each([
-    ['hi', 'ज्ञान आधार', 'नया लेख', 'AI स्वतः-समाधान के परिणाम'],
-    ['gu', 'જ્ઞાન આધાર', 'નવો લેખ', 'AI સ્વતઃ-ઉકેલના પરિણામો'],
+    ['hi', 'सामान्य प्रश्न', 'नया लेख', 'AI स्वतः-समाधान के परिणाम'],
+    ['gu', 'સામાન્ય પ્રશ્નો', 'નવો લેખ', 'AI સ્વતઃ-ઉકેલના પરિણામો'],
   ] as const)('renders in %s', async (language, title, newArticle, attemptsTitle) => {
     const { result } = renderHook(() => useLanguage())
     act(() => result.current.setLanguage(language))
