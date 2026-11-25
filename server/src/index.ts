@@ -16,6 +16,11 @@ import { meRouter, usersRouter } from "./routes/users";
 const app = express();
 const port = Number(process.env.PORT) || 3000;
 
+// Behind a reverse proxy (Railway) every request arrives from the proxy. With one trusted hop Express reads the client
+// address the proxy added (never a value the client supplied), so req.ip, and the rate limiters keyed on it, see real
+// clients. Same switch as the Better Auth rate limit (auth.ts); leave it unset locally
+if (process.env.TRUST_PROXY_HEADERS === "true") app.set("trust proxy", 1);
+
 // Users are created by the seed script / admin only, so don't expose sign-up
 app.all("/api/auth/sign-up/*splat", (_req, res) => {
   res.status(404).json({ error: "Not found" });

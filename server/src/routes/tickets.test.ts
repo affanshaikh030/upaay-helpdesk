@@ -244,6 +244,65 @@ describe("GET /api/tickets/:id/suggested-reply", () => {
   });
 });
 
+describe("rate limit on the AI routes", () => {
+  const as = (id: string, role: Role = Role.AGENT) =>
+    mocks.getSession.mockResolvedValue({ user: { id, role }, session: { id: `s-${id}` } });
+  const summarise = () => fetch(`${base}/7/summary`, { method: "POST" });
+  const polish = () =>
+    fetch(`${base}/7/replies/polish`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({}),
+    });
+
+  beforeEach(() => {
+    mocks.ticketFindUnique.mockResolvedValue(null); // each call ends quickly in a 404, which still counts
+  });
+
+  it("allows 20 requests a minute per user, then answers 429 with a clear message, for summarise and polish together", async () => {
+    as("limit-user-1");
+    for (let i = 0; i < 20; i++) expect((await summarise()).status, `request ${i + 1}`).toBe(404);
+
+    const blocked = await summarise();
+    expect(blocked.status).toBe(429);
+    expect(await blocked.json()).toEqual({ error: "Too many requests, please try again shortly" });
+    expect(blocked.headers.get("ratelimit")).not.toBeNull();
+
+    // One counter for all the AI routes, and it comes before the body is looked at
+    expect((await polish()).status).toBe(429);
+  });
+
+  it("counts each user on their own, so one busy agent doesn't block another", async () => {
+    as("limit-user-1");
+    expect((await summarise()).status).toBe(429);
+
+    as("limit-user-2");
+    expect((await summarise()).status).toBe(404);
+  });
+
+  it("limits the admin re-analyse button too, and does not count an agent turned away with 403", async () => {
+    as("limit-agent");
+    for (let i = 0; i < 25; i++) {
+      expect((await fetch(`${base}/reanalyse`, { method: "POST" })).status).toBe(403);
+    }
+    expect((await summarise()).status).toBe(404); // the 403s used none of this agent's allowance
+
+    as("limit-admin", Role.ADMIN);
+    for (let i = 0; i < 20; i++) {
+      expect((await fetch(`${base}/reanalyse`, { method: "POST" })).status, `request ${i + 1}`).toBe(200);
+    }
+    expect((await fetch(`${base}/reanalyse`, { method: "POST" })).status).toBe(429);
+  });
+
+  it("does not limit the other ticket routes", async () => {
+    as("limit-user-1");
+    mocks.ticketFindMany.mockResolvedValue([]);
+    mocks.ticketCount.mockResolvedValue(0);
+
+    for (let i = 0; i < 30; i++) expect((await list()).status).toBe(200);
+  });
+});
+
 describe("aiResolvedModes", () => {
   it("is exclude, only and include, with exclude as the default", () => {
     expect([...aiResolvedModes]).toEqual(["exclude", "only", "include"]);

@@ -14,6 +14,7 @@ import { prisma } from "../db";
 import { AutoResolveDecision, Role, SenderType, TicketStatus, type TicketCategory, type TicketPriority, type TicketSentiment } from "../generated/prisma/enums";
 import { Prisma } from "../generated/prisma/client";
 import { requireRole } from "../middleware/auth";
+import { aiRateLimit } from "../rate-limit";
 import { queueReanalysis } from "../reanalyse";
 
 export const ticketsRouter = Router();
@@ -77,7 +78,7 @@ ticketsRouter.get("/", async (req, res) => {
 // Admin only. Queues the AI analysis again for tickets that have no sentiment or priority yet (see reanalyseTicketsSchema):
 // at most REANALYSE_LIMIT per request, never tickets that already have both, and a ticket queued in the last few
 // minutes is skipped. Works from the UI or any API client with an admin session
-ticketsRouter.post("/reanalyse", requireRole(Role.ADMIN), async (req, res) => {
+ticketsRouter.post("/reanalyse", requireRole(Role.ADMIN), ...aiRateLimit, async (req, res) => {
   if (!isAiConfigured()) {
     res.status(503).json({ error: "AI analysis is not configured" });
     return;
@@ -246,7 +247,7 @@ const polishInstructions =
   "Return only the reply text, with no preamble, labels or quotes.";
 
 // Any signed-in user. Rewrites the agent's draft with AI; nothing is saved. The API key stays on the server
-ticketsRouter.post("/:id/replies/polish", async (req, res) => {
+ticketsRouter.post("/:id/replies/polish", ...aiRateLimit, async (req, res) => {
   const parsed = polishReplySchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.issues[0].message });
@@ -281,7 +282,7 @@ const summaryInstructions =
   "Return only the summary text, with no preamble, labels or markdown.";
 
 // Any signed-in user. Summarises the ticket and its replies with AI, regenerated on every call; nothing is saved. The API key stays on the server
-ticketsRouter.post("/:id/summary", async (req, res) => {
+ticketsRouter.post("/:id/summary", ...aiRateLimit, async (req, res) => {
   if (!isAiConfigured()) {
     res.status(503).json({ error: "AI summary is not configured" });
     return;

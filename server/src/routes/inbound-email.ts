@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Prisma } from "../generated/prisma/client";
 import { prisma } from "../db";
 import { enqueueClassify } from "../queue";
+import { inboundEmailRateLimit } from "../rate-limit";
 
 const SECRET_PLACEHOLDER = "generate-with-openssl-rand-base64-32";
 
@@ -35,12 +36,23 @@ function requireInboundSecret(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+// PostgreSQL text can't hold a NUL (\u0000), and rejects text that isn't valid Unicode (a lone surrogate), so either one in
+// a field would pass validation and then fail the insert with a 500, which the provider would retry for ever. They are
+// removed from every string field before validation instead: the ticket is still created, and a field that was nothing
+// but NULs fails validation as empty
+function cleanStrings(body: unknown): unknown {
+  if (typeof body !== "object" || body === null || Array.isArray(body)) return body;
+  return Object.fromEntries(
+    Object.entries(body).map(([key, value]) => [key, typeof value === "string" ? value.replaceAll("\u0000", "").toWellFormed() : value]),
+  );
+}
+
 export const inboundEmailRouter = Router();
 
 // Called by the email provider, so it has no session: guarded by a shared secret instead.
 // Checked before the body is parsed so unauthenticated callers can't make us buffer 1mb
-inboundEmailRouter.post("/", requireInboundSecret, express.json({ limit: "1mb" }), async (req, res) => {
-  const parsed = inboundEmailSchema.safeParse(req.body);
+inboundEmailRouter.post("/", inboundEmailRateLimit, requireInboundSecret, express.json({ limit: "1mb" }), async (req, res) => {
+  const parsed = inboundEmailSchema.safeParse(cleanStrings(req.body));
   if (!parsed.success) {
     res.status(400).json({ error: "Invalid input", fieldErrors: z.flattenError(parsed.error).fieldErrors });
     return;

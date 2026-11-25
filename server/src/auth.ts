@@ -1,6 +1,8 @@
 import { betterAuth } from "better-auth";
 import { APIError } from "better-auth/api";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { MIN_PASSWORD_LENGTH } from "@helpdesk/core";
+import { requireBaseUrl } from "./base-url";
 import { prisma } from "./db";
 
 const SECRET_PLACEHOLDER = "generate-with-openssl-rand-base64-32";
@@ -18,7 +20,7 @@ function requireSecret() {
 
 export const auth = betterAuth({
   secret: requireSecret(),
-  baseURL: process.env.BETTER_AUTH_URL,
+  baseURL: requireBaseUrl(),
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   user: {
     additionalFields: {
@@ -77,5 +79,8 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     disableSignUp: true,
+    // Better Auth's default is 8. Applies when a password is set or changed, never to signing in, so existing users keep
+    // their shorter passwords until they change them
+    minPasswordLength: MIN_PASSWORD_LENGTH,
   },
 });

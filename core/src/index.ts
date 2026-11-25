@@ -43,6 +43,7 @@ export {
   type UpdateTicketInput,
 } from "./tickets";
 export {
+  MIN_PASSWORD_LENGTH,
   createUserSchema,
   updateUserSchema,
   type CreateUserInput,
