@@ -2,7 +2,7 @@ import { generateText, Output } from "ai";
 import { z } from "zod";
 import { aiModel } from "./ai";
 import { prisma } from "./db";
-import { detectEscalation } from "./escalation";
+import { checkDraftReply, detectEscalation } from "./escalation";
 import { searchKnowledge, type KnowledgeMatch } from "./knowledge-search";
 import {
   AutoResolveDecision,
@@ -107,6 +107,19 @@ export async function autoResolveTicket(ticketId: number): Promise<void> {
   if (output.confidence < MIN_CONFIDENCE) return record({ ...answered, ...escalate(AutoResolveReason.LOW_CONFIDENCE) });
   // The model may only cite articles it was actually given, and must cite at least one
   if (citedArticleIds.length === 0 || !citedArticleIds.every((id) => suppliedArticleIds.includes(id))) {
+    return record({ ...answered, ...escalate(AutoResolveReason.INVALID_CITATION) });
+  }
+  // The reply may only use links, emails and money wording that the cited articles use too: the ticket text is untrusted
+  // and could have talked the model into inventing one. Runs before shadow mode and live mode split, so it applies to
+  // both. There is no dedicated reason (it would need a migration), so it is recorded as INVALID_CITATION: the reply is
+  // not backed by the cited articles. The cited ids are valid and modelResolvable is true, which tells it from a bad
+  // citation, and the log names the check. No draftReply is kept, so the suggested reply never shows it to an agent
+  const problem = checkDraftReply(
+    reply,
+    articles.filter((a) => citedArticleIds.includes(a.id)).map((a) => `${a.title}\n${a.content}`),
+  );
+  if (problem) {
+    console.warn(`Auto-resolve reply for ticket ${ticketId} blocked: ${problem}`);
     return record({ ...answered, ...escalate(AutoResolveReason.INVALID_CITATION) });
   }
 
